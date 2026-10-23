@@ -402,7 +402,11 @@ class ResearchGraphRunner:
                 continue
 
             # 5. Check industry alignment
-            unrelated_keywords = ["bakery", "pet grooming", "hair salon", "plumbing", "coffee shop", "dry cleaner"]
+            unrelated_keywords = [
+                "bakery", "pet grooming", "hair salon", "plumbing", "coffee shop", "dry cleaner",
+                "hospital", "medical clinic", "dental", "retail apparel", "fast food",
+                "recruitment agency", "staffing firm", "consulting agency", "software outsourcing",
+            ]
             if any(unr in ind_lower or unr in summary_lower for unr in unrelated_keywords):
                 rejected.append(
                     CandidateRejection(
@@ -744,11 +748,11 @@ class ResearchGraphRunner:
                 ]
 
                 target_buyer = {
-                    "name": c.target_buyer_name or "Leadership Lead",
-                    "title": c.target_buyer_title or "VP / Director",
-                    "emailPlaceholder": f"contact@{c.domain}",
-                    "linkedinNote": f"{c.target_buyer_name or 'Lead'} | {c.company_name}",
-                    "roleType": c.target_buyer_role or "Technical Evaluator",
+                    "name": c.target_buyer_name or "Unknown Decision Maker",
+                    "title": c.target_buyer_title or "Sales Leader / Founder (Unverified)",
+                    "emailPlaceholder": f"team@{c.domain}",
+                    "linkedinNote": f"{c.target_buyer_name or 'Decision Maker'} | {c.company_name}",
+                    "roleType": c.target_buyer_role or ("Sales / Growth Buyer" if c.target_buyer_title else "Unassigned / Needs Research"),
                 }
 
                 db_prospect = ProspectModel(

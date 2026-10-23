@@ -3,8 +3,10 @@ def test_get_icp(client):
     assert response.status_code == 200
     data = response.json()
     assert data["companyName"] == "ScoutSpark AI"
-    assert "Developer Tools & Infrastructure" in data["targetIndustries"]
-    assert "VP of Engineering" in data["targetRoles"]
+    assert data["productName"] == "ScoutSpark"
+    assert "B2B SaaS" in data["targetIndustries"]
+    assert "Founder or CEO" in data["targetRoles"]
+    assert "Head or VP of Sales" in data["targetRoles"]
 
 
 def test_update_icp(client):

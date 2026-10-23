@@ -2,30 +2,34 @@ import { Prospect, IdealCustomerProfile, ResearchSignal, EvaluationMetric, Activ
 
 export const INITIAL_ICP: IdealCustomerProfile = {
   companyName: "ScoutSpark AI",
-  productName: "SignalEngine B2B",
-  companyDescription: "ScoutSpark helps startup founders find businesses that actually need their product, see why they are a good match, and write friendly personal emails that get replies.",
-  valueProposition: "Save hours of searching by finding details online, separating source-backed proof from educated guesses, and writing honest messages you approve before sending.",
+  productName: "ScoutSpark",
+  companyDescription: "ScoutSpark helps small B2B software teams find likely customers, research public information about them, understand why they may be a good fit, and write personalized messages for a person to review.",
+  valueProposition: "Find potential business customers, review source-backed information about them, and prepare personal outreach messages in less time spent on manual research.",
   targetIndustries: [
-    "Developer Tools & Infrastructure",
-    "HealthTech & Digital Health",
-    "Fintech & Payments Infrastructure",
-    "AI Operations & Enterprise SaaS",
-    "Supply Chain & Logistics Tech"
+    "B2B SaaS",
+    "Developer tools and developer productivity",
+    "AI infrastructure and AI operations software",
+    "DevOps and cloud software",
+    "Engineering productivity tools"
   ],
   targetRoles: [
-    "VP of Engineering",
-    "Chief Medical Officer / Clinical Ops",
-    "Head of Finance Operations",
-    "Head of Machine Learning / AI",
-    "VP of Operations",
-    "Head of Product"
+    "Founder or CEO",
+    "Head or VP of Sales",
+    "Sales Development or BDR Manager",
+    "Head of Growth",
+    "Revenue Operations or RevOps leader"
   ],
-  targetGeographies: ["North America", "United Kingdom & Ireland", "DACH & Western Europe"],
-  companySizeRanges: ["20 - 50 employees", "51 - 150 employees", "151 - 300 employees"],
-  fundingStages: ["Seed ($2M - $5M)", "Series A ($6M - $18M)", "Series B ($20M - $35M)"],
-  exclusions: ["Agencies / Consultancies", "Pure B2C Apps", "Companies under 10 people without funding"],
-  primaryPainPoint: "Founders spend hours scrolling through websites and job boards just to write cold emails that end up ignored.",
-  lastUpdated: "2026-10-23T08:00:00Z"
+  targetGeographies: ["India", "United States", "United Kingdom"],
+  companySizeRanges: ["10 - 50 employees", "51 - 200 employees"],
+  fundingStages: ["Seed ($1M - $4M)", "Series A ($5M - $15M)", "Series B ($15M - $30M)", "Bootstrapped / Profitable"],
+  exclusions: [
+    "Consumer-only businesses",
+    "Agencies and software consultancies",
+    "Recruitment and staffing businesses",
+    "Very large enterprises outside the preferred customer size"
+  ],
+  primaryPainPoint: "Founders and sales leaders spend excessive time manually researching accounts across web sources just to write personalized outreach messages.",
+  lastUpdated: "2026-10-23T15:30:00Z"
 };
 
 export const MOCK_PROSPECTS: Prospect[] = [

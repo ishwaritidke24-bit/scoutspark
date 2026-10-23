@@ -163,21 +163,25 @@ class GeminiLLMProvider(BaseLLMProvider):
 
         prompt = f"""You are Scout, an analytical B2B prospect research engine.
 The startup seeking customers is: '{startup_name}' (Product: '{product_name}').
-Product Value Proposition: {value_prop}
+Product Purpose & Value Proposition: {value_prop}
 Problem Solved: {pain_point}
 
 TARGET PROSPECT CRITERIA (Businesses {startup_name} wants to acquire as prospective customers):
 Target Industries: {industries}
+Target Company Size: Small to mid-size B2B software teams (preferred ~10–200 employees)
 Target Buyer Roles: {roles}
+Target Geographies: India, United States, United Kingdom
 Negative Exclusions: {exclusions}
 Additional Search Focus / Narrowing Instructions: {user_instructions or "None"}
 
 CRITICAL RULES:
-1. TARGET CUSTOMER ORIENTATION: Queries must seek ACTUAL PROSPECT BUSINESSES that would buy or use this product.
-2. DO NOT query for '{startup_name}' or generic lead generation advice or marketing tutorials.
-3. User instructions must only NARROW the search within the target ICP; they must NOT replace the ICP.
-4. Formulate 2 to 3 concise, specific search queries seeking actual companies (e.g. engineering blogs, incident postmortems, expansion announcements, or hiring for the target buyer roles).
-5. Return output as a valid JSON array of strings, e.g.: ["query 1", "query 2"]
+1. TARGET CUSTOMER ORIENTATION: Queries must seek ACTUAL PROSPECT BUSINESSES that would buy or use a B2B sales research and outreach tool.
+2. DO NOT query for '{startup_name}' or generic sales advice or tutorials.
+3. DO NOT search for engineering incident postmortems, infrastructure outages, or medical officer vacancies.
+4. Focus queries on credible buying and growth signals: e.g. B2B software startups hiring Sales Development Representatives (SDR/BDR), Account Executives, or sales leaders; B2B SaaS product launches; or commercial expansion announcements in target geographies.
+5. User instructions must only NARROW the search within the target ICP; they must NOT replace the ICP.
+6. Formulate 2 to 3 concise, specific search queries seeking actual companies.
+7. Return output as a valid JSON array of strings, e.g.: ["query 1", "query 2"]
 """
         try:
             response = client.models.generate_content(
@@ -197,8 +201,8 @@ CRITICAL RULES:
         # Deterministic fallback query based on ICP
         first_ind = icp.get("target_industries", ["B2B SaaS"])[0]
         return [
-            f"{first_ind} startup company announcement incident",
-            f"{first_ind} engineering blog hiring infrastructure",
+            f"{first_ind} startup hiring sales development representative",
+            f"{first_ind} B2B SaaS announcement expansion new market",
         ]
 
     def extract_candidates(
@@ -226,34 +230,40 @@ CRITICAL RULES:
 
         prompt = f"""You are Scout, an evidence-grounded B2B intelligence analyst.
 Analyze the following web search snippets and extract candidate companies that could be potential B2B customers for:
+Product: ScoutSpark (B2B prospect intelligence and human-in-the-loop sales outreach)
 Product Value Proposition: {value_prop}
 Target Industries: {', '.join(target_industries)}
+Preferred Company Size: ~10–200 employees (small B2B software teams)
+Target Buyer Personas: Founder/CEO, Head/VP of Sales, Sales Development/BDR Manager, Head of Growth, RevOps leader
+Exclusions: Consumer-only apps, agencies, IT consultancies, recruitment/staffing agencies, giant multi-thousand-employee corporations.
 
 Sources retrieved from public web:
 {json.dumps(sources_payload, indent=2)}
 
 STRICT GROUNDING & EVIDENCE RULES:
-1. Every candidate MUST be an actual company mentioned in the search sources.
-2. 'observed_facts': MUST cite ONLY facts explicitly stated in the snippets. You MUST provide the exact source_id and source_url from the sources above. DO NOT hallucinate facts, metrics, or citations.
-3. 'hypotheses': Separate hypotheses (speculative assumptions about what the company might need) from observed facts. Give rationale and confidence ('high', 'medium', 'speculative').
-4. 'missing_information': List what critical data is missing from the search snippets (e.g. unknown headcount, unverified cloud provider).
-5. DO NOT confuse the startup providing the tool with the prospect companies.
-6. Extract at most 4 high-quality candidates. If no company fits or snippets are irrelevant, return an empty array [].
+1. Every candidate MUST be an actual B2B software or technology company mentioned in the search sources.
+2. REJECT agencies, consultancies, consumer apps, recruitment agencies, and giant enterprises. Do NOT extract them.
+3. 'observed_facts': MUST cite ONLY facts explicitly stated in the snippets. You MUST provide the exact source_id and source_url from the sources above. DO NOT hallucinate facts, metrics, or citations.
+4. 'hypotheses': Separate hypotheses (speculative assumptions about why this company might fit) from observed facts. Give clear rationale and confidence ('high', 'medium', 'speculative').
+5. 'target_buyer_name' and 'target_buyer_title': ONLY extract if a specific founder, CEO, or sales/commercial leader is explicitly named in the snippet. DO NOT use the author of an engineering postmortem or blog article as the buyer. If the buyer is not explicitly named in the source, set both to null.
+6. 'employee_count': If the snippet does not explicitly mention headcount, write "Unknown". Never invent headcount.
+7. 'missing_information': Explicitly list missing facts (e.g. "Specific sales leader or founder unverified in snippet", "Headcount unknown").
+8. Extract at most 3 high-quality candidates. If no company fits or snippets are irrelevant, return an empty array []. DO NOT pad results.
 
 Return a JSON array of objects adhering to this schema:
 [
   {{
     "company_name": "Company Name",
     "domain": "company.domain (or derived from url)",
-    "industry": "Industry category",
+    "industry": "Industry category (e.g. B2B SaaS, Developer Tools, DevOps)",
     "sub_industry": "Specific niche",
     "headquarters": "City, Country or Remote",
-    "employee_count": "e.g. 30-50 employees or Unknown",
-    "stage": "e.g. Series A or Early Stage",
+    "employee_count": "e.g. 40 employees or Unknown",
+    "stage": "e.g. Seed, Series A, or Unknown",
     "summary": "1-2 sentence executive summary grounded in the sources",
-    "target_buyer_name": "Name if found in source, else null",
-    "target_buyer_title": "Title if found in source, else null",
-    "target_buyer_role": "Role description",
+    "target_buyer_name": "Name if explicitly named sales/founder in source, else null",
+    "target_buyer_title": "Title if explicitly named sales/founder in source, else null",
+    "target_buyer_role": "Role description (e.g. Sales Leader or Unassigned)",
     "observed_facts": [
       {{
         "fact": "Factual claim directly supported by snippet",
@@ -265,7 +275,7 @@ Return a JSON array of objects adhering to this schema:
     ],
     "hypotheses": [
       {{
-        "hypothesis": "Reasoning about their likely challenge",
+        "hypothesis": "Reasoning about their potential customer fit",
         "rationale": "Why this hypothesis makes sense based on the facts",
         "confidence": "high"
       }}
@@ -312,23 +322,26 @@ Return a JSON array of objects adhering to this schema:
         from google.genai import types
 
         facts_text = "\n".join([f"- {f.fact} (Source: {f.source_url})" for f in verified_facts])
-        value_prop = icp.get("value_proposition", "")
+        value_prop = icp.get("value_proposition", "research potential customers with verified facts and draft personal outreach")
         buyer_name = candidate.target_buyer_name or "there"
-        buyer_title = candidate.target_buyer_title or "Engineering Leader"
+        buyer_title = candidate.target_buyer_title or "Founder / Sales Leader"
 
-        prompt = f"""Write a personalized cold email draft to:
+        prompt = f"""Write an honest, personalized cold outreach draft to:
 Recipient: {buyer_name} ({buyer_title} at {candidate.company_name})
 Startup Value Proposition: {value_prop}
 
 Grounded Public Facts (ONLY cite these verified facts):
 {facts_text}
 
-ETHICAL OUTREACH RULES:
-1. Ground the hook strictly in one of the verified facts above.
-2. Professional, engineering peer tone. Zero aggressive sales hype, no fake scarcity, no deception.
-3. Keep the email concise: between 75 and 130 words.
-4. Conclude with a frictionless, low-commitment CTA (e.g. 10-minute peer comparison).
-5. Output format: JSON object with keys "subject", "body", "hook", "value_proposition", "suggested_cta".
+HONEST OUTREACH RULES:
+1. Ground the opening hook strictly in one of the verified facts above (e.g. recent product expansion, sales team hiring, or public milestone).
+2. Authentic, respectful founder-to-founder or peer tone. Zero aggressive sales hype, no fake scarcity, no deception.
+3. DO NOT invent an unproven business problem. DO NOT claim that they need prospecting software.
+4. DO NOT make unsupported percentage or numerical claims (e.g. do not say "cut research time by 80%" or "triple your reply rate").
+5. Explain simply and honestly how ScoutSpark helps B2B software teams find prospective customers, review source-backed information about them, and prepare personal outreach messages in less time spent on manual research.
+6. Keep the email concise: between 65 and 110 words.
+7. Conclude with a frictionless, zero-pressure question (e.g. asking if they would like to see a sample 1-page account research brief).
+8. Output format: JSON object with keys "subject", "body", "hook", "value_proposition", "suggested_cta".
 """
         try:
             response = client.models.generate_content(
@@ -341,17 +354,17 @@ ETHICAL OUTREACH RULES:
             )
             data = json.loads(response.text)
             return {
-                "subject": data.get("subject", f"Quick question regarding {candidate.company_name}"),
+                "subject": data.get("subject", f"Connecting regarding {candidate.company_name}"),
                 "body": data.get("body", f"Hi {buyer_name},\n\nNoticed your recent work at {candidate.company_name}."),
                 "hook": data.get("hook", f"Noticed public signals from {candidate.company_name}."),
                 "value_proposition": data.get("value_proposition", value_prop),
-                "suggested_cta": data.get("suggested_cta", "12-minute technical peer comparison"),
+                "suggested_cta": data.get("suggested_cta", "Brief 10-minute chat or sample brief"),
             }
         except Exception as e:
             logger.warning(f"Gemini draft generation failed, using structured template: {e}")
             return {
-                "subject": f"Question regarding {candidate.company_name}'s recent technical milestone",
-                "body": f"Hi {buyer_name},\n\nNoticed {candidate.company_name}'s recent work.\n\nWe built an engine that helps teams with {value_prop}.\n\nWould you be open to a brief 10-minute conversation?\n\nBest,\nFounding Team, ScoutSpark",
+                "subject": f"Connecting with {candidate.company_name}",
+                "body": f"Hi {buyer_name},\n\nNoticed {candidate.company_name}'s recent work.\n\nWe built ScoutSpark to help B2B software teams research prospective customers with verified facts and draft personalized outreach.\n\nWould you be open to a brief 10-minute conversation to see a sample brief?\n\nBest,\nFounding Team, ScoutSpark",
                 "hook": f"Recent activity at {candidate.company_name}",
                 "value_proposition": value_prop,
                 "suggested_cta": "10-minute brief chat",
