@@ -178,14 +178,14 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-editorial font-bold text-[#17271F]">
-                Find Prospects
+                Find Leads
               </h1>
               <span className="sticker-badge bg-[#FAF7F0] text-[#17271F] border-[#17271F] text-[10px]">
-                {filteredProspects.length} of {prospects.length} Accounts
+                {filteredProspects.length} of {prospects.length} Businesses
               </span>
             </div>
             <p className="text-xs text-[#4A5E52] mt-0.5">
-              Evidence-backed accounts evaluated against your ideal customer criteria.
+              Real businesses checked against the type of customer you want to reach.
             </p>
           </div>
 
@@ -201,7 +201,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
               className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
             >
               <Upload className="w-3.5 h-3.5 text-[#FF7054]" />
-              <span>Import CSV</span>
+              <span>Import CSV file</span>
             </button>
 
             <div className="flex items-center bg-[#FAF7F0] border border-[#17271F] rounded-lg p-0.5">
@@ -210,7 +210,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                 className={`p-1.5 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer ${
                   viewMode === 'cards' ? 'bg-[#17271F] text-white shadow-xs' : 'text-[#4A5E52] hover:text-[#17271F]'
                 }`}
-                title="Grid cards view"
+                title="Card grid view"
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
               </button>
@@ -219,7 +219,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                 className={`p-1.5 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer ${
                   viewMode === 'table' ? 'bg-[#17271F] text-white shadow-xs' : 'text-[#4A5E52] hover:text-[#17271F]'
                 }`}
-                title="Dense table view"
+                title="Simple table view"
               >
                 <TableIcon className="w-3.5 h-3.5" />
               </button>
@@ -232,10 +232,10 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs font-semibold focus:outline-none"
               >
-                <option value="score_desc">Fit Score (High to Low)</option>
-                <option value="score_asc">Fit Score (Low to High)</option>
-                <option value="name_asc">Company Name (A-Z)</option>
-                <option value="facts_desc">Most Verified Facts</option>
+                <option value="score_desc">Best Match First</option>
+                <option value="score_asc">Lowest Match First</option>
+                <option value="name_asc">Company Name (A to Z)</option>
+                <option value="facts_desc">Most Facts Found</option>
               </select>
             </div>
           </div>
@@ -250,7 +250,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by company, buyer name, or tech tag..."
+              placeholder="Search company, person, or tool (e.g. Stripe, Elena, Kafka)..."
               className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg pl-9 pr-3 py-1.5 text-xs text-[#17271F] placeholder-[#4A5E52]/60 focus:outline-none focus:ring-1 focus:ring-[#D8FF65]"
             />
           </div>
@@ -277,17 +277,17 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
               className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs font-medium text-[#17271F] focus:outline-none"
             >
               <option value="all">All Stages</option>
-              <option value="ready_to_review">Ready to Review</option>
-              <option value="approved">Approved</option>
-              <option value="contacted">Contacted</option>
-              <option value="to_research">To Research</option>
-              <option value="not_a_fit">Not a Fit</option>
+              <option value="ready_to_review">Ready to check</option>
+              <option value="approved">Ready to send</option>
+              <option value="contacted">Reached out</option>
+              <option value="to_research">To search</option>
+              <option value="not_a_fit">Not a fit</option>
             </select>
           </div>
 
           {/* Min Score Filter */}
           <div className="sm:col-span-2 flex items-center justify-between gap-2 bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs">
-            <span className="text-[#4A5E52] shrink-0 font-medium">Min: {minScore}%</span>
+            <span className="text-[#4A5E52] shrink-0 font-medium">Min match: {minScore}%</span>
             <input
               type="range"
               min="0"
@@ -308,17 +308,17 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
           <ScoutMascot expression="thinking" size="xl" animate={true} />
           <div className="space-y-1">
             <h3 className="text-xl font-editorial font-bold text-[#17271F]">
-              No accounts match these filters
+              No businesses match your search
             </h3>
             <p className="text-xs text-[#4A5E52]">
-              Scout searched the workspace, but didn't find any accounts matching "{searchQuery}" with minimum score {minScore}%.
+              Scout couldn't find any businesses matching "{searchQuery}" with a score of at least {minScore}%. Try clearing some filters!
             </p>
           </div>
           <button
             onClick={handleResetFilters}
-            className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5"
+            className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
           >
-            <RotateCcw className="w-3.5 h-3.5" /> Reset Filters
+            <RotateCcw className="w-3.5 h-3.5" /> Reset filters
           </button>
         </div>
       ) : viewMode === 'cards' ? (
@@ -336,7 +336,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                   <div className="flex items-center gap-3">
                     <div className={`w-12 h-12 rounded-xl border-1.5 font-mono font-bold flex flex-col items-center justify-center shrink-0 shadow-[2px_2px_0px_#17271F] ${getScoreBadge(prospect.fitScore)}`}>
                       <span className="text-lg leading-none">{prospect.fitScore}</span>
-                      <span className="text-[8px] uppercase tracking-tighter">SCORE</span>
+                      <span className="text-[8px] uppercase tracking-tighter">MATCH</span>
                     </div>
 
                     <div>
@@ -345,7 +345,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                           {prospect.companyName}
                         </h2>
                         <span className="sticker-badge bg-[#FAF7F0] text-[#17271F] border-[#17271F] text-[9px]">
-                          {prospect.fitLevel}
+                          {prospect.fitLevel === 'exceptional' ? 'Great match' : prospect.fitLevel === 'strong' ? 'Good match' : 'Possible match'}
                         </span>
                         {prospect.provenance === 'researched' && (
                           <span className="sticker-badge bg-[#9DE3D0] text-[#17271F] border-[#17271F] text-[9px] font-mono">
@@ -373,7 +373,11 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                       ? 'bg-[#FFEAE5] text-[#FF7054] border-[#FF7054]'
                       : 'bg-[#FAF7F0] text-[#4A5E52] border-[#E2D9C8]'
                   }`}>
-                    {prospect.pipelineStage.replace('_', ' ')}
+                    {prospect.pipelineStage === 'approved' 
+                      ? 'ready to send' 
+                      : prospect.pipelineStage === 'ready_to_review' 
+                      ? 'ready to check' 
+                      : prospect.pipelineStage.replace('_', ' ')}
                   </span>
                 </div>
 
@@ -386,8 +390,8 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                 <div className="mt-3 p-2 bg-[#FAF7F0] rounded-lg border border-[#E2D9C8] flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1.5">
                     <Target className="w-3.5 h-3.5 text-[#FF7054]" />
-                    <span className="font-semibold text-[#17271F]">{prospect.targetBuyer.name || 'Decision Maker'}</span>
-                    <span className="text-[#4A5E52] text-[11px]">({prospect.targetBuyer.title || 'Executive'})</span>
+                    <span className="font-semibold text-[#17271F]">{prospect.targetBuyer.name || 'Key Contact'}</span>
+                    <span className="text-[#4A5E52] text-[11px]">({prospect.targetBuyer.title || 'Role'})</span>
                   </div>
                   <span className="text-[10px] text-[#FF7054] font-medium">
                     {prospect.targetBuyer.roleType?.split(' ')[0] || 'Lead'}
@@ -398,14 +402,14 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                 <div className="mt-3 flex items-center gap-2 text-[10px] font-mono">
                   <span className="bg-[#9DE3D0]/30 text-[#17271F] border border-[#17271F]/30 px-2 py-0.5 rounded flex items-center gap-1">
                     <ShieldCheck className="w-3 h-3 text-[#17271F]" />
-                    {prospect.observedFacts?.length || 0} Verified Facts
+                    {prospect.observedFacts?.length || 0} Facts Found
                   </span>
                   <span className="bg-[#D8FF65]/30 text-[#17271F] border border-[#17271F]/30 px-2 py-0.5 rounded">
-                    ⚡ {prospect.hypotheses?.length || 0} Hypotheses
+                    ⚡ {prospect.hypotheses?.length || 0} AI Guesses
                   </span>
                   {prospect.emailDraft?.isApproved && (
                     <span className="bg-[#9DE3D0] text-[#17271F] font-bold px-2 py-0.5 rounded">
-                      ✓ Draft Approved
+                      ✓ Draft Ready
                     </span>
                   )}
                 </div>
@@ -417,7 +421,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                   {prospect.stage?.split(' •')[0] || prospect.headquarters}
                 </span>
                 <span className="text-[#FF7054] font-semibold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                  View Dossier & Draft <ChevronRight className="w-3.5 h-3.5" />
+                  See details & email draft <ChevronRight className="w-3.5 h-3.5" />
                 </span>
               </div>
             </div>
@@ -430,12 +434,12 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
             <table className="w-full text-left text-xs">
               <thead className="bg-[#FAF7F0] border-b-2 border-[#17271F] text-[#17271F] font-bold uppercase tracking-wider text-[10px]">
                 <tr>
-                  <th className="py-3 px-4">Fit</th>
+                  <th className="py-3 px-4">Match</th>
                   <th className="py-3 px-4">Company</th>
-                  <th className="py-3 px-4">Target Buyer</th>
-                  <th className="py-3 px-4">Evidence Status</th>
-                  <th className="py-3 px-4">Stage</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
+                  <th className="py-3 px-4">Key Contact</th>
+                  <th className="py-3 px-4">Facts & Guesses</th>
+                  <th className="py-3 px-4">Status</th>
+                  <th className="py-3 px-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E2D9C8]">
@@ -465,17 +469,17 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="font-semibold text-[#17271F]">
-                        {prospect.targetBuyer.name || 'Decision Maker'}
+                        {prospect.targetBuyer.name || 'Key Contact'}
                       </div>
                       <div className="text-[11px] text-[#4A5E52]">
-                        {prospect.targetBuyer.title || 'Executive'}
+                        {prospect.targetBuyer.title || 'Role'}
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-1.5 text-[11px] font-mono">
-                        <span className="text-green-700 font-semibold">{prospect.observedFacts?.length || 0} Facts</span>
+                        <span className="text-green-700 font-semibold">{prospect.observedFacts?.length || 0} facts found</span>
                         <span>•</span>
-                        <span className="text-amber-700">{prospect.hypotheses?.length || 0} Hypotheses</span>
+                        <span className="text-amber-700">{prospect.hypotheses?.length || 0} guesses</span>
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
@@ -486,7 +490,11 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                           ? 'bg-[#FFEAE5] text-[#FF7054] border-[#FF7054]'
                           : 'bg-[#FAF7F0] text-[#4A5E52] border-[#E2D9C8]'
                       }`}>
-                        {prospect.pipelineStage.replace('_', ' ')}
+                        {prospect.pipelineStage === 'approved' 
+                          ? 'ready to send' 
+                          : prospect.pipelineStage === 'ready_to_review' 
+                          ? 'ready to check' 
+                          : prospect.pipelineStage.replace('_', ' ')}
                       </span>
                     </td>
                     <td className="py-3.5 px-4 text-right">
@@ -497,7 +505,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                         }}
                         className="btn-tactile-secondary px-2.5 py-1 rounded text-xs font-semibold inline-flex items-center gap-1 cursor-pointer"
                       >
-                        Inspect <ChevronRight className="w-3 h-3" />
+                        View details <ChevronRight className="w-3 h-3" />
                       </button>
                     </td>
                   </tr>
@@ -516,7 +524,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
               <div className="flex items-center gap-2">
                 <FileSpreadsheet className="w-5 h-5 text-[#FF7054]" />
                 <h3 className="text-base font-editorial font-bold text-[#17271F]">
-                  Import Prospects from CSV
+                  Upload a list of leads from a CSV
                 </h3>
               </div>
               <button
@@ -528,17 +536,17 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
             </div>
 
             <p className="text-xs text-[#4A5E52] leading-relaxed">
-              Upload a CSV file containing potential prospect accounts. Required columns: <strong className="text-[#17271F]">company_name</strong>, <strong className="text-[#17271F]">domain</strong>, <strong className="text-[#17271F]">industry</strong>.
+              Upload your spreadsheet of businesses. Required columns: <strong className="text-[#17271F]">company_name</strong>, <strong className="text-[#17271F]">domain</strong>, and <strong className="text-[#17271F]">industry</strong>.
             </p>
 
             {/* Template Download Link */}
             <div className="flex items-center justify-between p-2.5 bg-white border border-[#17271F]/20 rounded-xl text-xs">
-              <span className="text-[#4A5E52]">Need a template format?</span>
+              <span className="text-[#4A5E52]">Want an example file to start with?</span>
               <button
                 onClick={handleDownloadSampleCSV}
                 className="text-[#FF7054] font-bold hover:underline flex items-center gap-1 cursor-pointer"
               >
-                <Download className="w-3.5 h-3.5" /> Download Sample CSV
+                <Download className="w-3.5 h-3.5" /> Download example CSV
               </button>
             </div>
 
@@ -556,11 +564,11 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                 className="btn-tactile-secondary px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-2 cursor-pointer"
               >
                 <Upload className="w-4 h-4" />
-                <span>{selectedFile ? selectedFile.name : 'Choose CSV File'}</span>
+                <span>{selectedFile ? selectedFile.name : 'Choose a CSV file'}</span>
               </label>
               {selectedFile && (
                 <p className="text-[11px] text-[#4A5E52] mt-1">
-                  {(selectedFile.size / 1024).toFixed(1)} KB • Ready for upload
+                  {(selectedFile.size / 1024).toFixed(1)} KB • Ready to upload
                 </p>
               )}
             </div>
@@ -578,12 +586,12 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
               <div className="p-3.5 bg-[#9DE3D0]/30 border border-[#17271F] rounded-xl text-xs space-y-2">
                 <div className="flex items-center gap-2 font-bold text-[#17271F]">
                   <CheckCircle2 className="w-4 h-4 text-green-700" />
-                  <span>Import Completed!</span>
+                  <span>Upload successful!</span>
                 </div>
                 <div className="text-[11px] text-[#17271F]">
-                  Successfully imported: <strong>{importResult.importedCount}</strong> accounts.
+                  Added <strong>{importResult.importedCount}</strong> businesses to your list.
                   {importResult.errorCount > 0 && (
-                    <span className="text-red-700 ml-2">Errors: {importResult.errorCount} rows.</span>
+                    <span className="text-red-700 ml-2">({importResult.errorCount} rows had issues)</span>
                   )}
                 </div>
                 {importResult.errors.length > 0 && (
@@ -610,11 +618,11 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                 className="btn-tactile-coral px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 {isImporting ? (
-                  <span>Importing...</span>
+                  <span>Adding leads...</span>
                 ) : (
                   <>
                     <Upload className="w-3.5 h-3.5" />
-                    <span>Upload & Process</span>
+                    <span>Upload and add leads</span>
                   </>
                 )}
               </button>

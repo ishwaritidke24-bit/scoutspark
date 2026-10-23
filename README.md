@@ -1,23 +1,23 @@
 # ScoutSpark ✦ Find your next yes.
 
-> **DEMO WORKSPACE — SIMULATED DATA**  
-> An award-winning editorial technology product crafted for early-stage B2B startup founders to identify evidence-backed prospect intelligence, prioritize opportunities, and draft personalized outreach with humans strictly in control of outbound actions.
+> **Stop guessing. Let's find your next customer.**  
+> Find businesses that might need your product, see why they could be a good fit, and write messages that feel personal. You stay in control of every message.
 
 ---
 
-## 🌟 Product Overview
+## 🌟 What is ScoutSpark?
 
 - **Name**: ScoutSpark
 - **Tagline**: *Find your next yes.*
-- **Target Audience**: Early-stage B2B founders, founding account executives, and AI engineering hiring managers.
-- **Problem**: Early-stage sales teams spend 45+ minutes per account digging through engineering blogs, job descriptions, and GitHub commits to craft one mediocre cold email. Generic AI tools hallucinate citations, spam ungrounded claims, and auto-blast prospects.
+- **Who it is for**: Early-stage startup founders looking for their first business customers.
+- **The Problem**: Founders spend hours digging through company websites, job posts, and social profiles just to write one cold email that usually gets ignored. Generic AI tools make things worse by guessing facts, making up sources, and blasting spam.
 - **The ScoutSpark Solution**: 
-  1. Define an Ideal Customer Profile (ICP).
-  2. Detect public signals (incident retrospectives, tech stack migrations, leadership hires, clinic expansions).
-  3. Strictly separate **observed facts** from **AI hypotheses** with full provenance.
-  4. Draft hyper-personalized cold outreach emails.
-  5. Enforce **human review and approval**—the first version never auto-dispatches outbound emails.
-  6. Track progression across an 8-stage acquisition pipeline with persistent SQLite storage.
+  1. Tell Scout what kind of customers you are looking for (your target customer profile).
+  2. Scout searches the web for relevant companies and real clues (job postings, tech updates, new hires).
+  3. Proven facts are kept strictly separate from educated guesses.
+  4. Scout writes a personal, friendly draft message citing real facts.
+  5. **You stay in full control**—ScoutSpark never sends an email without your review and approval.
+  6. Track conversations across an 8-stage pipeline saved to a local database.
 
 ---
 

@@ -30,11 +30,11 @@ export const Navbar: React.FC<NavbarProps> = ({
 }) => {
   const navItems: { id: ViewTab; label: string; icon: React.ReactNode; badge?: string }[] = [
     { id: 'dashboard', label: 'Overview', icon: <Compass className="w-4 h-4" /> },
-    { id: 'prospects', label: 'Find Prospects', icon: <Users className="w-4 h-4" />, badge: '8' },
+    { id: 'prospects', label: 'Find Leads', icon: <Users className="w-4 h-4" />, badge: '8' },
     { id: 'pipeline', label: 'Pipeline', icon: <Kanban className="w-4 h-4" /> },
-    { id: 'campaigns', label: 'Campaign Studio', icon: <Send className="w-4 h-4" /> },
-    { id: 'eval-lab', label: 'Evaluation Lab', icon: <FlaskConical className="w-4 h-4" />, badge: 'Demo' },
-    { id: 'settings', label: 'Settings / ICP', icon: <Settings className="w-4 h-4" /> },
+    { id: 'campaigns', label: 'Message Sequences', icon: <Send className="w-4 h-4" /> },
+    { id: 'eval-lab', label: 'Accuracy Lab', icon: <FlaskConical className="w-4 h-4" />, badge: 'Tests' },
+    { id: 'settings', label: 'Target Customer', icon: <Settings className="w-4 h-4" /> },
   ];
 
   return (
@@ -43,19 +43,19 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="bg-[#17271F] text-[#D8FF65] px-4 py-1.5 text-[11px] font-mono flex items-center justify-between border-b border-[#2A4034]">
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-[#D8FF65] animate-pulse" />
-          <span className="font-bold tracking-wider uppercase">DEMO WORKSPACE — SIMULATED DATA</span>
-          <span className="text-[#9DE3D0] hidden md:inline">• Local Deterministic Research Engine • First version never auto-dispatches emails</span>
+          <span className="font-bold tracking-wider uppercase">DEMO WORKSPACE — PRACTICE DATA</span>
+          <span className="text-[#9DE3D0] hidden md:inline">• Real facts, zero spam • We never send emails without your approval</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-[#9DE3D0] hidden sm:inline text-[10px]">
-            Human-in-the-Loop Safeguard: Active
+            You're in control of every message
           </span>
           <button
             onClick={onResetData}
-            title="Reset demo data to initial factory state"
+            title="Reset sample data back to beginning"
             className="flex items-center gap-1 text-[10px] text-[#F7F2E8]/70 hover:text-[#D8FF65] transition-colors"
           >
-            <RotateCcw className="w-3 h-3" /> Reset Mock Data
+            <RotateCcw className="w-3 h-3" /> Reset sample data
           </button>
         </div>
       </div>

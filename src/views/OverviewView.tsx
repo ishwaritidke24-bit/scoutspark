@@ -60,15 +60,15 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           <div className="max-w-2xl space-y-3">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17271F] text-[#D8FF65] text-xs font-mono font-bold">
               <span className="w-1.5 h-1.5 rounded-full bg-[#D8FF65] animate-ping" />
-              B2B PROSPECT INTELLIGENCE FOR EARLY FOUNDERS
+              SMART LEAD SEARCH FOR STARTUP FOUNDERS
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-editorial font-bold text-[#17271F] tracking-tight leading-[1.12]">
-              Find your next yes.
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-editorial font-bold text-[#17271F] tracking-tight leading-[1.15]">
+              Stop guessing. Let's find your next customer.
             </h1>
 
             <p className="text-sm sm:text-base text-[#4A5E52] leading-relaxed font-normal">
-              ScoutSpark identifies high-intent B2B accounts, extracts verified public evidence, cleanly isolates speculative hypotheses, and drafts personalized outreach messages—with human founders strictly in control of outbound actions.
+              Find businesses that might need your product, see why they could be a good fit, and write messages that feel personal. You stay in control of every message.
             </p>
 
             <div className="pt-2 flex flex-wrap items-center gap-3">
@@ -85,12 +85,12 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 onClick={() => onNavigateToTab('prospects')}
                 className="btn-tactile-secondary px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2"
               >
-                <span>Browse All 8 Accounts</span>
+                <span>See all 8 businesses</span>
               </button>
 
               <span className="text-xs text-[#4A5E52] italic flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-[#FF7054]" />
-                Zero auto-send guarantee
+                We never send messages without you
               </span>
             </div>
           </div>
@@ -103,11 +103,11 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 Meet Scout
               </div>
               <p className="text-xs text-[#4A5E52] mt-1 italic">
-                "I read the engineering postmortems so you don't have to send generic cold templates."
+                "I dig through real news and company updates so you never have to send boring copy-paste emails."
               </p>
               <div className="mt-3 pt-2.5 border-t border-[#E2D9C8] text-[11px] text-[#17271F] font-semibold flex items-center justify-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#9DE3D0]" />
-                <span>5 Verified Signals Today</span>
+                <span>5 fresh updates found today</span>
               </div>
             </div>
           </div>
@@ -117,41 +117,41 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       {/* 4-Step Compact Workflow Strip */}
       <div className="bg-white border-2 border-[#17271F] rounded-2xl p-5 shadow-[3px_3px_0px_#17271F]">
         <div className="text-xs font-bold uppercase tracking-wider text-[#4A5E52] mb-3 flex items-center justify-between">
-          <span>The ScoutSpark Guarded Workflow</span>
-          <span className="text-[11px] font-mono text-[#FF7054]">NO UNGROUNDED COLD SPAM</span>
+          <span>How Scout works with you</span>
+          <span className="text-[11px] font-mono text-[#FF7054]">REAL FACTS ONLY</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] space-y-1">
             <div className="flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">1</span>
-              <span className="text-xs font-bold text-[#17271F]">Define ICP</span>
+              <span className="text-xs font-bold text-[#17271F]">Pick your ideal customer</span>
             </div>
-            <p className="text-[11px] text-[#4A5E52]">Specify target tech stack, team size, buyer role, and value proposition.</p>
+            <p className="text-[11px] text-[#4A5E52]">Tell Scout the kind of business, team size, and role you want to reach.</p>
           </div>
 
           <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] space-y-1">
             <div className="flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">2</span>
-              <span className="text-xs font-bold text-[#17271F]">Detect Signals</span>
+              <span className="text-xs font-bold text-[#17271F]">Find real clues</span>
             </div>
-            <p className="text-[11px] text-[#4A5E52]">Track incident retrospectives, leadership hires, and expansion events.</p>
+            <p className="text-[11px] text-[#4A5E52]">Spot new hires, tech updates, and public news from real web sources.</p>
           </div>
 
           <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] space-y-1">
             <div className="flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">3</span>
-              <span className="text-xs font-bold text-[#17271F]">Separate Facts</span>
+              <span className="text-xs font-bold text-[#17271F]">Separate facts from guesses</span>
             </div>
-            <p className="text-[11px] text-[#4A5E52]">Clearly distinguish observed facts from AI-generated hypotheses.</p>
+            <p className="text-[11px] text-[#4A5E52]">Keep verified details separate from what the AI thinks might be true.</p>
           </div>
 
           <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] space-y-1">
             <div className="flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">4</span>
-              <span className="text-xs font-bold text-[#17271F]">Human Outbound</span>
+              <span className="text-xs font-bold text-[#17271F]">You stay in charge</span>
             </div>
-            <p className="text-[11px] text-[#4A5E52]">Founder reviews, customizes, approves, and copies draft for sending.</p>
+            <p className="text-[11px] text-[#4A5E52]">Review and tweak your email draft before copying it. Nothing sends on its own.</p>
           </div>
         </div>
       </div>
@@ -160,26 +160,26 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-editorial font-bold text-[#17271F]">
-            Pipeline Summary
+            Your lead pipeline
           </h2>
           <button
             onClick={() => onNavigateToTab('pipeline')}
             className="text-xs font-semibold text-[#17271F] hover:text-[#FF7054] flex items-center gap-1"
           >
-            Open Visual Board <ArrowRight className="w-3.5 h-3.5" />
+            See full board <ArrowRight className="w-3.5 h-3.5" />
           </button>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
           {[
-            { label: 'To Research', count: stageCounts.to_research, bg: 'bg-[#FAF7F0]', border: 'border-[#17271F]/30' },
-            { label: 'Ready Review', count: stageCounts.ready_to_review, bg: 'bg-[#FFEAE5]', border: 'border-[#FF7054]' },
-            { label: 'Approved', count: stageCounts.approved, bg: 'bg-[#D8FF65]/30', border: 'border-[#17271F]' },
-            { label: 'Contacted', count: stageCounts.contacted, bg: 'bg-[#9DE3D0]/30', border: 'border-[#17271F]' },
-            { label: 'Replied', count: stageCounts.replied, bg: 'bg-[#FAF7F0]', border: 'border-[#17271F]/30' },
-            { label: 'Meeting', count: stageCounts.meeting, bg: 'bg-[#FAF7F0]', border: 'border-[#17271F]/30' },
-            { label: 'Won', count: stageCounts.won, bg: 'bg-[#FAF7F0]', border: 'border-[#17271F]/30' },
-            { label: 'Not a Fit', count: stageCounts.not_a_fit, bg: 'bg-[#FAF7F0]', border: 'border-[#17271F]/30' },
+            { label: 'To search', count: stageCounts.to_research, bg: 'bg-[#FAF7F0]', border: 'border-[#17271F]/30' },
+            { label: 'Ready to check', count: stageCounts.ready_to_review, bg: 'bg-[#FFEAE5]', border: 'border-[#FF7054]' },
+            { label: 'Ready to send', count: stageCounts.approved, bg: 'bg-[#D8FF65]/30', border: 'border-[#17271F]' },
+            { label: 'Reached out', count: stageCounts.contacted, bg: 'bg-[#9DE3D0]/30', border: 'border-[#17271F]' },
+            { label: 'Got a reply', count: stageCounts.replied, bg: 'bg-[#FAF7F0]', border: 'border-[#17271F]/30' },
+            { label: 'Meeting booked', count: stageCounts.meeting, bg: 'bg-[#FAF7F0]', border: 'border-[#17271F]/30' },
+            { label: 'Customer won!', count: stageCounts.won, bg: 'bg-[#FAF7F0]', border: 'border-[#17271F]/30' },
+            { label: 'Not a fit', count: stageCounts.not_a_fit, bg: 'bg-[#FAF7F0]', border: 'border-[#17271F]/30' },
           ].map((item, idx) => (
             <div
               key={idx}
@@ -202,15 +202,15 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-editorial font-bold text-[#17271F]">
-                Priority Prospect Shortlist
+                Best matches right now
               </h2>
-              <p className="text-xs text-[#4A5E52]">Highest ICP alignment and freshest public signals</p>
+              <p className="text-xs text-[#4A5E52]">Businesses that match your criteria with fresh public news</p>
             </div>
             <button
               onClick={() => onNavigateToTab('prospects')}
               className="text-xs font-semibold text-[#FF7054] hover:underline"
             >
-              View All 8
+              See all 8
             </button>
           </div>
 
@@ -225,7 +225,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                   <div className="flex items-start gap-3">
                     <div className="w-12 h-12 rounded-xl bg-[#D8FF65] border-1.5 border-[#17271F] flex flex-col items-center justify-center font-mono font-bold text-[#17271F] shadow-[2px_2px_0px_#17271F] shrink-0">
                       <span className="text-lg leading-none">{prospect.fitScore}</span>
-                      <span className="text-[8px] uppercase tracking-tight">FIT</span>
+                      <span className="text-[8px] uppercase tracking-tight">MATCH</span>
                     </div>
 
                     <div>
@@ -246,7 +246,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                         </span>
                         <span>•</span>
                         <span className="text-[#4A5E52]">
-                          {prospect.observedFacts.length} verified facts
+                          {prospect.observedFacts.length} facts found
                         </span>
                       </div>
                     </div>
@@ -260,10 +260,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                         ? 'bg-[#FFEAE5] text-[#FF7054] border-[#FF7054]'
                         : 'bg-[#FAF7F0] text-[#4A5E52] border-[#E2D9C8]'
                     }`}>
-                      {prospect.pipelineStage.replace('_', ' ')}
+                      {prospect.pipelineStage === 'approved'
+                        ? 'ready to send'
+                        : prospect.pipelineStage === 'ready_to_review'
+                        ? 'ready to check'
+                        : prospect.pipelineStage.replace('_', ' ')}
                     </span>
                     <span className="text-[11px] text-[#4A5E52] flex items-center gap-0.5 mt-1">
-                      Review <ArrowUpRight className="w-3 h-3" />
+                      Check details <ArrowUpRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
                 </div>
@@ -280,10 +284,10 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-[#FF7054]" />
                 <h2 className="text-sm font-editorial font-bold text-[#17271F]">
-                  Today's Research Signals
+                  Fresh company clues
                 </h2>
               </div>
-              <span className="text-[10px] font-mono text-[#4A5E52]">Public Events</span>
+              <span className="text-[10px] font-mono text-[#4A5E52]">Public updates</span>
             </div>
 
             <div className="space-y-3 mt-3">
@@ -308,9 +312,9 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           <div className="bg-[#FAF7F0] border-1.5 border-[#17271F] rounded-2xl p-4 shadow-[2px_2px_0px_#17271F]">
             <div className="flex items-center justify-between pb-2 border-b border-[#17271F]/15 mb-3">
               <h3 className="text-xs font-editorial font-bold text-[#17271F]">
-                Recent Outbound Actions
+                What happened recently
               </h3>
-              <span className="text-[10px] text-[#4A5E52]">Audit Trail</span>
+              <span className="text-[10px] text-[#4A5E52]">Activity history</span>
             </div>
 
             <div className="space-y-2.5">

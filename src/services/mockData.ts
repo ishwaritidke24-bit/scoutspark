@@ -3,8 +3,8 @@ import { Prospect, IdealCustomerProfile, ResearchSignal, EvaluationMetric, Activ
 export const INITIAL_ICP: IdealCustomerProfile = {
   companyName: "ScoutSpark AI",
   productName: "SignalEngine B2B",
-  companyDescription: "High-signal prospecting and account intelligence platform that translates live company events, engineering artifacts, and organizational shifts into evidence-backed customer outreach.",
-  valueProposition: "Cut outreach research time by 80% while increasing qualified reply rates by providing verifiable facts, clear hypothesis separation, and human-in-the-loop email drafts.",
+  companyDescription: "ScoutSpark helps startup founders find businesses that actually need their product, see why they are a good match, and write friendly personal emails that get replies.",
+  valueProposition: "Save hours of searching by finding real facts online, separating proven proof from educated guesses, and writing honest messages you approve before sending.",
   targetIndustries: [
     "Developer Tools & Infrastructure",
     "HealthTech & Digital Health",
@@ -24,7 +24,7 @@ export const INITIAL_ICP: IdealCustomerProfile = {
   companySizeRanges: ["20 - 50 employees", "51 - 150 employees", "151 - 300 employees"],
   fundingStages: ["Seed ($2M - $5M)", "Series A ($6M - $18M)", "Series B ($20M - $35M)"],
   exclusions: ["Agencies / Consultancies", "Pure B2C Apps", "Companies under 10 people without funding"],
-  primaryPainPoint: "Account executives and founders spend 45 minutes manually digging through job posts, GitHub commits, and PRs just to write one mediocre cold email.",
+  primaryPainPoint: "Founders spend hours scrolling through websites and job boards just to write cold emails that end up ignored.",
   lastUpdated: "2026-10-23T08:00:00Z"
 };
 

@@ -101,22 +101,22 @@ Alex`,
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-editorial font-bold text-[#17271F]">
-                Campaign Studio
+                Message Sequences
               </h1>
               <span className="sticker-badge bg-[#FFEAE5] text-[#FF7054] border-[#FF7054] text-[10px]">
-                Draft & Review Mode Only
+                Draft & Copy Only
               </span>
             </div>
             <p className="text-xs text-[#4A5E52] mt-0.5">
-              Design evidence-backed multi-touch outreach sequences. Review and copy drafts for manual founder delivery.
+              Friendly 3-step email sequences backed by real company clues. Review and copy drafts when you're ready to reach out.
             </p>
           </div>
 
           <div className="flex items-center gap-2 bg-[#FAF7F0] p-3 rounded-xl border border-[#17271F] text-xs">
             <ShieldCheck className="w-4 h-4 text-[#FF7054] shrink-0" />
             <div>
-              <span className="font-bold text-[#17271F]">Zero Outbound Automation: </span>
-              <span className="text-[#4A5E52]">Emails are never dispatched automatically by ScoutSpark.</span>
+              <span className="font-bold text-[#17271F]">Zero automatic emails: </span>
+              <span className="text-[#4A5E52]">ScoutSpark never sends emails for you. You copy and send yourself.</span>
             </div>
           </div>
         </div>
@@ -125,10 +125,10 @@ Alex`,
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-[#E2D9C8] text-xs">
           <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8]">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#4A5E52] block">
-              Target Cohort
+              Target businesses
             </span>
             <span className="font-bold text-[#17271F] mt-0.5 block">
-              Series A Observability & DevTools
+              Growing Developer Tool Startups
             </span>
             <span className="text-[11px] text-[#4A5E52] mt-0.5 block">
               20-60 employees • US & Western Europe
@@ -137,25 +137,25 @@ Alex`,
 
           <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8]">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#4A5E52] block">
-              Target Buyer Persona
+              Person you're reaching
             </span>
             <span className="font-bold text-[#17271F] mt-0.5 block">
               VP of Engineering / Head of Platform
             </span>
             <span className="text-[11px] text-[#4A5E52] mt-0.5 block">
-              Technical decision maker with cloud budget authority
+              Engineering lead who makes tool and budget choices
             </span>
           </div>
 
           <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8]">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#4A5E52] block">
-              Grounding Trigger Signal
+              The clue that sparked this
             </span>
             <span className="font-bold text-[#FF7054] mt-0.5 block">
-              Public Incident Retrospective / Span Lag
+              Public post about server lag
             </span>
             <span className="text-[11px] text-[#4A5E52] mt-0.5 block">
-              Verifiable engineering blog post or public GitHub commit
+              Found on company blog or public updates
             </span>
           </div>
         </div>
@@ -166,7 +166,7 @@ Alex`,
         {/* Sequence Steps (4 cols) */}
         <div className="lg:col-span-4 space-y-3">
           <div className="text-xs font-bold uppercase tracking-wider text-[#4A5E52] px-1">
-            Reviewable Sequence Steps
+            Email Sequence Steps
           </div>
 
           {touches.map(touch => {
@@ -184,7 +184,7 @@ Alex`,
                 <div className="flex items-center justify-between text-xs">
                   <span className="font-mono font-bold text-[#FF7054]">{touch.day}</span>
                   <span className="text-[10px] uppercase font-bold bg-[#FAF7F0] px-1.5 py-0.5 rounded border border-[#17271F]/20 text-[#17271F]">
-                    Touch 0{touch.step}
+                    Email 0{touch.step}
                   </span>
                 </div>
                 <h3 className="font-editorial font-bold text-sm text-[#17271F] mt-1.5">
@@ -200,10 +200,10 @@ Alex`,
           <div className="p-4 bg-[#FAF7F0] rounded-xl border-1.5 border-[#17271F] text-xs space-y-2 mt-4">
             <div className="flex items-center gap-2 font-bold text-[#17271F]">
               <ScoutMascot expression="curious" size="xs" animate={true} />
-              <span>Scout's Sequence Guidance:</span>
+              <span>Scout's Sequence Tip:</span>
             </div>
             <p className="text-[11px] text-[#4A5E52] leading-relaxed">
-              "Never send more than 3 touches without new evidence. If the prospect doesn't engage, wait for the next verified public event."
+              "Don't send more than 3 follow-ups without something new to say. If they don't reply, wait for a fresh update before reaching out again."
             </p>
           </div>
         </div>
@@ -218,10 +218,10 @@ Alex`,
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-mono text-xs font-bold text-[#FF7054]">
-                        {current.day} • TOUCH 0{current.step}
+                        {current.day} • EMAIL 0{current.step}
                       </span>
                       <span className="sticker-badge bg-[#9DE3D0] text-[#17271F] border-[#17271F] text-[9px]">
-                        Review Ready
+                        Ready to check
                       </span>
                     </div>
                     <h2 className="text-lg font-editorial font-bold text-[#17271F] mt-0.5">
@@ -232,18 +232,18 @@ Alex`,
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handleToggleEdit(current.step)}
-                      className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5"
+                      className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                     >
                       {current.isEditing ? <Save className="w-3.5 h-3.5" /> : <Edit3 className="w-3.5 h-3.5" />}
-                      <span>{current.isEditing ? 'Save' : 'Edit Copy'}</span>
+                      <span>{current.isEditing ? 'Save draft' : 'Edit draft'}</span>
                     </button>
 
                     <button
                       onClick={() => handleCopy(current.step, `Subject: ${current.subject}\n\n${current.body}`)}
-                      className="btn-tactile-lime px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5"
+                      className="btn-tactile-lime px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                     >
                       {copiedTouch === current.step ? <Check className="w-3.5 h-3.5 text-green-700" /> : <Copy className="w-3.5 h-3.5" />}
-                      <span>{copiedTouch === current.step ? 'Copied!' : 'Copy Draft'}</span>
+                      <span>{copiedTouch === current.step ? 'Copied to clipboard!' : 'Copy email'}</span>
                     </button>
                   </div>
                 </div>
@@ -251,7 +251,7 @@ Alex`,
                 {/* Subject Field */}
                 <div>
                   <label className="block text-[11px] font-bold uppercase text-[#4A5E52] mb-1">
-                    Subject Line
+                    Subject line
                   </label>
                   <div className="p-2.5 bg-[#FAF7F0] border border-[#17271F] rounded-lg text-xs font-bold text-[#17271F]">
                     {current.subject}
@@ -261,7 +261,7 @@ Alex`,
                 {/* Body Field */}
                 <div>
                   <label className="block text-[11px] font-bold uppercase text-[#4A5E52] mb-1 flex items-center justify-between">
-                    <span>Message Body</span>
+                    <span>Email message</span>
                     <span className="text-[10px] text-[#4A5E52]">
                       {current.body.split(/\s+/).filter(Boolean).length} words
                     </span>
@@ -284,7 +284,7 @@ Alex`,
                 <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] text-xs text-[#4A5E52] flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-[#9DE3D0] shrink-0" />
                   <span>
-                    <strong className="text-[#17271F]">Grounding Context: </strong>
+                    <strong className="text-[#17271F]">Why this angle works: </strong>
                     {current.groundingEvidence}
                   </span>
                 </div>

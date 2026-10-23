@@ -26,97 +26,97 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
   const evaluationTestCases = [
     {
       id: "EVAL-01",
-      scenario: "Clear ICP Match: Kubernetes + eBPF distributed tracing startup (CloudNative IO)",
-      expected: "Accepted as high fit; snippet verified; 2 grounded facts, 1 hypothesis",
-      actual: "PASS: Accepted, Fit Score 75/100, verified source snippet attached",
+      scenario: "Good Match: Kubernetes and tracing software startup (CloudNative IO)",
+      expected: "Accepted as a strong match; attached real website snippet; 2 facts, 1 guess",
+      actual: "PASS: Accepted, 75/100 score, verified source snippet attached",
       category: "Relevance & Fit",
       status: "PASS (Fixture)"
     },
     {
       id: "EVAL-02",
-      scenario: "Clearly Unrelated Company: Local artisan bakery (Sweet Treats Bakery)",
-      expected: "Relevance gate rejection; explicit reason logged; zero saved prospects",
-      actual: "PASS: Rejected by relevance gate ('Industry outside startup ICP')",
+      scenario: "Completely Unrelated Business: Local bakery shop (Sweet Treats Bakery)",
+      expected: "Rejected right away with a clear reason; never saved as a lead",
+      actual: "PASS: Skipped ('Industry outside what you are looking for')",
       category: "Relevance Gate",
       status: "PASS (Fixture)"
     },
     {
       id: "EVAL-03",
-      scenario: "Relevant Domain with Insufficient Evidence: Bare marketing landing page",
-      expected: "Preserved as low-confidence / manual-review or demoted claims",
-      actual: "PASS: Preserved with manual review flag; zero unsupported facts claimed",
+      scenario: "Relevant Business with Very Little Information: Empty landing page",
+      expected: "Saved with a note to double check; no fake facts created",
+      actual: "PASS: Marked for your review; zero unsupported facts claimed",
       category: "Evidence Grounding",
       status: "PASS (Fixture)"
     },
     {
       id: "EVAL-04",
-      scenario: "Incidental Passing Mention: Brand merely mentioned in 100-tool listicle",
-      expected: "Relevance gate rejection; lacks substantive company evidence",
-      actual: "PASS: Rejected ('Company is incidental passing mention in listicle')",
+      scenario: "Casual Mention: Company just mentioned in a list of 100 tools",
+      expected: "Skipped because there isn't enough real information",
+      actual: "PASS: Skipped ('Company only briefly mentioned in a list article')",
       category: "Relevance Gate",
       status: "PASS (Fixture)"
     },
     {
       id: "EVAL-05",
-      scenario: "Duplicate Company Domains: www.datamesh.io vs datamesh.io",
-      expected: "Normalized domain deduplication; second candidate rejected",
-      actual: "PASS: Rejected second candidate ('Duplicate candidate domain')",
+      scenario: "Duplicate Web Addresses: www.datamesh.io vs datamesh.io",
+      expected: "Recognized as the same company; second copy skipped",
+      actual: "PASS: Skipped second copy ('Duplicate company domain')",
       category: "Deduplication",
       status: "PASS (Fixture)"
     },
     {
       id: "EVAL-06",
-      scenario: "Valid URL with Unsupported Metric: Snippet mentions eBPF, claim invents '99.999% p99'",
-      expected: "Claim rejected from observed facts; demoted to hypothesis",
-      actual: "PASS: Unsupported metric demoted to hypothesis with audit reason",
+      scenario: "Real Website with Made-Up Metric: Snippet mentions eBPF, but claim invents '99.999% uptime'",
+      expected: "Made-up metric removed from facts and marked as an unproven guess",
+      actual: "PASS: Unproven metric labeled as a guess with an explanation",
       category: "Hallucination Defense",
       status: "PASS (Fixture)"
     },
     {
       id: "EVAL-07",
-      scenario: "Correct Source Attached to Wrong Company: Source discussing Competitor cited for Subject",
-      expected: "Company alignment mismatch detected; claim rejected from facts",
-      actual: "PASS: Source mismatch flagged; claim withheld from observed facts",
+      scenario: "Right Source Attached to Wrong Company: Source talks about a competitor",
+      expected: "Mismatch spotted; claim not counted as a fact",
+      actual: "PASS: Mismatch flagged; claim kept out of verified facts",
       category: "Provenance Integrity",
       status: "PASS (Fixture)"
     },
     {
       id: "EVAL-08",
-      scenario: "Fabricated Source ID: LLM invents source-phantom-99 not in run retrieval",
-      expected: "Untrusted source rejected; claim demoted to unverified hypothesis",
-      actual: "PASS: Phantom source ID rejected; zero unverified URLs admitted",
+      scenario: "Made-Up Source ID: AI invents a source link that was never retrieved",
+      expected: "Untrusted source rejected; claim treated as an unverified guess",
+      actual: "PASS: Fake source rejected; no unverified links allowed",
       category: "Provenance Integrity",
       status: "PASS (Fixture)"
     },
     {
       id: "EVAL-09",
-      scenario: "Conflicting Source Statements: One says on-prem, one claims 100% AWS cloud",
-      expected: "Conflicting assertions isolated; unverified claim quarantined as hypothesis",
-      actual: "PASS: Flagged uncertainty indicator; safe hypothesis quarantine",
+      scenario: "Conflicting Information: One source says on-premise, another says cloud",
+      expected: "Disagreement noticed; treated as an educated guess to check",
+      actual: "PASS: Flagged as uncertain; kept in safe guesses",
       category: "Conflict Resolution",
       status: "PASS (Fixture)"
     },
     {
       id: "EVAL-10",
-      scenario: "Plausible but Unproven Business Pain: 'Suffering budget crisis over cloud bills'",
-      expected: "Excluded from observed facts; tagged as hypothesis with manual review",
-      actual: "PASS: Pain point isolated as AI hypothesis; excluded from email draft",
+      scenario: "Plausible but Unproven Business Problem: 'Struggling with huge cloud bills'",
+      expected: "Kept out of facts; marked as a guess for you to check",
+      actual: "PASS: Kept as an educated guess; not included in email draft",
       category: "Human Safeguard",
       status: "PASS (Fixture)"
     },
     {
       id: "EVAL-11",
-      scenario: "Explicitly Excluded Industry: Online gambling operator (GamblingTech Ltd)",
-      expected: "Deterministic rejection against negative ICP criteria",
-      actual: "PASS: Rejected by relevance gate ('Excluded industry: gambling')",
+      scenario: "Company on Excluded List: Online casino (GamblingTech Ltd)",
+      expected: "Skipped automatically because of negative rules",
+      actual: "PASS: Skipped ('Industry is on your excluded list: gambling')",
       category: "Negative Exclusion",
       status: "PASS (Fixture)"
     },
     {
       id: "EVAL-12",
-      scenario: "Missing Dates & Incomplete Metadata: Valuable technical blog without timestamp",
-      expected: "Accepted on substantive technical merit; date flagged as missing/unknown",
-      actual: "PASS: Accepted with date flagged; facts grounded in snippet text",
+      scenario: "Missing Dates: Great technical blog post without an exact date",
+      expected: "Accepted because information is genuine; date marked as unknown",
+      actual: "PASS: Accepted with date noted as missing; facts verified",
       category: "Metadata Resilience",
       status: "PASS (Fixture)"
     }
@@ -130,22 +130,22 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-editorial font-bold text-[#17271F]">
-                Evaluation Lab & Grounding Benchmarks
+                Accuracy Lab & Quality Checks
               </h1>
               <span className="sticker-badge bg-[#FAF7F0] text-[#17271F] border-[#17271F] font-mono text-[10px]">
-                Offline Test Suite (n=12 Fixtures)
+                Automated Quality Tests (12 Test Cases)
               </span>
             </div>
             <p className="text-xs text-[#4A5E52] mt-0.5">
-              Auditable evaluation fixture measuring relevance filtering, domain deduplication, and snippet fact-grounding in isolated tests.
+              We run automated tests to make sure ScoutSpark only finds relevant businesses, skips duplicates, and backs up every claim with real evidence.
             </p>
           </div>
 
           <div className="flex items-center gap-2 bg-[#FAF7F0] p-3 rounded-xl border border-[#17271F] text-xs">
             <Info className="w-4 h-4 text-[#FF7054] shrink-0" />
             <div>
-              <span className="font-bold text-[#17271F]">Benchmark Context: </span>
-              <span className="text-[#4A5E52]">Metrics reflect pass rates on 12 curated unit-test fixtures (<code className="font-mono text-[11px]">backend/tests/test_evaluation_fixture.py</code>), not uncontrolled open-web accuracy.</span>
+              <span className="font-bold text-[#17271F]">How we test: </span>
+              <span className="text-[#4A5E52]">These scores show pass rates across our 12 automated test cases in <code className="font-mono text-[11px]">backend/tests/test_evaluation_fixture.py</code>, checking for accuracy and honesty.</span>
             </div>
           </div>
         </div>
@@ -154,8 +154,8 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
         <div className="p-3.5 bg-[#FAF7F0] border-1.5 border-[#17271F] rounded-xl flex items-start gap-3 text-xs text-[#17271F]">
           <ShieldAlert className="w-4 h-4 text-[#FF7054] shrink-0 mt-0.5" />
           <div>
-            <span className="font-bold">Honest Evidence Philosophy: </span>
-            B2B prospect intelligence fails when AI models hallucinate company pain points, invent metrics, or cite unrelated web pages. ScoutSpark enforces a two-tier extraction pipeline: claims require exact source-snippet overlap to become observed facts, while speculative pain points are demoted to hypotheses for founder review.
+            <span className="font-bold">Our Honesty Promise: </span>
+            Sales tools fail when AI makes things up, invents metrics, or links to unrelated websites. ScoutSpark requires direct proof from real websites before calling anything a fact. Any educated guess is clearly labeled so you can review it first.
           </div>
         </div>
       </div>
@@ -193,7 +193,7 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
 
             <div className="pt-2 border-t border-[#E2D9C8] flex items-center justify-between text-[10px] text-[#17271F]">
               <span className="text-[#FF7054] font-semibold">{metric.trend}</span>
-              <span className="italic text-[#4A5E52]">n=12 Fixtures</span>
+              <span className="italic text-[#4A5E52]">12 Test Cases</span>
             </div>
           </div>
         ))}
@@ -206,16 +206,16 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
             <div className="flex items-center gap-2">
               <FlaskConical className="w-4 h-4 text-[#FF7054]" />
               <h2 className="text-base font-editorial font-bold text-[#17271F]">
-                Controlled Evaluation Fixture Matrix (12 Scenarios)
+                12 Automated Quality Test Scenarios
               </h2>
             </div>
             <p className="text-xs text-[#4A5E52]">
-              Automated regression suite in <code className="font-mono text-[11px]">backend/tests/test_evaluation_fixture.py</code> testing edge cases, negative exclusions, and hallucination defense.
+              Automated tests in <code className="font-mono text-[11px]">backend/tests/test_evaluation_fixture.py</code> checking tricky situations, rules for skipping companies, and preventing made-up claims.
             </p>
           </div>
 
           <span className="text-xs font-mono font-bold bg-[#D8FF65] text-[#17271F] border border-[#17271F] px-2.5 py-1 rounded-lg">
-            12 of 12 Test Cases Passing (Pytest)
+            All 12 Quality Tests Passing
           </span>
         </div>
 
@@ -224,10 +224,10 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
             <thead className="bg-[#FAF7F0] border-b-2 border-[#17271F] text-[#17271F] font-bold uppercase tracking-wider text-[10px]">
               <tr>
                 <th className="py-2.5 px-3">Test ID</th>
-                <th className="py-2.5 px-3">Target Scenario</th>
+                <th className="py-2.5 px-3">Test Scenario</th>
                 <th className="py-2.5 px-3">Category</th>
-                <th className="py-2.5 px-3">Expected Behavior</th>
-                <th className="py-2.5 px-3">Automated Test Outcome</th>
+                <th className="py-2.5 px-3">What Should Happen</th>
+                <th className="py-2.5 px-3">What Actually Happened</th>
                 <th className="py-2.5 px-3 text-right">Status</th>
               </tr>
             </thead>
@@ -260,13 +260,13 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
         <ScoutMascot expression="thinking" size="xl" animate={true} />
         <div className="space-y-2">
           <div className="text-xs font-mono font-bold text-[#FF7054] uppercase tracking-wider">
-            Evaluation Architecture Roadmap
+            Quality & Honesty
           </div>
           <h2 className="text-xl font-editorial font-bold text-[#17271F]">
-            Why B2B AI must separate observed facts from hypotheses
+            Why sales AI must separate proven facts from guesses
           </h2>
           <p className="text-xs text-[#4A5E52] leading-relaxed">
-            In standard generative AI prospecting tools, models make up confident assertions like "I noticed you're switching to Snowflake" when only a job post for a data analyst was found. ScoutSpark enforces a two-tier extraction pipeline: verifiable public facts are stored with provenance timestamps, while reasoning steps are explicitly quarantined as hypotheses subject to founder approval.
+            Most AI tools guess and write things like "I noticed you're switching to Snowflake" when they only found a generic job post. ScoutSpark keeps real, proven facts separate from educated guesses, so you always know what is verified before reaching out.
           </p>
         </div>
       </div>

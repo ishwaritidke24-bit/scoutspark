@@ -37,14 +37,14 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
   const [tempNote, setTempNote] = useState<string>('');
 
   const columns: StageColumn[] = [
-    { id: 'to_research', title: 'To Research', subtitle: 'Queued for public evidence check', color: '#4A5E52', bgColor: 'bg-[#FAF7F0]' },
-    { id: 'ready_to_review', title: 'Ready to Review', subtitle: 'Signals grounded, draft prepared', color: '#FF7054', bgColor: 'bg-[#FFEAE5]' },
-    { id: 'approved', title: 'Approved', subtitle: 'Human verified for founder outbound', color: '#17271F', bgColor: 'bg-[#9DE3D0]/30' },
-    { id: 'contacted', title: 'Contacted', subtitle: 'Outbound dispatched manually', color: '#17271F', bgColor: 'bg-[#D8FF65]/30' },
-    { id: 'replied', title: 'Replied', subtitle: 'Prospect engaged / responded', color: '#FF7054', bgColor: 'bg-[#FAF7F0]' },
-    { id: 'meeting', title: 'Meeting Booked', subtitle: 'Discovery call on calendar', color: '#17271F', bgColor: 'bg-[#9DE3D0]' },
-    { id: 'won', title: 'Won / Converted', subtitle: 'Signed customer or pilot', color: '#17271F', bgColor: 'bg-[#D8FF65]' },
-    { id: 'not_a_fit', title: 'Not a Fit', subtitle: 'Disqualified or blocked', color: '#4A5E52', bgColor: 'bg-[#FAF7F0]' },
+    { id: 'to_research', title: 'To search', subtitle: 'Needs a quick web search for clues', color: '#4A5E52', bgColor: 'bg-[#FAF7F0]' },
+    { id: 'ready_to_review', title: 'Ready to check', subtitle: 'Clues found, email draft ready for you', color: '#FF7054', bgColor: 'bg-[#FFEAE5]' },
+    { id: 'approved', title: 'Ready to send', subtitle: 'You checked it and gave it a thumbs up', color: '#17271F', bgColor: 'bg-[#9DE3D0]/30' },
+    { id: 'contacted', title: 'Reached out', subtitle: 'Message copied and sent', color: '#17271F', bgColor: 'bg-[#D8FF65]/30' },
+    { id: 'replied', title: 'Got a reply', subtitle: 'They wrote back!', color: '#FF7054', bgColor: 'bg-[#FAF7F0]' },
+    { id: 'meeting', title: 'Meeting booked', subtitle: 'Call is on the calendar', color: '#17271F', bgColor: 'bg-[#9DE3D0]' },
+    { id: 'won', title: 'Customer won!', subtitle: 'Signed up or paying pilot', color: '#17271F', bgColor: 'bg-[#D8FF65]' },
+    { id: 'not_a_fit', title: 'Not a fit', subtitle: 'Passed on or not looking right now', color: '#4A5E52', bgColor: 'bg-[#FAF7F0]' },
   ];
 
   const handleMoveStage = (prospect: Prospect, direction: 'prev' | 'next') => {
@@ -72,21 +72,21 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-editorial font-bold text-[#17271F]">
-              Outreach & Acquisition Pipeline
+              Your Outreach Pipeline
             </h1>
             <span className="sticker-badge bg-[#D8FF65] text-[#17271F] border-[#17271F] text-[10px]">
-              8 Active Accounts
+              8 Active Leads
             </span>
           </div>
           <p className="text-xs text-[#4A5E52] mt-0.5">
-            Track founder-controlled progress from public signal detection to human outbound and conversation outcomes.
+            See where each business is in your process—from finding clues to sending messages and booking calls.
           </p>
         </div>
 
         <div className="flex items-center gap-3 text-xs bg-[#FAF7F0] p-2.5 rounded-xl border border-[#17271F]">
           <ShieldCheck className="w-4 h-4 text-[#FF7054] shrink-0" />
           <span className="text-[#17271F] font-medium">
-            Human-in-the-Loop Protocol: First version never auto-sends.
+            Zero auto-send: You review and approve every email yourself.
           </span>
         </div>
       </div>
@@ -121,7 +121,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                 <div className="flex-1 space-y-3 overflow-y-auto">
                   {stageProspects.length === 0 ? (
                     <div className="h-32 border border-dashed border-[#17271F]/20 rounded-xl flex items-center justify-center text-[11px] text-[#4A5E52]/60 italic">
-                      No accounts in stage
+                      No leads here yet
                     </div>
                   ) : (
                     stageProspects.map(prospect => (
@@ -172,21 +172,21 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                                 type="text"
                                 value={tempNote}
                                 onChange={(e) => setTempNote(e.target.value)}
-                                placeholder="Enter outcome notes..."
+                                placeholder="Add a quick note about what happened..."
                                 className="w-full text-[10px] p-1.5 border border-[#17271F] rounded bg-[#FAF7F0] focus:outline-none"
                               />
                               <div className="flex justify-end gap-1">
                                 <button
                                   onClick={() => setEditingNoteProspectId(null)}
-                                  className="text-[10px] px-2 py-0.5 text-[#4A5E52]"
+                                  className="text-[10px] px-2 py-0.5 text-[#4A5E52] cursor-pointer"
                                 >
                                   Cancel
                                 </button>
                                 <button
                                   onClick={() => handleSaveNote(prospect.id)}
-                                  className="btn-tactile-lime text-[10px] px-2 py-0.5 rounded font-bold"
+                                  className="btn-tactile-lime text-[10px] px-2 py-0.5 rounded font-bold cursor-pointer"
                                 >
-                                  Save
+                                  Save note
                                 </button>
                               </div>
                             </div>
@@ -201,8 +201,8 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                               setEditingNoteProspectId(prospect.id);
                               setTempNote(prospect.outcomeNotes || '');
                             }}
-                            className="text-[#4A5E52] hover:text-[#17271F] p-1"
-                            title="Add / Edit outcome note"
+                            className="text-[#4A5E52] hover:text-[#17271F] p-1 cursor-pointer"
+                            title="Add or edit note"
                           >
                             <Edit3 className="w-3.5 h-3.5" />
                           </button>
@@ -210,9 +210,9 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                           {/* Inspect link */}
                           <button
                             onClick={() => onSelectProspect(prospect)}
-                            className="text-[11px] font-semibold text-[#FF7054] hover:underline"
+                            className="text-[11px] font-semibold text-[#FF7054] hover:underline cursor-pointer"
                           >
-                            Inspect
+                            See details
                           </button>
 
                           {/* Move arrows */}
@@ -220,16 +220,16 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
                             <button
                               onClick={() => handleMoveStage(prospect, 'prev')}
                               disabled={col.id === columns[0].id}
-                              className="p-1 rounded bg-[#FAF7F0] border border-[#17271F]/30 hover:bg-[#17271F] hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors"
-                              title="Move to previous stage"
+                              className="p-1 rounded bg-[#FAF7F0] border border-[#17271F]/30 hover:bg-[#17271F] hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                              title="Move back one stage"
                             >
                               <ArrowLeft className="w-3 h-3" />
                             </button>
                             <button
                               onClick={() => handleMoveStage(prospect, 'next')}
                               disabled={col.id === columns[columns.length - 1].id}
-                              className="p-1 rounded bg-[#FAF7F0] border border-[#17271F]/30 hover:bg-[#17271F] hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors"
-                              title="Advance to next stage"
+                              className="p-1 rounded bg-[#FAF7F0] border border-[#17271F]/30 hover:bg-[#17271F] hover:text-white disabled:opacity-30 disabled:pointer-events-none transition-colors cursor-pointer"
+                              title="Move to next stage"
                             >
                               <ArrowRight className="w-3 h-3" />
                             </button>

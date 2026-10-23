@@ -1,6 +1,6 @@
 # ScoutSpark Backend API ✦ FastAPI & SQLite
 
-FastAPI persistent backend service for ScoutSpark B2B Prospect Intelligence.
+The fast, persistent backend for ScoutSpark, storing your leads and running live web research.
 
 ---
 

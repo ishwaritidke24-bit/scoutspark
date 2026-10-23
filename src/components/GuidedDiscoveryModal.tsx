@@ -113,54 +113,54 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
 
   const demoSteps = [
     {
-      title: "1. Public Signal Detection",
-      subtitle: "Monitoring engineering incident archives & leadership hiring",
+      title: "1. Finding Clues Online",
+      subtitle: "Looking at public updates, job posts, and news",
       expression: "focused" as ScoutExpression,
-      speech: "Scanning public engineering postmortems...",
+      speech: "Checking what this company is working on...",
       details: [
-        "Observed: Kafka cluster ingestion lag noted in KiteMetrics postmortem (Sept 2026)",
-        "Observed: Executive hire Elena Rostova (ex-Stripe) appointed VP Engineering",
-        "Observed: 3 open roles for Senior Kubernetes & eBPF profiling engineers"
+        "Found: KiteMetrics mentioned a Kafka cluster delay in a public post (Sept 2026)",
+        "Found: Elena Rostova (formerly at Stripe) joined as VP of Engineering",
+        "Found: 3 open jobs for Senior Kubernetes and eBPF engineers"
       ],
-      badge: "3 Verified Signals"
+      badge: "3 Real Clues Found"
     },
     {
-      title: "2. Factual Grounding vs. Hypotheses",
-      subtitle: "Explicitly separating observed evidence from AI assumptions",
+      title: "2. Real Facts vs. Educated Guesses",
+      subtitle: "Keeping proven facts separate from what we think might be true",
       expression: "curious" as ScoutExpression,
-      speech: "Separating verifiable facts from hypotheses!",
+      speech: "Separating verified facts from our best guesses!",
       details: [
-        "✓ Grounded Fact: Public retrospective confirms Kafka buffer saturation under 20M spans/sec",
-        "✓ Grounded Fact: Hiring 3 infrastructure specialists reporting directly to Elena Rostova",
-        "⚡ AI Hypothesis: Cloud storage tier cost is threatening unit economics (Confidence: 85%)",
-        "⚡ AI Hypothesis: Elena is under a 90-day board mandate to improve p99 MTTR"
+        "✓ Verified Fact: Their blog confirms Kafka slows down at high volume (20M spans/sec)",
+        "✓ Verified Fact: They are hiring 3 engineers who report directly to Elena Rostova",
+        "⚡ Educated Guess: High storage bills might be hurting their profit margins",
+        "⚡ Educated Guess: Elena has been asked by the board to speed up incident fixes"
       ],
-      badge: "Zero Hallucinated Claims"
+      badge: "Zero Made-Up Claims"
     },
     {
-      title: "3. ICP Fit Scoring & Angle Synthesis",
-      subtitle: "Evaluating relevance against startup ideal customer profile",
+      title: "3. Checking How Well They Fit",
+      subtitle: "Comparing them with the kind of customers you want to reach",
       expression: "thinking" as ScoutExpression,
-      speech: "Scoring ICP compatibility at 96/100!",
+      speech: "Match score is 96 out of 100!",
       details: [
-        "Headcount: 42 employees (Target ICP: 20-50) → Full match",
-        "Tech Stack: Kubernetes + Distributed Tracing → Ideal problem fit",
-        "Buyer Persona: VP Engineering Elena Rostova → Direct technical authority",
-        "Recommended Angle: Peer-level technical benchmark on 4x trace compression"
+        "Team Size: 42 people (Your target: 20-50) → Perfect match",
+        "Tools Used: Kubernetes and tracing tools → They have the exact problem you fix",
+        "Key Person: Elena Rostova (VP Engineering) → Has decision-making power",
+        "Recommended Angle: Share technical benchmark data showing 4x trace compression"
       ],
-      badge: "Fit Score: 96 / 100"
+      badge: "Match Score: 96 / 100"
     },
     {
-      title: "4. Human-in-the-Loop Outreach Draft",
-      subtitle: "Reviewable cold email ready for human founder approval",
+      title: "4. Draft a Helpful Message",
+      subtitle: "Write a personal message for you to review and approve",
       expression: "celebratory" as ScoutExpression,
-      speech: "Outreach draft ready for your review & approval!",
+      speech: "Message draft ready for your review!",
       details: [
         "Recipient: Elena Rostova (VP Engineering, KiteMetrics)",
-        "Tone: Peer-to-peer technical exchange, zero marketing fluff",
-        "Human Safeguard: First version NEVER auto-sends. Manual approval required."
+        "Tone: Practical and respectful, zero sales fluff",
+        "Human Control: We never send emails automatically. You stay in control of every message."
       ],
-      badge: "Requires Human Approval"
+      badge: "You Decide Before Sending"
     }
   ];
 
@@ -279,7 +279,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     ? 'bg-[#17271F] text-[#9DE3D0] border-[#9DE3D0]/60'
                     : 'bg-[#17271F] text-[#D8FF65] border-[#D8FF65]/40'
                 }`}>
-                  {activeTab === 'live' ? 'LangGraph Live Web Research' : 'Deterministic Simulation'}
+                  {activeTab === 'live' ? 'Live Web Search' : 'Interactive Demo'}
                 </span>
                 {config && (
                   <span className="text-[11px] text-[#F7F2E8]/70 font-mono">
@@ -288,7 +288,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                 )}
               </div>
               <h2 id="modal-title" className="text-base font-editorial font-bold text-white tracking-tight">
-                {activeTab === 'live' ? 'Live Public Prospect Discovery' : 'Scout Research Pipeline in Action'}
+                {activeTab === 'live' ? 'Find New Customers Online' : 'See How Scout Finds Leads'}
               </h2>
             </div>
           </div>
@@ -317,7 +317,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
               }`}
             >
               <Globe className="w-3.5 h-3.5 text-[#9DE3D0]" />
-              <span>Live Public Web Search</span>
+              <span>Live Web Search</span>
             </button>
 
             <button
@@ -333,7 +333,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
               }`}
             >
               <Layers className="w-3.5 h-3.5 text-[#D8FF65]" />
-              <span>Demo Walkthrough</span>
+              <span>Step-by-Step Demo</span>
             </button>
           </div>
 
@@ -343,12 +343,12 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
             ) : config?.configured ? (
               <span className="text-[#17271F] flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#9DE3D0]" />
-                <span>Credentials Configured ({config.model})</span>
+                <span>Ready to Search ({config.model})</span>
               </span>
             ) : (
               <span className="text-[#FF7054] flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-[#FF7054]" />
-                API Keys Missing in backend/.env
+                Keys Missing in backend/.env
               </span>
             )}
           </div>
@@ -364,7 +364,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                 <div className="p-3.5 rounded-xl bg-[#FFEAE5] border-1.5 border-[#FF7054] text-xs text-[#17271F] space-y-1.5">
                   <div className="flex items-center gap-2 font-bold text-[#FF7054]">
                     <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>Provider Credentials Required for Live Research</span>
+                    <span>Search Keys Needed for Live Web Search</span>
                   </div>
                   <p className="text-[11px] text-[#4A5E52] leading-relaxed">
                     Live prospect discovery requires <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">GEMINI_API_KEY</code> and <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">TAVILY_API_KEY</code> in <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">backend/.env</code>.
@@ -374,7 +374,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                       onClick={() => handleExecuteResearch('demo')}
                       className="btn-tactile-secondary px-2.5 py-1 rounded text-[11px] font-bold"
                     >
-                      Run in Offline Demo Mode Instead
+                      Try the Interactive Demo Instead
                     </button>
                   </div>
                 </div>
@@ -386,20 +386,20 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#17271F] text-[#9DE3D0]">
-                        Bounded LangGraph Workflow
+                        Live Web Search
                       </div>
                       <h3 className="text-xl font-editorial font-bold text-[#17271F] mt-1.5">
-                        Discover Live Accounts for Your Startup
+                        Find Businesses That Need What You Build
                       </h3>
                       <p className="text-xs text-[#4A5E52] mt-0.5 leading-relaxed">
-                        Scout will plan focused queries against your saved ICP, query public web sources via Tavily, ground citations, apply deterministic rules-based scoring, and draft personalized outreach.
+                        Scout searches the public web for companies that match your ideal customer profile, verifies real facts, checks fit, and drafts a personal message.
                       </p>
                     </div>
 
                     <ScoutMascot 
                       expression="curious" 
                       size="lg" 
-                      speechText="Ready to scan the public web for your next customer!" 
+                      speechText="Ready to look for your next customer!" 
                       animate={true} 
                     />
                   </div>
@@ -408,24 +408,24 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                   <div className="bg-white border-1.5 border-[#17271F] rounded-xl p-4 shadow-[2px_2px_0px_#17271F] space-y-3.5">
                     <div>
                       <label className="block text-xs font-bold uppercase tracking-wider text-[#17271F] mb-1">
-                        Optional Focus Keywords or Instructions
+                        Optional keywords or special instructions
                       </label>
                       <input
                         type="text"
                         value={userInstructions}
                         onChange={(e) => setUserInstructions(e.target.value)}
-                        placeholder="e.g. Distributed tracing, Kafka lag postmortems, eBPF profiling..."
+                        placeholder="e.g. Distributed tracing, Kubernetes, observability..."
                         className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-3 py-2 text-xs text-[#17271F] focus:outline-none focus:ring-1 focus:ring-[#17271F]"
                       />
                       <span className="text-[10px] text-[#4A5E52] mt-1 block">
-                        Leave blank to automatically research against your saved Ideal Customer Profile.
+                        Leave blank to search based on your saved customer settings.
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between pt-2 border-t border-[#E2D9C8]">
                       <div>
-                        <span className="text-xs font-bold text-[#17271F]">Prospect Budget: </span>
-                        <span className="text-xs text-[#4A5E52]">Max candidates to discover</span>
+                        <span className="text-xs font-bold text-[#17271F]">How many companies to find: </span>
+                        <span className="text-xs text-[#4A5E52]">Maximum leads to discover</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         {[2, 3, 5].map((num) => (
@@ -439,7 +439,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                                 : 'bg-[#FAF7F0] text-[#17271F] border border-[#17271F]/40 hover:bg-[#E2D9C8]'
                             }`}
                           >
-                            {num} accounts
+                            {num} companies
                           </button>
                         ))}
                       </div>
@@ -466,13 +466,13 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                   <div className="space-y-1.5 max-w-md mx-auto">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17271F] text-[#9DE3D0] text-xs font-mono font-bold animate-pulse">
                       <RefreshCw className="w-3 h-3 animate-spin" />
-                      <span>Executing LangGraph Pipeline</span>
+                      <span>Searching the Web</span>
                     </div>
                     <h3 className="text-lg font-editorial font-bold text-[#17271F]">
-                      Searching Public Web & Grounding Facts...
+                      Finding Leads & Checking Real Facts...
                     </h3>
                     <p className="text-xs text-[#4A5E52] leading-relaxed">
-                      Scout is querying real public-web sources via Tavily, validating cited URLs, running deterministic rules scoring, and drafting human-approved outreach.
+                      Scout is searching public websites, checking links, calculating match scores, and writing draft messages for you.
                     </p>
                   </div>
 
@@ -480,15 +480,15 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                   <div className="max-w-sm mx-auto pt-2 space-y-1.5 text-left text-xs font-mono text-[#4A5E52]">
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-[#9DE3D0] animate-ping" />
-                      <span>Planning focused search queries (Gemini)...</span>
+                      <span>Finding good search terms...</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-[#D8FF65]" />
-                      <span>Executing bounded web retrieval (Tavily)...</span>
+                      <span>Reading real websites and public sources...</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-[#FF7054]" />
-                      <span>Quarantining ungrounded claims into hypotheses...</span>
+                      <span>Separating verified facts from educated guesses...</span>
                     </div>
                   </div>
                 </div>
@@ -502,19 +502,19 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-[10px] uppercase font-bold font-mono px-2 py-0.5 rounded bg-[#9DE3D0] text-[#17271F] border border-[#17271F]">
-                          {result.mode === 'live' ? 'Live Provider Results' : 'Offline Demo Results'}
+                          {result.mode === 'live' ? 'Live Web Results' : 'Demo Results'}
                         </span>
                         <span className="text-xs font-semibold text-[#4A5E52] font-mono">
-                          {result.totalSourcesFound} sources • {result.uniqueCandidatesConsidered ?? result.candidatesFound} evaluated • {result.candidatesSaved} saved • {result.candidatesRejected ?? 0} rejected
+                          {result.totalSourcesFound} websites read • {result.uniqueCandidatesConsidered ?? result.candidatesFound} companies checked • {result.candidatesSaved} good matches saved • {result.candidatesRejected ?? 0} skipped
                         </span>
                       </div>
                       <h3 className="text-lg font-editorial font-bold text-[#17271F] mt-1.5">
                         {result.candidatesSaved > 0 
-                          ? `Discovered ${result.candidatesSaved} Qualified Accounts`
-                          : 'Research Complete — No Suitable Prospects Found'}
+                          ? `Found ${result.candidatesSaved} Matching Companies`
+                          : 'Search Finished — No Matching Companies Found'}
                       </h3>
                       <p className="text-xs text-[#4A5E52] mt-0.5">
-                        Saved persistently to your workspace. All claims cited against genuine search records.
+                        Saved to your leads list. Every claim is backed by real websites we found.
                       </p>
                     </div>
 
@@ -530,7 +530,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     <div className="bg-[#FAF7F0] border border-[#17271F]/30 rounded-lg p-3 text-xs space-y-1">
                       <div className="text-[10px] font-bold uppercase tracking-wider text-[#4A5E52] flex items-center gap-1.5">
                         <Search className="w-3 h-3 text-[#17271F]" />
-                        <span>Actual Web Queries Executed</span>
+                        <span>Web Searches We Ran</span>
                       </div>
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {result.queriesExecuted.map((q, idx) => (
@@ -548,9 +548,9 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                       <div className="flex items-center justify-between text-xs font-bold text-[#17271F] uppercase tracking-wider">
                         <span className="flex items-center gap-1.5 text-[#FF7054]">
                           <ShieldAlert className="w-3.5 h-3.5" />
-                          Relevance Gate Rejections ({result.rejections.length})
+                          Companies We Skipped ({result.rejections.length})
                         </span>
-                        <span className="text-[10px] font-mono text-[#4A5E52]">Unrelated & Duplicate Accounts Filtered</span>
+                        <span className="text-[10px] font-mono text-[#4A5E52]">Unrelated or duplicate companies were removed</span>
                       </div>
                       <div className="space-y-1.5 pt-1">
                         {result.rejections.map((rej, idx) => (
@@ -574,7 +574,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                       <div className="flex items-center justify-between text-xs font-bold text-[#17271F] uppercase tracking-wider">
                         <span className="flex items-center gap-1.5 text-[#17271F]">
                           <ShieldCheck className="w-3.5 h-3.5 text-[#9DE3D0]" />
-                          Evidence Validation Outcomes
+                          Fact-Checking Results
                         </span>
                         <span className="text-[10px] font-mono text-[#4A5E52]">{result.evidenceValidations.length} Claims Checked</span>
                       </div>
@@ -590,7 +590,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                                 ? 'bg-[#9DE3D0] text-[#17271F] border-[#17271F]/40'
                                 : 'bg-[#FFEAE5] text-[#FF7054] border-[#FF7054]/40'
                             }`}>
-                              {ev.status === 'verified' ? '✓ Grounded' : '⚡ Demoted to Hypothesis'}
+                              {ev.status === 'verified' ? '✓ Verified Fact' : '⚡ Educated Guess'}
                             </span>
                           </div>
                         ))}
@@ -601,20 +601,20 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                   {/* Discovered Candidates List */}
                   <div className="space-y-3">
                     <div className="text-xs font-bold uppercase tracking-wider text-[#17271F] flex items-center justify-between">
-                      <span>Saved Prospect Intelligence Records</span>
-                      <span className="text-[11px] text-[#4A5E52]">Deterministic ICP Scoring</span>
+                      <span>Saved Leads</span>
+                      <span className="text-[11px] text-[#4A5E52]">Match Score</span>
                     </div>
 
                     {result.prospects.length === 0 ? (
                       <div className="p-6 bg-white border border-[#17271F] rounded-xl text-center space-y-2">
                         <p className="text-xs text-[#4A5E52]">
-                          No prospects met the threshold or exclusions during this research run.
+                          No companies matched your criteria during this search.
                         </p>
                         <button
                           onClick={() => setResult(null)}
                           className="btn-tactile-secondary px-3 py-1.5 rounded text-xs font-bold"
                         >
-                          Adjust Instructions & Try Again
+                          Change Search Terms & Try Again
                         </button>
                       </div>
                     ) : (
@@ -654,7 +654,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                               }}
                               className="btn-tactile-coral px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shrink-0"
                             >
-                              <span>Inspect Dossier</span>
+                              <span>View Lead Details</span>
                               <ChevronRight className="w-3.5 h-3.5" />
                             </button>
                           </div>
@@ -663,7 +663,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                           {candidate.observedFacts && candidate.observedFacts.length > 0 && (
                             <div className="pt-2 border-t border-[#E2D9C8] space-y-1.5">
                               <div className="text-[10px] font-bold uppercase tracking-wider text-[#4A5E52]">
-                                Observed Public Fact & Source Citation
+                                Verified Fact Found Online
                               </div>
                               <div className="text-xs text-[#17271F] flex items-start gap-2 bg-[#FAF7F0] p-2 rounded border border-[#17271F]/15">
                                 <span className="shrink-0 text-xs text-[#17271F] font-bold">✓</span>
@@ -692,8 +692,8 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                   {/* Completed LangGraph Step Audit */}
                   <div className="bg-[#FAF7F0] border border-[#17271F]/20 rounded-xl p-3 space-y-2">
                     <div className="text-[10px] font-bold uppercase tracking-wider text-[#4A5E52] flex items-center justify-between">
-                      <span>LangGraph Execution Audit</span>
-                      <span className="font-mono text-[#17271F]">{result.stepOutcomes.length} Nodes</span>
+                      <span>Research Steps Completed</span>
+                      <span className="font-mono text-[#17271F]">{result.stepOutcomes.length} Steps</span>
                     </div>
                     <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
                       {result.stepOutcomes.map((outcome, idx) => (
@@ -763,8 +763,8 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
               {/* Details breakdown */}
               <div className="bg-white border-1.5 border-[#17271F] rounded-xl p-4 shadow-[2px_2px_0px_#17271F] space-y-2.5">
                 <div className="text-xs font-bold uppercase tracking-wider text-[#4A5E52] flex items-center justify-between border-b border-[#E2D9C8] pb-1.5">
-                  <span>Simulated Pipeline Output</span>
-                  <span className="font-mono text-[11px] text-[#FF7054] font-semibold">TARGET: KiteMetrics</span>
+                  <span>Interactive Walkthrough</span>
+                  <span className="font-mono text-[11px] text-[#FF7054] font-semibold">EXAMPLE: KiteMetrics</span>
                 </div>
                 
                 <div className="space-y-2 pt-1">
@@ -793,8 +793,8 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
           <div className="flex items-center gap-3 p-3 rounded-lg bg-[#FFEAE5] border border-[#FF7054]/40 text-xs text-[#17271F]">
             <ShieldCheck className="w-4 h-4 text-[#FF7054] shrink-0" />
             <div>
-              <span className="font-bold">Human-in-the-Loop Safeguard: </span>
-              ScoutSpark generates evidence-backed suggestions and reviewable outreach drafts, but never triggers outbound emails automatically.
+              <span className="font-bold">Human Control Promise: </span>
+              ScoutSpark finds leads and writes draft messages, but never sends an email without your explicit review and approval.
             </div>
           </div>
         </div>
@@ -806,7 +806,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
             <span>
               {activeTab === 'live' 
                 ? `${config?.llmProvider || 'Google Gemini'} (${config?.model || 'Configured'}) + ${config?.searchProvider || 'Tavily Search API'}` 
-                : 'Deterministic Local Simulation'}
+                : 'Offline Demo Mode'}
             </span>
           </div>
 
@@ -827,7 +827,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     onClick={onClose}
                     className="btn-tactile-coral px-4 py-2 rounded-lg text-xs font-bold"
                   >
-                    Done & View Accounts
+                    Done & View Leads
                   </button>
                 </>
               ) : (
@@ -869,7 +869,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                   }}
                   className="btn-tactile-coral px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5"
                 >
-                  <Sparkles className="w-3.5 h-3.5" /> Open Elena's Reviewable Record
+                  <Sparkles className="w-3.5 h-3.5" /> Open Elena's Lead Profile
                 </button>
               )
             )}

@@ -78,31 +78,31 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-2xl font-editorial font-bold text-[#17271F]">
-              Ideal Customer Profile (ICP) & Startup Settings
+              Your Ideal Customer & Business Info
             </h1>
             <span className="sticker-badge bg-[#D8FF65] text-[#17271F] border-[#17271F] text-[10px]">
-              Active Configuration
+              Current settings
             </span>
           </div>
           <p className="text-xs text-[#4A5E52] mt-0.5">
-            These parameters guide Scout's fit scoring, signal evaluation, and personalized email angle synthesis.
+            Tell Scout what you sell and who you're looking for. This helps Scout score leads and write relevant emails.
           </p>
         </div>
 
         <div className="flex items-center gap-2">
           {savedToast && (
             <span className="text-xs font-bold text-green-700 bg-[#9DE3D0]/40 px-2.5 py-1 rounded-lg border border-[#17271F] animate-in fade-in flex items-center gap-1">
-              <Check className="w-3.5 h-3.5" /> Saved to LocalStorage
+              <Check className="w-3.5 h-3.5" /> Saved!
             </span>
           )}
 
           <button
             type="button"
             onClick={onResetICP}
-            className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5"
-            title="Restore default seed ICP"
+            className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+            title="Reset to default example settings"
           >
-            <RotateCcw className="w-3.5 h-3.5" /> Reset Defaults
+            <RotateCcw className="w-3.5 h-3.5" /> Reset to defaults
           </button>
         </div>
       </div>
@@ -113,14 +113,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           <div className="flex items-center gap-2 pb-3 border-b border-[#E2D9C8]">
             <Building2 className="w-4 h-4 text-[#FF7054]" />
             <h2 className="text-base font-editorial font-bold text-[#17271F]">
-              Your Startup Profile
+              About Your Business
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-[11px] font-bold uppercase text-[#4A5E52] mb-1">
-                Startup Name
+                Your Business Name
               </label>
               <input
                 type="text"
@@ -132,7 +132,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
             <div>
               <label className="block text-[11px] font-bold uppercase text-[#4A5E52] mb-1">
-                Product / Offering Title
+                What is your product called?
               </label>
               <input
                 type="text"
@@ -145,7 +145,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <div>
             <label className="block text-[11px] font-bold uppercase text-[#4A5E52] mb-1">
-              Company & Solution Description
+              What does your business do? (in plain words)
             </label>
             <textarea
               rows={2}
@@ -157,7 +157,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <div>
             <label className="block text-[11px] font-bold uppercase text-[#4A5E52] mb-1">
-              Core Value Proposition (What you do for them)
+              How does it help your customers?
             </label>
             <textarea
               rows={2}
@@ -169,7 +169,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
           <div>
             <label className="block text-[11px] font-bold uppercase text-[#4A5E52] mb-1">
-              Primary Problem Solved (Pain Point)
+              What big problem does it fix for them?
             </label>
             <textarea
               rows={2}
@@ -186,7 +186,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <div className="flex items-center gap-2">
               <Layers className="w-4 h-4 text-[#FF7054]" />
               <h2 className="text-base font-editorial font-bold text-[#17271F]">
-                Target Industries & Verticals
+                Industries You Want to Reach
               </h2>
             </div>
             <span className="text-[11px] text-[#4A5E52] font-mono">{formData.targetIndustries.length} Selected</span>
@@ -215,7 +215,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               type="text"
               value={newIndustry}
               onChange={(e) => setNewIndustry(e.target.value)}
-              placeholder="Add industry (e.g. EdTech SaaS, LegalTech)..."
+              placeholder="Type an industry (e.g. Health Tech, Online Schools) and press Enter..."
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -240,7 +240,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <div className="flex items-center gap-2">
               <Target className="w-4 h-4 text-[#FF7054]" />
               <h2 className="text-base font-editorial font-bold text-[#17271F]">
-                Target Buyer Roles & Titles
+                People You Want to Speak With (Job Titles)
               </h2>
             </div>
             <span className="text-[11px] text-[#4A5E52] font-mono">{formData.targetRoles.length} Roles</span>
@@ -269,7 +269,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               type="text"
               value={newRole}
               onChange={(e) => setNewRole(e.target.value)}
-              placeholder="Add role (e.g. Chief Information Security Officer)..."
+              placeholder="Type a job title (e.g. Head of Engineering, Founder) and press Enter..."
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -295,7 +295,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <div className="flex items-center gap-2 pb-2 border-b border-[#E2D9C8]">
               <Globe className="w-4 h-4 text-[#FF7054]" />
               <h2 className="text-sm font-editorial font-bold text-[#17271F]">
-                Target Geographies
+                Where They Are Located
               </h2>
             </div>
 
@@ -322,7 +322,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 type="text"
                 value={newGeo}
                 onChange={(e) => setNewGeo(e.target.value)}
-                placeholder="Add region (e.g. Australia & NZ)..."
+                placeholder="Type a country or region (e.g. United States, Europe)..."
                 className="flex-1 text-xs px-2.5 py-1 bg-[#FAF7F0] border border-[#17271F] rounded-lg focus:outline-none"
               />
               <button
@@ -340,7 +340,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <div className="flex items-center gap-2 pb-2 border-b border-[#E2D9C8]">
               <Target className="w-4 h-4 text-[#FF7054]" />
               <h2 className="text-sm font-editorial font-bold text-[#17271F]">
-                Negative Exclusions
+                Companies to Skip (Negative Rules)
               </h2>
             </div>
 
@@ -367,7 +367,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 type="text"
                 value={newExclusion}
                 onChange={(e) => setNewExclusion(e.target.value)}
-                placeholder="Add exclusion (e.g. Non-profits)..."
+                placeholder="Type companies to skip (e.g. Non-profits, Agencies)..."
                 className="flex-1 text-xs px-2.5 py-1 bg-[#FAF7F0] border border-[#17271F] rounded-lg focus:outline-none"
               />
               <button
@@ -385,14 +385,14 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div className="flex items-center justify-between pt-4">
           <div className="flex items-center gap-2 text-xs text-[#4A5E52]">
             <ScoutMascot expression="idle" size="xs" animate={true} />
-            <span>Persisted locally in browser storage for your session</span>
+            <span>Saved automatically to your database and browser</span>
           </div>
 
           <button
             type="submit"
             className="btn-tactile-coral px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer shadow-[3px_3px_0px_#17271F]"
           >
-            <Save className="w-4 h-4" /> Save ICP Configuration
+            <Save className="w-4 h-4" /> Save Target Customer Settings
           </button>
         </div>
       </form>
