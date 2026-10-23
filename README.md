@@ -21,7 +21,7 @@ Human review comes first. ScoutSpark does not send emails automatically.
 5. Review the findings and edit the outreach draft.
 A fit score is an estimate, not proof that a company will buy. Review source links before relying on a claim.
 
-#Tech stack
+# Tech stack
 - Frontend: React, TypeScript, Vite
 - Backend: Python, FastAPI, Pydantic
 - AI workflow: LangGraph, Google Gemini API
