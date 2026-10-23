@@ -1,0 +1,204 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-ink: #17271F;
+    --color-ink-muted: #4A5E52;
+    --color-paper: #F7F2E8;
+    --color-paper-light: #FAF7F0;
+    --color-paper-dark: #ECE4D4;
+    --color-border: #E2D9C8;
+    --color-coral: #FF7054;
+    --color-coral-light: #FFEAE5;
+    --color-coral-dark: #E0583E;
+    --color-lime: #D8FF65;
+    --color-lime-light: #F4FFCF;
+    --color-mint: #9DE3D0;
+    --color-mint-light: #E4F7F2;
+
+    --font-serif: 'Fraunces', Georgia, serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    overflow-x: hidden;
+  }
+}
+
+/* Custom font utilities */
+.font-editorial {
+  font-family: var(--font-serif);
+}
+
+.font-body {
+  font-family: var(--font-sans);
+}
+
+.font-code {
+  font-family: var(--font-mono);
+}
+
+/* Tactile button & card utilities */
+.card-tactile {
+  background-color: #ffffff;
+  border: 1.5px solid var(--color-border);
+  box-shadow: 3px 3px 0px rgba(23, 39, 31, 0.08);
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s ease;
+}
+
+.card-tactile:hover {
+  border-color: rgba(23, 39, 31, 0.35);
+  box-shadow: 4px 4px 0px rgba(23, 39, 31, 0.14);
+}
+
+.btn-tactile-coral {
+  background-color: var(--color-coral);
+  color: #ffffff;
+  border: 1.5px solid var(--color-ink);
+  box-shadow: 2px 2px 0px var(--color-ink);
+  font-weight: 600;
+  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-tactile-coral:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--color-ink);
+  background-color: #f76245;
+}
+
+.btn-tactile-coral:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--color-ink);
+}
+
+.btn-tactile-lime {
+  background-color: var(--color-lime);
+  color: var(--color-ink);
+  border: 1.5px solid var(--color-ink);
+  box-shadow: 2px 2px 0px var(--color-ink);
+  font-weight: 600;
+  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-tactile-lime:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--color-ink);
+}
+
+.btn-tactile-lime:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--color-ink);
+}
+
+.btn-tactile-secondary {
+  background-color: #ffffff;
+  color: var(--color-ink);
+  border: 1.5px solid var(--color-ink);
+  box-shadow: 2px 2px 0px var(--color-ink);
+  font-weight: 500;
+  transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-tactile-secondary:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0px var(--color-ink);
+  background-color: var(--color-paper-light);
+}
+
+.btn-tactile-secondary:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--color-ink);
+}
+
+/* Sticker badge styling */
+.sticker-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 9999px;
+  border: 1px solid var(--color-ink);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* Subtle hand-drawn / sketch underline & scribble accents */
+.sketch-border {
+  position: relative;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F7F2E8;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D5CEBE;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #17271F;
+}
+
+/* Scout animations */
+@keyframes scout-float {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-4px) rotate(1.5deg);
+  }
+}
+
+@keyframes scout-blink {
+  0%, 94%, 98%, 100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes scout-shimmer {
+  0%, 100% {
+    opacity: 0.9;
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 8px rgba(216, 255, 101, 0.7));
+  }
+}
+
+.animate-scout-float {
+  animation: scout-float 4s ease-in-out infinite;
+}
+
+.animate-scout-blink {
+  transform-origin: center;
+  animation: scout-blink 5s infinite;
+}
+
+.animate-scout-shimmer {
+  animation: scout-shimmer 2.5s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
