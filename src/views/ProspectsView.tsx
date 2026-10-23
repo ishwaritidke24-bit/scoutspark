@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Prospect, PipelineStage } from '../types';
 import { ScoutMascot } from '../components/ScoutMascot';
+import { prospectService } from '../services/prospectService';
 import { 
   Search, 
   Filter, 
@@ -16,19 +17,27 @@ import {
   ChevronRight,
   Target,
   Clock,
-  RotateCcw
+  RotateCcw,
+  Upload,
+  FileSpreadsheet,
+  AlertCircle,
+  CheckCircle2,
+  X,
+  Download
 } from 'lucide-react';
 
 interface ProspectsViewProps {
   prospects: Prospect[];
   onSelectProspect: (prospect: Prospect) => void;
   onUpdateStage: (id: string, stage: PipelineStage) => void;
+  onRefresh?: () => void;
 }
 
 export const ProspectsView: React.FC<ProspectsViewProps> = ({
   prospects,
   onSelectProspect,
   onUpdateStage,
+  onRefresh,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedIndustry, setSelectedIndustry] = useState<string>('all');
@@ -36,6 +45,17 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
   const [minScore, setMinScore] = useState<number>(0);
   const [sortBy, setSortBy] = useState<'score_desc' | 'score_asc' | 'name_asc' | 'facts_desc'>('score_desc');
   const [viewMode, setViewMode] = useState<'cards' | 'table'>('cards');
+
+  // CSV Import Modal state
+  const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isImporting, setIsImporting] = useState<boolean>(false);
+  const [importResult, setImportResult] = useState<{
+    importedCount: number;
+    errorCount: number;
+    errors: Array<{ row: number; error: string }>;
+  } | null>(null);
+  const [importError, setImportError] = useState<string | null>(null);
 
   // Filter industries list
   const industries = useMemo(() => {
@@ -91,6 +111,58 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
     setSortBy('score_desc');
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      if (!file.name.toLowerCase().endsWith('.csv')) {
+        setImportError('Please select a valid .csv file.');
+        setSelectedFile(null);
+        return;
+      }
+      setSelectedFile(file);
+      setImportError(null);
+      setImportResult(null);
+    }
+  };
+
+  const handleUploadCSV = async () => {
+    if (!selectedFile) return;
+    setIsImporting(true);
+    setImportError(null);
+    setImportResult(null);
+
+    try {
+      const res = await prospectService.importCSV(selectedFile);
+      setImportResult({
+        importedCount: res.importedCount,
+        errorCount: res.errorCount,
+        errors: res.errors,
+      });
+      if (res.importedCount > 0 && onRefresh) {
+        onRefresh();
+      }
+    } catch (err: any) {
+      setImportError(err.detail || err.message || 'CSV import failed. Ensure backend is running.');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleDownloadSampleCSV = () => {
+    const csvContent = `company_name,domain,industry,sub_industry,employee_count,headquarters,buyer_name,buyer_title
+SynapseCloud,synapsecloud.internal,Developer Tools & Infrastructure,Edge Routing,38 employees,San Francisco CA,Marcus Brody,VP of Platform
+CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac Telemetry,52 employees,Boston MA,Dr. Sarah Lin,Chief Clinical Officer
+`;
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'scoutspark_prospects_template.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const getScoreBadge = (score: number) => {
     if (score >= 90) return 'bg-[#D8FF65] text-[#17271F] border-[#17271F]';
     if (score >= 75) return 'bg-[#9DE3D0] text-[#17271F] border-[#17271F]';
@@ -117,12 +189,25 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
             </p>
           </div>
 
-          {/* View toggle & Sort */}
-          <div className="flex items-center gap-2">
+          {/* View toggle, CSV Import & Sort */}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <button
+              onClick={() => {
+                setIsImportModalOpen(true);
+                setImportResult(null);
+                setImportError(null);
+                setSelectedFile(null);
+              }}
+              className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+            >
+              <Upload className="w-3.5 h-3.5 text-[#FF7054]" />
+              <span>Import CSV</span>
+            </button>
+
             <div className="flex items-center bg-[#FAF7F0] border border-[#17271F] rounded-lg p-0.5">
               <button
                 onClick={() => setViewMode('cards')}
-                className={`p-1.5 rounded text-xs font-semibold flex items-center gap-1 ${
+                className={`p-1.5 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer ${
                   viewMode === 'cards' ? 'bg-[#17271F] text-white shadow-xs' : 'text-[#4A5E52] hover:text-[#17271F]'
                 }`}
                 title="Grid cards view"
@@ -131,7 +216,7 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
               </button>
               <button
                 onClick={() => setViewMode('table')}
-                className={`p-1.5 rounded text-xs font-semibold flex items-center gap-1 ${
+                className={`p-1.5 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer ${
                   viewMode === 'table' ? 'bg-[#17271F] text-white shadow-xs' : 'text-[#4A5E52] hover:text-[#17271F]'
                 }`}
                 title="Dense table view"
@@ -226,7 +311,7 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
               No accounts match these filters
             </h3>
             <p className="text-xs text-[#4A5E52]">
-              Scout searched the simulated workspace, but didn't find any accounts matching "{searchQuery}" with minimum score {minScore}%.
+              Scout searched the workspace, but didn't find any accounts matching "{searchQuery}" with minimum score {minScore}%.
             </p>
           </div>
           <button
@@ -264,7 +349,7 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
                         </span>
                       </div>
                       <div className="flex items-center gap-2 text-[11px] text-[#4A5E52] mt-0.5">
-                        <span>{prospect.subIndustry}</span>
+                        <span>{prospect.subIndustry || prospect.industry}</span>
                         <span>•</span>
                         <span>{prospect.employeeCount}</span>
                       </div>
@@ -291,11 +376,11 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
                 <div className="mt-3 p-2 bg-[#FAF7F0] rounded-lg border border-[#E2D9C8] flex items-center justify-between text-xs">
                   <div className="flex items-center gap-1.5">
                     <Target className="w-3.5 h-3.5 text-[#FF7054]" />
-                    <span className="font-semibold text-[#17271F]">{prospect.targetBuyer.name}</span>
-                    <span className="text-[#4A5E52] text-[11px]">({prospect.targetBuyer.title})</span>
+                    <span className="font-semibold text-[#17271F]">{prospect.targetBuyer.name || 'Decision Maker'}</span>
+                    <span className="text-[#4A5E52] text-[11px]">({prospect.targetBuyer.title || 'Executive'})</span>
                   </div>
                   <span className="text-[10px] text-[#FF7054] font-medium">
-                    {prospect.targetBuyer.roleType.split(' ')[0]}
+                    {prospect.targetBuyer.roleType?.split(' ')[0] || 'Lead'}
                   </span>
                 </div>
 
@@ -303,12 +388,12 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
                 <div className="mt-3 flex items-center gap-2 text-[10px] font-mono">
                   <span className="bg-[#9DE3D0]/30 text-[#17271F] border border-[#17271F]/30 px-2 py-0.5 rounded flex items-center gap-1">
                     <ShieldCheck className="w-3 h-3 text-[#17271F]" />
-                    {prospect.observedFacts.length} Verified Facts
+                    {prospect.observedFacts?.length || 0} Verified Facts
                   </span>
                   <span className="bg-[#D8FF65]/30 text-[#17271F] border border-[#17271F]/30 px-2 py-0.5 rounded">
-                    ⚡ {prospect.hypotheses.length} Hypotheses
+                    ⚡ {prospect.hypotheses?.length || 0} Hypotheses
                   </span>
-                  {prospect.emailDraft.isApproved && (
+                  {prospect.emailDraft?.isApproved && (
                     <span className="bg-[#9DE3D0] text-[#17271F] font-bold px-2 py-0.5 rounded">
                       ✓ Draft Approved
                     </span>
@@ -319,7 +404,7 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
               {/* Card Footer */}
               <div className="mt-4 pt-3 border-t border-[#E2D9C8] flex items-center justify-between text-xs">
                 <span className="text-[#4A5E52] text-[11px]">
-                  {prospect.stage.split(' •')[0]}
+                  {prospect.stage?.split(' •')[0] || prospect.headquarters}
                 </span>
                 <span className="text-[#FF7054] font-semibold flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                   View Dossier & Draft <ChevronRight className="w-3.5 h-3.5" />
@@ -360,22 +445,22 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
                         {prospect.companyName}
                       </div>
                       <div className="text-[11px] text-[#4A5E52]">
-                        {prospect.subIndustry} • {prospect.employeeCount}
+                        {prospect.subIndustry || prospect.industry} • {prospect.employeeCount}
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="font-semibold text-[#17271F]">
-                        {prospect.targetBuyer.name}
+                        {prospect.targetBuyer.name || 'Decision Maker'}
                       </div>
                       <div className="text-[11px] text-[#4A5E52]">
-                        {prospect.targetBuyer.title}
+                        {prospect.targetBuyer.title || 'Executive'}
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-1.5 text-[11px] font-mono">
-                        <span className="text-green-700 font-semibold">{prospect.observedFacts.length} Facts</span>
+                        <span className="text-green-700 font-semibold">{prospect.observedFacts?.length || 0} Facts</span>
                         <span>•</span>
-                        <span className="text-amber-700">{prospect.hypotheses.length} Hypotheses</span>
+                        <span className="text-amber-700">{prospect.hypotheses?.length || 0} Hypotheses</span>
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
@@ -395,7 +480,7 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
                           e.stopPropagation();
                           onSelectProspect(prospect);
                         }}
-                        className="btn-tactile-secondary px-2.5 py-1 rounded text-xs font-semibold inline-flex items-center gap-1"
+                        className="btn-tactile-secondary px-2.5 py-1 rounded text-xs font-semibold inline-flex items-center gap-1 cursor-pointer"
                       >
                         Inspect <ChevronRight className="w-3 h-3" />
                       </button>
@@ -404,6 +489,121 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* CSV Import Modal */}
+      {isImportModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#17271F]/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg bg-[#FAF7F0] border-2 border-[#17271F] rounded-2xl shadow-[6px_6px_0px_#17271F] overflow-hidden p-6 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#17271F]/15">
+              <div className="flex items-center gap-2">
+                <FileSpreadsheet className="w-5 h-5 text-[#FF7054]" />
+                <h3 className="text-base font-editorial font-bold text-[#17271F]">
+                  Import Prospects from CSV
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsImportModalOpen(false)}
+                className="p-1 rounded text-[#4A5E52] hover:text-[#17271F]"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-[#4A5E52] leading-relaxed">
+              Upload a CSV file containing potential prospect accounts. Required columns: <strong className="text-[#17271F]">company_name</strong>, <strong className="text-[#17271F]">domain</strong>, <strong className="text-[#17271F]">industry</strong>.
+            </p>
+
+            {/* Template Download Link */}
+            <div className="flex items-center justify-between p-2.5 bg-white border border-[#17271F]/20 rounded-xl text-xs">
+              <span className="text-[#4A5E52]">Need a template format?</span>
+              <button
+                onClick={handleDownloadSampleCSV}
+                className="text-[#FF7054] font-bold hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" /> Download Sample CSV
+              </button>
+            </div>
+
+            {/* File Input Box */}
+            <div className="p-5 border-2 border-dashed border-[#17271F]/30 bg-white rounded-xl text-center space-y-2">
+              <input
+                type="file"
+                id="csvFileInput"
+                accept=".csv"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <label
+                htmlFor="csvFileInput"
+                className="btn-tactile-secondary px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-2 cursor-pointer"
+              >
+                <Upload className="w-4 h-4" />
+                <span>{selectedFile ? selectedFile.name : 'Choose CSV File'}</span>
+              </label>
+              {selectedFile && (
+                <p className="text-[11px] text-[#4A5E52] mt-1">
+                  {(selectedFile.size / 1024).toFixed(1)} KB • Ready for upload
+                </p>
+              )}
+            </div>
+
+            {/* Error Message */}
+            {importError && (
+              <div className="p-3 bg-[#FFEAE5] border border-[#FF7054] rounded-xl text-xs text-[#FF7054] flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{importError}</span>
+              </div>
+            )}
+
+            {/* Success Result */}
+            {importResult && (
+              <div className="p-3.5 bg-[#9DE3D0]/30 border border-[#17271F] rounded-xl text-xs space-y-2">
+                <div className="flex items-center gap-2 font-bold text-[#17271F]">
+                  <CheckCircle2 className="w-4 h-4 text-green-700" />
+                  <span>Import Completed!</span>
+                </div>
+                <div className="text-[11px] text-[#17271F]">
+                  Successfully imported: <strong>{importResult.importedCount}</strong> accounts.
+                  {importResult.errorCount > 0 && (
+                    <span className="text-red-700 ml-2">Errors: {importResult.errorCount} rows.</span>
+                  )}
+                </div>
+                {importResult.errors.length > 0 && (
+                  <div className="mt-2 p-2 bg-white rounded border border-red-200 text-[10px] text-red-700 space-y-1 max-h-24 overflow-y-auto">
+                    {importResult.errors.map((err, idx) => (
+                      <div key={idx}>Row {err.row}: {err.error}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Modal Actions */}
+            <div className="pt-2 flex items-center justify-end gap-2 border-t border-[#17271F]/15">
+              <button
+                onClick={() => setIsImportModalOpen(false)}
+                className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
+              >
+                Close
+              </button>
+              <button
+                onClick={handleUploadCSV}
+                disabled={!selectedFile || isImporting}
+                className="btn-tactile-coral px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                {isImporting ? (
+                  <span>Importing...</span>
+                ) : (
+                  <>
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload & Process</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
