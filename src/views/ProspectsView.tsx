@@ -340,13 +340,23 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                     </div>
 
                     <div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <h2 className="text-base font-editorial font-bold text-[#17271F] group-hover:text-[#FF7054] transition-colors">
                           {prospect.companyName}
                         </h2>
                         <span className="sticker-badge bg-[#FAF7F0] text-[#17271F] border-[#17271F] text-[9px]">
                           {prospect.fitLevel}
                         </span>
+                        {prospect.provenance === 'researched' && (
+                          <span className="sticker-badge bg-[#9DE3D0] text-[#17271F] border-[#17271F] text-[9px] font-mono">
+                            🌐 Live Web
+                          </span>
+                        )}
+                        {prospect.provenance === 'csv' && (
+                          <span className="sticker-badge bg-[#FFEAE5] text-[#FF7054] border-[#FF7054] text-[9px] font-mono">
+                            CSV
+                          </span>
+                        )}
                       </div>
                       <div className="flex items-center gap-2 text-[11px] text-[#4A5E52] mt-0.5">
                         <span>{prospect.subIndustry || prospect.industry}</span>
@@ -441,8 +451,13 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                       </span>
                     </td>
                     <td className="py-3.5 px-4">
-                      <div className="font-editorial font-bold text-sm text-[#17271F]">
-                        {prospect.companyName}
+                      <div className="font-editorial font-bold text-sm text-[#17271F] flex items-center gap-1.5">
+                        <span>{prospect.companyName}</span>
+                        {prospect.provenance === 'researched' && (
+                          <span className="text-[9px] font-mono font-bold px-1 py-0.2 rounded bg-[#9DE3D0] text-[#17271F] border border-[#17271F]">
+                            LIVE
+                          </span>
+                        )}
                       </div>
                       <div className="text-[11px] text-[#4A5E52]">
                         {prospect.subIndustry || prospect.industry} • {prospect.employeeCount}

@@ -209,4 +209,72 @@ export const apiClient = {
 
     return await res.json();
   },
+
+  async getResearchConfig(): Promise<{
+    configured: boolean;
+    llmProvider: string;
+    searchProvider: string;
+    provider: string;
+    mode: string;
+    model: string;
+    geminiConfigured: boolean;
+    tavilyConfigured: boolean;
+    connectionStatus: string;
+  }> {
+    return request('/api/v1/research/config');
+  },
+
+  async runResearch(payload: {
+    maxProspects?: number;
+    mode?: 'live' | 'demo';
+    userInstructions?: string;
+  }): Promise<{
+    runId: string;
+    status: 'completed' | 'empty' | 'error';
+    mode: 'live' | 'demo';
+    queriesExecuted: string[];
+    totalSourcesFound: number;
+    uniqueCandidatesConsidered: number;
+    candidatesAccepted: number;
+    candidatesRejected: number;
+    candidatesSaved: number;
+    savedProspectIds: string[];
+    rejections: Array<{
+      companyName: string;
+      domain: string;
+      reason: string;
+      relevanceDecision: string;
+    }>;
+    evidenceValidations: Array<{
+      fact: string;
+      companyName: string;
+      sourceUrl?: string;
+      status: string;
+      reason: string;
+    }>;
+    prospects: Prospect[];
+    sources: Array<{
+      sourceId: string;
+      url: string;
+      title: string;
+      snippet: string;
+      provider: string;
+      publishedDate?: string;
+      retrievedAt: string;
+    }>;
+    stepOutcomes: Array<{
+      step: string;
+      status: 'success' | 'warning' | 'error' | 'skipped';
+      summary: string;
+      detail?: string;
+    }>;
+    warnings: string[];
+    error?: string;
+  }> {
+    return request('/api/v1/research/run', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    });
+  },
 };
+

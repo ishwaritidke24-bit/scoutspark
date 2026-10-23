@@ -72,6 +72,7 @@ export interface Prospect {
   lastUpdated: string;
   outcomeNotes?: string;
   tags: string[];
+  provenance?: 'demo' | 'researched' | 'csv' | string;
 }
 
 export interface IdealCustomerProfile {

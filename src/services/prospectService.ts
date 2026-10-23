@@ -300,6 +300,76 @@ class ProspectService {
     return await apiClient.importCSV(file);
   }
 
+  public async getResearchConfig(): Promise<{
+    configured: boolean;
+    llmProvider: string;
+    searchProvider: string;
+    provider: string;
+    mode: string;
+    model: string;
+    geminiConfigured: boolean;
+    tavilyConfigured: boolean;
+    connectionStatus: string;
+  }> {
+    if (this.isDemoMode) {
+      return {
+        configured: false,
+        llmProvider: 'Local Simulation',
+        searchProvider: 'Offline Fixtures',
+        provider: 'Local Mock Simulation',
+        mode: 'demo',
+        model: 'scout-mock-v1',
+        geminiConfigured: false,
+        tavilyConfigured: false,
+        connectionStatus: 'offline_demo',
+      };
+    }
+    return await apiClient.getResearchConfig();
+  }
+
+  public async runResearch(payload: {
+    maxProspects?: number;
+    mode?: 'live' | 'demo';
+    userInstructions?: string;
+  }) {
+    if (this.isDemoMode) {
+      return {
+        runId: 'run-demo-sim',
+        status: 'completed' as const,
+        mode: 'demo' as const,
+        queriesExecuted: ['Local simulated prospect scan'],
+        totalSourcesFound: 2,
+        uniqueCandidatesConsidered: 1,
+        candidatesFound: 1,
+        candidatesAccepted: 1,
+        candidatesRejected: 0,
+        candidatesSaved: 1,
+        savedProspectIds: ['prospect-01'],
+        rejections: [],
+        evidenceValidations: [
+          {
+            sourceId: 'src-demo-01',
+            candidateName: 'KiteMetrics',
+            claim: 'Kafka buffer saturation noted in postmortem',
+            status: 'verified' as const,
+            reason: 'Grounded in public engineering archive snippet',
+          }
+        ],
+        prospects: this.getLocalProspects().slice(0, 1),
+        sources: [],
+        stepOutcomes: [
+          { step: 'validate_input', status: 'success' as const, summary: 'Input verified against ICP' },
+          { step: 'search_sources', status: 'success' as const, summary: 'Simulated source scan complete' },
+          { step: 'relevance_gate', status: 'success' as const, summary: 'Relevance gate passed 1 account' },
+          { step: 'ground_and_validate', status: 'success' as const, summary: 'Evidence grounded in sources' },
+          { step: 'qualify_and_score', status: 'success' as const, summary: 'ICP score calculated' },
+        ],
+        warnings: [],
+      };
+    }
+    return await apiClient.runResearch(payload);
+  }
+
   public resetDemoData(): void {
     localStorage.removeItem(PROSPECTS_STORAGE_KEY);
     localStorage.removeItem(ICP_STORAGE_KEY);

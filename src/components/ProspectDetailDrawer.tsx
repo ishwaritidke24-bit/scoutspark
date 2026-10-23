@@ -127,13 +127,26 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
                 <span className="text-[9px] uppercase tracking-tighter mt-0.5">FIT SCORE</span>
               </div>
               <div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <h2 className="text-2xl font-editorial font-bold text-white tracking-tight">
                     {prospect.companyName}
                   </h2>
                   <span className="sticker-badge bg-[#D8FF65] text-[#17271F] border-[#17271F] text-[10px]">
                     {prospect.fitLevel}
                   </span>
+                  {prospect.provenance === 'researched' ? (
+                    <span className="sticker-badge bg-[#9DE3D0] text-[#17271F] border-[#17271F] text-[10px] font-mono">
+                      🌐 Live Researched
+                    </span>
+                  ) : prospect.provenance === 'csv' ? (
+                    <span className="sticker-badge bg-[#FFEAE5] text-[#FF7054] border-[#FF7054] text-[10px] font-mono">
+                      CSV Import
+                    </span>
+                  ) : (
+                    <span className="sticker-badge bg-[#FAF7F0] text-[#17271F] border-[#17271F] text-[10px] font-mono">
+                      Demo Record
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-3 text-xs text-[#9DE3D0] mt-1">
                   <span className="flex items-center gap-1">
@@ -284,7 +297,7 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
                         Observed Facts ({prospect.observedFacts.length})
                       </span>
                     </div>
-                    <span className="text-[11px] text-[#4A5E52] italic">Verifiable Public Data</span>
+                    <span className="text-[11px] text-[#4A5E52] italic font-mono">Grounded in Public Web Snippets</span>
                   </div>
 
                   <div className="space-y-3 mt-3">
@@ -294,15 +307,28 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
                           <p className="font-semibold text-[#17271F] leading-snug">
                             {fact.fact}
                           </p>
-                          <span className="shrink-0 text-[10px] font-mono bg-white px-1.5 py-0.5 rounded border border-[#17271F]/20 text-[#17271F]">
-                            ✓ Verified
+                          <span className="shrink-0 text-[10px] font-mono bg-white px-2 py-0.5 rounded border border-[#17271F]/30 text-[#17271F]">
+                            Snippet-Grounded
                           </span>
                         </div>
-                        <div className="flex items-center justify-between text-[11px] text-[#4A5E52] pt-1">
+                        {fact.sourceUrl && (
+                          <div className="pt-1">
+                            <a
+                              href={fact.sourceUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[11px] text-[#FF7054] hover:underline flex items-center gap-1 font-mono break-all"
+                            >
+                              <ExternalLink className="w-3 h-3 shrink-0" />
+                              <span>{fact.sourceUrl}</span>
+                            </a>
+                          </div>
+                        )}
+                        <div className="flex items-center justify-between text-[11px] text-[#4A5E52] pt-1 border-t border-[#E2D9C8]/60">
                           <span className="flex items-center gap-1">
                             <Clock className="w-3 h-3" /> {fact.date || 'Recent public archive'}
                           </span>
-                          <span className="flex items-center gap-1 font-mono text-[10px] text-[#FF7054]">
+                          <span className="flex items-center gap-1 font-mono text-[10px] text-[#4A5E52]">
                             {fact.source}
                           </span>
                         </div>
@@ -312,7 +338,7 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
 
                   <div className="mt-3 text-[11px] text-[#4A5E52] italic flex items-center gap-1 bg-[#FAF7F0] p-2 rounded border border-[#E2D9C8]">
                     <Info className="w-3.5 h-3.5 shrink-0 text-[#4A5E52]" />
-                    <span>Note: All sources are illustrative demo signals simulated for UI validation.</span>
+                    <span>Evidence Standard: Facts require exact keyword/semantic support in retrieved source snippets. Unverified claims are demoted to hypotheses.</span>
                   </div>
                 </div>
 

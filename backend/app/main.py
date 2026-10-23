@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from .config import settings
 from .database import engine, SessionLocal, Base
 from .seed import seed_database
-from .routers import health, dashboard, prospects, icp, outreach, activities
+from .routers import health, dashboard, prospects, icp, outreach, activities, research
 
 
 @asynccontextmanager
@@ -46,6 +46,7 @@ app.include_router(prospects.router)
 app.include_router(icp.router)
 app.include_router(outreach.router)
 app.include_router(activities.router)
+app.include_router(research.router)
 
 
 @app.get("/")

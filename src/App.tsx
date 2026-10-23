@@ -271,6 +271,7 @@ export const App: React.FC = () => {
           setCurrentTab('prospects');
         }}
         prospects={prospects}
+        onDiscoveryComplete={loadAllData}
       />
 
       {/* Footer */}

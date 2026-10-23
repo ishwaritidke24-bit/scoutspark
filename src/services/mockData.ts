@@ -825,47 +825,47 @@ export const MOCK_SIGNALS: ResearchSignal[] = [
 export const MOCK_EVAL_METRICS: EvaluationMetric[] = [
   {
     id: "eval-01",
-    name: "Observed Fact Grounding Rate",
-    category: "grounding",
-    score: "99.2%",
-    target: "≥ 98.0%",
+    name: "Controlled Fixture Pass Rate",
+    category: "accuracy",
+    score: "100%",
+    target: "100% (12/12)",
     status: "healthy",
-    benchmarkNotes: "Evaluated on 420 extracted statements: zero hallucinated citations. Unverified statements strictly tagged as hypotheses.",
-    description: "Percentage of extracted business claims directly traceable to a verifiable public or archival artifact.",
-    trend: "+1.4% vs last benchmark"
+    benchmarkNotes: "Deterministic suite passing all 12 edge cases in backend/tests/test_evaluation_fixture.py (unit test context).",
+    description: "Percentage of synthetic edge cases correctly categorized by relevance gate, domain deduplication, and evidence grounding.",
+    trend: "12 of 12 test fixtures passing"
   },
   {
     id: "eval-02",
-    name: "ICP Fit Qualification Precision",
-    category: "accuracy",
-    score: "91.8%",
-    target: "≥ 88.0%",
+    name: "Fact Grounding in Snippet Text",
+    category: "grounding",
+    score: "100%",
+    target: "100% (n=12)",
     status: "healthy",
-    benchmarkNotes: "Validated against human founder accept/reject decisions over 60 test accounts.",
-    description: "Accuracy of fit score ranking in matching an early-stage startup's true ideal customer criteria.",
-    trend: "+3.2% vs last benchmark"
+    benchmarkNotes: "Demoted 100% of claims with unsupported metrics, dates, or vendor associations to unverified hypotheses.",
+    description: "Strict lexical and semantic coverage check: claims without source snippet support are never preserved as observed facts.",
+    trend: "Zero phantom URLs admitted"
   },
   {
     id: "eval-03",
-    name: "Hypothesis Uncertainty Flagging",
+    name: "Relevance & Negative Exclusion",
     category: "ranking",
-    score: "94.5%",
-    target: "≥ 90.0%",
+    score: "100%",
+    target: "100% (n=12)",
     status: "healthy",
-    benchmarkNotes: "Identifies unverified assumptions (e.g. cloud egress bills or internal committee structures) before outreach.",
-    description: "Reliability in detecting speculative assumptions and prompting human review before drafting.",
-    trend: "+2.1% vs last benchmark"
+    benchmarkNotes: "Correctly rejected non-B2B accounts (e.g. bakery), duplicate domains, and incidental mentions without evidence.",
+    description: "Relevance gate filtering against startup target profile and explicit negative criteria (e.g. excluded industries).",
+    trend: "4 of 4 negative cases rejected"
   },
   {
     id: "eval-04",
-    name: "Human Research Time Reduction",
-    category: "efficiency",
-    score: "78.4%",
-    target: "≥ 70.0%",
-    status: "improving",
-    benchmarkNotes: "Measured median time to produce an approved, hyper-personalized draft (dropped from 42 mins to 8.5 mins).",
-    description: "Efficiency gain for founders and account leads compared to manual multi-tab research workflows.",
-    trend: "+6.8% vs last benchmark"
+    name: "Hypothesis Quarantine Rate",
+    category: "grounding",
+    score: "100%",
+    target: "100% (n=12)",
+    status: "healthy",
+    benchmarkNotes: "Preserves speculative pain points as reviewable hypotheses with clear confidence indicators, never observed facts.",
+    description: "Rate of isolating unproven assumptions for founder review before human-in-the-loop email drafting.",
+    trend: "Human review required"
   }
 ];
 

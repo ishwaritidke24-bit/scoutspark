@@ -20,8 +20,15 @@ The backend provides:
   - `PATCH /api/v1/prospects/{id}/outcome`: Record outcome notes.
   - `POST /api/v1/prospects/import`: Secure multipart CSV file upload with validation and row-level error reporting.
   - `GET /api/v1/icp` & `PUT /api/v1/icp`: Read and update ICP settings.
+  - `GET /api/v1/research/config`: Provider configuration status and effective research mode (never exposes secret keys).
+  - `POST /api/v1/research/run`: Bounded LangGraph research run with Tavily search, Gemini extraction, grounding validation, rules scoring, and SQLite persistence.
   - `GET /api/v1/outreach-drafts`, `POST`, `PATCH`: Personalized outreach drafts & human approval tracking.
   - `GET /api/v1/activities`: Audit trail of actions.
+- **LangGraph Prospect Research Engine (`app/research/`)**:
+  - `state.py`: Typed graph state, source references, extracted facts, and candidate models.
+  - `providers.py`: Pluggable interfaces for Tavily Search API, Google Gemini API (`google-genai`), and offline mocks.
+  - `graph.py`: StateGraph orchestration enforcing grounding validation, quarantining hallucinated URLs into hypotheses, rules scoring, and SQLite persistence.
+  - `schemas.py`: Input validation for research requests and transparent outcome reports.
 - **Transparent Baseline Scoring (`scoring_service.py`)**:
   - Deterministic evaluation (0–100) based on industry match, company scale/headcount, buyer role, verified evidence signals, and geography.
   - Explicit missing information detection and negative exclusion docking.
