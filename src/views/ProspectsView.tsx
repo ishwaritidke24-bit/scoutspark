@@ -235,7 +235,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                 <option value="score_desc">Best Match First</option>
                 <option value="score_asc">Lowest Match First</option>
                 <option value="name_asc">Company Name (A to Z)</option>
-                <option value="facts_desc">Most Facts Found</option>
+                <option value="facts_desc">Most Source Details</option>
               </select>
             </div>
           </div>
@@ -402,7 +402,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                 <div className="mt-3 flex items-center gap-2 text-[10px] font-mono">
                   <span className="bg-[#9DE3D0]/30 text-[#17271F] border border-[#17271F]/30 px-2 py-0.5 rounded flex items-center gap-1">
                     <ShieldCheck className="w-3 h-3 text-[#17271F]" />
-                    {prospect.observedFacts?.length || 0} Facts Found
+                    {prospect.observedFacts?.length || 0} Source Details
                   </span>
                   <span className="bg-[#D8FF65]/30 text-[#17271F] border border-[#17271F]/30 px-2 py-0.5 rounded">
                     ⚡ {prospect.hypotheses?.length || 0} AI Guesses
@@ -437,7 +437,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                   <th className="py-3 px-4">Match</th>
                   <th className="py-3 px-4">Company</th>
                   <th className="py-3 px-4">Key Contact</th>
-                  <th className="py-3 px-4">Facts & Guesses</th>
+                  <th className="py-3 px-4">Details & Guesses</th>
                   <th className="py-3 px-4">Status</th>
                   <th className="py-3 px-4 text-right">Action</th>
                 </tr>
@@ -477,7 +477,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-1.5 text-[11px] font-mono">
-                        <span className="text-green-700 font-semibold">{prospect.observedFacts?.length || 0} facts found</span>
+                        <span className="text-green-700 font-semibold">{prospect.observedFacts?.length || 0} source details</span>
                         <span>•</span>
                         <span className="text-amber-700">{prospect.hypotheses?.length || 0} guesses</span>
                       </div>

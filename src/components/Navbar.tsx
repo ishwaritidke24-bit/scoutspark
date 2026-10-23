@@ -19,6 +19,7 @@ interface NavbarProps {
   onOpenDiscovery: () => void;
   onResetData: () => void;
   unreadSignalsCount?: number;
+  activeProvenance?: string;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -27,6 +28,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenDiscovery,
   onResetData,
   unreadSignalsCount = 3,
+  activeProvenance = 'demo',
 }) => {
   const navItems: { id: ViewTab; label: string; icon: React.ReactNode; badge?: string }[] = [
     { id: 'dashboard', label: 'Overview', icon: <Compass className="w-4 h-4" /> },
@@ -37,14 +39,25 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'settings', label: 'Target Customer', icon: <Settings className="w-4 h-4" /> },
   ];
 
+  const isLive = activeProvenance === 'researched';
+  const isMixed = activeProvenance === 'mixed';
+  const isCsv = activeProvenance === 'csv';
+
+  const bannerText = isLive 
+    ? "LIVE RESEARCH · Public web findings · No messages are sent"
+    : isMixed
+    ? "WORKSPACE · Live web research & practice data · No messages are sent"
+    : isCsv
+    ? "IMPORTED LIST · Uploaded records · No messages are sent"
+    : "DEMO MODE · Sample companies and practice data · No messages are sent";
+
   return (
     <header className="sticky top-0 z-40 bg-[#FAF7F0] border-b-2 border-[#17271F]">
-      {/* Top Simulated Banner */}
+      {/* Top Banner */}
       <div className="bg-[#17271F] text-[#D8FF65] px-4 py-1.5 text-[11px] font-mono flex items-center justify-between border-b border-[#2A4034]">
         <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#D8FF65] animate-pulse" />
-          <span className="font-bold tracking-wider uppercase">DEMO WORKSPACE — PRACTICE DATA</span>
-          <span className="text-[#9DE3D0] hidden md:inline">• Real facts, zero spam • We never send emails without your approval</span>
+          <span className={`w-2 h-2 rounded-full ${isLive ? 'bg-[#9DE3D0]' : 'bg-[#D8FF65]'} animate-pulse`} />
+          <span className="font-bold tracking-wider">{bannerText}</span>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-[#9DE3D0] hidden sm:inline text-[10px]">

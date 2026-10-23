@@ -76,7 +76,7 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
       id: "EVAL-07",
       scenario: "Right Source Attached to Wrong Company: Source talks about a competitor",
       expected: "Mismatch spotted; claim not counted as a fact",
-      actual: "PASS: Mismatch flagged; claim kept out of verified facts",
+      actual: "PASS: Mismatch flagged; claim kept out of source details",
       category: "Provenance Integrity",
       status: "PASS (Fixture)"
     },
@@ -263,10 +263,10 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
             Quality & Honesty
           </div>
           <h2 className="text-xl font-editorial font-bold text-[#17271F]">
-            Why sales AI must separate proven facts from guesses
+            Why sales AI must separate source details from guesses
           </h2>
           <p className="text-xs text-[#4A5E52] leading-relaxed">
-            Most AI tools guess and write things like "I noticed you're switching to Snowflake" when they only found a generic job post. ScoutSpark keeps real, proven facts separate from educated guesses, so you always know what is verified before reaching out.
+            Most AI tools guess and write things like "I noticed you're switching to Snowflake" when they only found a generic job post. ScoutSpark keeps source-backed details separate from unconfirmed guesses, so you always know what came from a real link before reaching out.
           </p>
         </div>
       </div>

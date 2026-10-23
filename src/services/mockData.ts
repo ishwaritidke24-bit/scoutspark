@@ -4,7 +4,7 @@ export const INITIAL_ICP: IdealCustomerProfile = {
   companyName: "ScoutSpark AI",
   productName: "SignalEngine B2B",
   companyDescription: "ScoutSpark helps startup founders find businesses that actually need their product, see why they are a good match, and write friendly personal emails that get replies.",
-  valueProposition: "Save hours of searching by finding real facts online, separating proven proof from educated guesses, and writing honest messages you approve before sending.",
+  valueProposition: "Save hours of searching by finding details online, separating source-backed proof from educated guesses, and writing honest messages you approve before sending.",
   targetIndustries: [
     "Developer Tools & Infrastructure",
     "HealthTech & Digital Health",
@@ -126,7 +126,7 @@ Founding Team, ScoutSpark`,
         "{{pain_point}}": "Trace cardinality & storage tier cost"
       },
       isApproved: false,
-      notes: "Drafted using verified facts #fact-01 and #fact-03. Tone is engineering-peer, not sales pitch."
+      notes: "Drafted using source-backed details #fact-01 and #fact-03. Tone is engineering-peer, not sales pitch."
     },
     uncertaintyIndicators: [
       "Exact current cloud provider (observed AWS artifacts, but possible GCP hybrid deployment)",

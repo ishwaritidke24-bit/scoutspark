@@ -200,6 +200,15 @@ export const App: React.FC = () => {
         onSelectTab={setCurrentTab}
         onOpenDiscovery={() => setIsDiscoveryOpen(true)}
         onResetData={handleResetData}
+        activeProvenance={
+          selectedProspect 
+            ? selectedProspect.provenance 
+            : prospects.length > 0 && prospects.every(p => p.provenance === 'researched')
+            ? 'researched'
+            : prospects.some(p => p.provenance === 'researched')
+            ? 'mixed'
+            : 'demo'
+        }
       />
 
       {/* Main Content Area */}

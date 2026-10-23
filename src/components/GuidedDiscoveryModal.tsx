@@ -125,15 +125,15 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
       badge: "3 Real Clues Found"
     },
     {
-      title: "2. Real Facts vs. Educated Guesses",
-      subtitle: "Keeping proven facts separate from what we think might be true",
+      title: "2. Source Details vs. Educated Guesses",
+      subtitle: "Keeping source-backed details separate from unconfirmed guesses",
       expression: "curious" as ScoutExpression,
-      speech: "Separating verified facts from our best guesses!",
+      speech: "Separating source details from our best guesses!",
       details: [
-        "✓ Verified Fact: Their blog confirms Kafka slows down at high volume (20M spans/sec)",
-        "✓ Verified Fact: They are hiring 3 engineers who report directly to Elena Rostova",
-        "⚡ Educated Guess: High storage bills might be hurting their profit margins",
-        "⚡ Educated Guess: Elena has been asked by the board to speed up incident fixes"
+        "✓ Found in source: Their blog mentions Kafka delays under high volume (20M spans/sec)",
+        "✓ Found in source: They are hiring 3 engineers reporting to Elena Rostova",
+        "⚡ What might be true: High storage bills might be hurting profit margins",
+        "⚡ What might be true: Elena has been asked by the board to speed up incident fixes"
       ],
       badge: "Zero Made-Up Claims"
     },
@@ -469,7 +469,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                       <span>Searching the Web</span>
                     </div>
                     <h3 className="text-lg font-editorial font-bold text-[#17271F]">
-                      Finding Leads & Checking Real Facts...
+                      Finding Leads & Checking Sources...
                     </h3>
                     <p className="text-xs text-[#4A5E52] leading-relaxed">
                       Scout is searching public websites, checking links, calculating match scores, and writing draft messages for you.
@@ -488,7 +488,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     </div>
                     <div className="flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-[#FF7054]" />
-                      <span>Separating verified facts from educated guesses...</span>
+                      <span>Separating source details from unconfirmed guesses...</span>
                     </div>
                   </div>
                 </div>
@@ -590,7 +590,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                                 ? 'bg-[#9DE3D0] text-[#17271F] border-[#17271F]/40'
                                 : 'bg-[#FFEAE5] text-[#FF7054] border-[#FF7054]/40'
                             }`}>
-                              {ev.status === 'verified' ? '✓ Verified Fact' : '⚡ Educated Guess'}
+                              {ev.status === 'verified' ? '✓ Found in source' : '⚡ Unconfirmed guess'}
                             </span>
                           </div>
                         ))}
@@ -663,7 +663,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                           {candidate.observedFacts && candidate.observedFacts.length > 0 && (
                             <div className="pt-2 border-t border-[#E2D9C8] space-y-1.5">
                               <div className="text-[10px] font-bold uppercase tracking-wider text-[#4A5E52]">
-                                Verified Fact Found Online
+                                Found in source snippet
                               </div>
                               <div className="text-xs text-[#17271F] flex items-start gap-2 bg-[#FAF7F0] p-2 rounded border border-[#17271F]/15">
                                 <span className="shrink-0 text-xs text-[#17271F] font-bold">✓</span>

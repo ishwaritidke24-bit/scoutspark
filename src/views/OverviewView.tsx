@@ -118,7 +118,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       <div className="bg-white border-2 border-[#17271F] rounded-2xl p-5 shadow-[3px_3px_0px_#17271F]">
         <div className="text-xs font-bold uppercase tracking-wider text-[#4A5E52] mb-3 flex items-center justify-between">
           <span>How Scout works with you</span>
-          <span className="text-[11px] font-mono text-[#FF7054]">REAL FACTS ONLY</span>
+          <span className="text-[11px] font-mono text-[#FF7054]">SOURCE-BACKED DETAILS</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -141,9 +141,9 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] space-y-1">
             <div className="flex items-center gap-2">
               <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">3</span>
-              <span className="text-xs font-bold text-[#17271F]">Separate facts from guesses</span>
+              <span className="text-xs font-bold text-[#17271F]">Separate source details from guesses</span>
             </div>
-            <p className="text-[11px] text-[#4A5E52]">Keep verified details separate from what the AI thinks might be true.</p>
+            <p className="text-[11px] text-[#4A5E52]">Keep source-backed details separate from what might be true.</p>
           </div>
 
           <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] space-y-1">
@@ -246,7 +246,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                         </span>
                         <span>•</span>
                         <span className="text-[#4A5E52]">
-                          {prospect.observedFacts.length} facts found
+                          {prospect.observedFacts.length} source details
                         </span>
                       </div>
                     </div>

@@ -230,7 +230,7 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
             }`}
           >
             <ShieldCheck className="w-4 h-4 text-[#FF7054]" />
-            Facts & Research ({prospect.observedFacts.length} Facts)
+            What we found ({prospect.observedFacts.length})
           </button>
 
           <button
@@ -289,15 +289,15 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
 
               {/* CRITICAL SECTION: Observed Facts vs Hypotheses */}
               <div className="space-y-4">
-                {/* Section A: Observed Facts */}
+                {/* Section A: What we found */}
                 <div className="bg-white border-1.5 border-[#17271F] rounded-xl p-4 shadow-[2px_2px_0px_#17271F]">
                   <div className="flex items-center justify-between pb-2 border-b border-[#E2D9C8]">
                     <div className="flex items-center gap-2">
                       <span className="sticker-badge bg-[#9DE3D0] text-[#17271F] border-[#17271F] text-[10px]">
-                        Facts We Found ({prospect.observedFacts.length})
+                        What we found ({prospect.observedFacts.length})
                       </span>
                     </div>
-                    <span className="text-[11px] text-[#4A5E52] italic font-mono">Found on Their Website & Public Web</span>
+                    <span className="text-[11px] text-[#4A5E52] italic font-mono">Found in source snippets</span>
                   </div>
 
                   <div className="space-y-3 mt-3">
@@ -308,7 +308,7 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
                             {fact.fact}
                           </p>
                           <span className="shrink-0 text-[10px] font-mono bg-white px-2 py-0.5 rounded border border-[#17271F]/30 text-[#17271F]">
-                            Verified Fact
+                            Found in source
                           </span>
                         </div>
                         {fact.sourceUrl && (
@@ -329,7 +329,7 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
                             <Clock className="w-3 h-3" /> {fact.date || 'Recently found online'}
                           </span>
                           <span className="flex items-center gap-1 font-mono text-[10px] text-[#4A5E52]">
-                            {fact.source}
+                            Where this came from: {fact.source}
                           </span>
                         </div>
                       </div>
@@ -338,19 +338,19 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
 
                   <div className="mt-3 text-[11px] text-[#4A5E52] italic flex items-center gap-1 bg-[#FAF7F0] p-2 rounded border border-[#E2D9C8]">
                     <Info className="w-3.5 h-3.5 shrink-0 text-[#4A5E52]" />
-                    <span>How we check facts: We only list facts when we find direct proof online. Anything unproven is marked as an educated guess.</span>
+                    <span>About these details: These points were found in online source snippets. They reflect what public sources state, not independent verification. Unconfirmed ideas are listed below as guesses.</span>
                   </div>
                 </div>
 
-                {/* Section B: AI Hypotheses */}
+                {/* Section B: What might be true */}
                 <div className="bg-[#FAF7F0] border-1.5 border-[#17271F] rounded-xl p-4 shadow-[2px_2px_0px_#17271F]">
                   <div className="flex items-center justify-between pb-2 border-b border-[#17271F]/15">
                     <div className="flex items-center gap-2">
                       <span className="sticker-badge bg-[#D8FF65] text-[#17271F] border-[#17271F] text-[10px]">
-                        Educated Guesses ({prospect.hypotheses.length})
+                        What might be true ({prospect.hypotheses.length})
                       </span>
                     </div>
-                    <span className="text-[11px] text-[#4A5E52] italic">Worth Double Checking</span>
+                    <span className="text-[11px] text-[#4A5E52] italic">Unconfirmed guesses to double-check</span>
                   </div>
 
                   <div className="space-y-3 mt-3">
@@ -363,11 +363,11 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
                           <span className={`shrink-0 text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border ${
                             hyp.confidence === 'high' ? 'bg-[#D8FF65] text-[#17271F] border-[#17271F]' : 'bg-[#FFEAE5] text-[#FF7054] border-[#FF7054]'
                           }`}>
-                            {hyp.confidence === 'high' ? 'High Confidence' : 'Uncertain Guess'}
+                            {hyp.confidence === 'high' ? 'High Confidence' : 'Unconfirmed Guess'}
                           </span>
                         </div>
                         <p className="text-[11px] text-[#4A5E52]">
-                          <span className="font-semibold text-[#17271F]">Why we think this: </span>
+                          <span className="font-semibold text-[#17271F]">Why we think this might be true: </span>
                           {hyp.rationale}
                         </p>
                       </div>
@@ -375,11 +375,11 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
                   </div>
                 </div>
 
-                {/* Section C: Missing Information & Uncertainty Flags */}
+                {/* Section C: What we still don't know */}
                 <div className="bg-[#FFEAE5]/40 border-1.5 border-[#FF7054]/50 rounded-xl p-4 shadow-[2px_2px_0px_rgba(255,112,84,0.3)]">
                   <div className="flex items-center gap-2 text-xs font-bold text-[#FF7054] uppercase tracking-wider mb-2">
                     <AlertTriangle className="w-4 h-4 text-[#FF7054]" />
-                    <span>What We Still Don't Know & Things to Watch</span>
+                    <span>What we still don't know</span>
                   </div>
 
                   <div className="space-y-2 text-xs text-[#17271F]">
@@ -543,7 +543,7 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
                     Human Control Promise:
                   </div>
                   <div>
-                    {prospect.emailDraft.notes || "Draft created using verified facts. ScoutSpark will never send emails automatically."}
+                    {prospect.emailDraft.notes || "Draft created using source-backed details. ScoutSpark will never send emails automatically."}
                   </div>
                 </div>
 
