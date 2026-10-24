@@ -42,6 +42,46 @@ class ProspectService {
     }
   }
 
+  public saveLocalICP(icp: IdealCustomerProfile): void {
+    try {
+      localStorage.setItem(ICP_STORAGE_KEY, JSON.stringify(icp));
+    } catch (e) {
+      console.warn('Unable to write localStorage', e);
+    }
+  }
+
+  public saveLocalActivities(activities: ActivityItem[]): void {
+    try {
+      localStorage.setItem(ACTIVITIES_STORAGE_KEY, JSON.stringify(activities));
+    } catch (e) {
+      console.warn('Unable to write localStorage', e);
+    }
+  }
+
+  public getCachedProspects(): Prospect[] {
+    return this.getLocalProspects();
+  }
+
+  public getCachedICP(): IdealCustomerProfile {
+    try {
+      const data = localStorage.getItem(ICP_STORAGE_KEY);
+      if (data) return JSON.parse(data);
+    } catch (e) {
+      console.warn('LocalStorage ICP read error', e);
+    }
+    return INITIAL_ICP;
+  }
+
+  public getCachedActivities(): ActivityItem[] {
+    try {
+      const data = localStorage.getItem(ACTIVITIES_STORAGE_KEY);
+      if (data) return JSON.parse(data);
+    } catch (e) {
+      console.warn('LocalStorage activities error', e);
+    }
+    return INITIAL_ACTIVITIES;
+  }
+
   public getIsDemoMode(): boolean {
     return this.isDemoMode;
   }
@@ -50,11 +90,11 @@ class ProspectService {
     this.isDemoMode = val;
   }
 
-  public async checkBackendHealth(): Promise<{ status: string; database: string; version: string } | null> {
+  public async checkBackendHealth(timeoutMs: number = 4000): Promise<{ status: string; database: string; version: string } | null> {
     if (this.isDemoMode) {
       return { status: 'ok', database: 'local_demo', version: 'demo_mode' };
     }
-    return await apiClient.checkHealth();
+    return await apiClient.checkHealth(timeoutMs);
   }
 
   public async getProspects(params?: {
@@ -87,7 +127,11 @@ class ProspectService {
       return list;
     }
 
-    return await apiClient.getProspects(params);
+    const list = await apiClient.getProspects(params);
+    if (!params || Object.keys(params).length === 0) {
+      this.saveLocalProspects(list);
+    }
+    return list;
   }
 
   public async getProspectById(id: string): Promise<Prospect | null> {
@@ -227,7 +271,9 @@ class ProspectService {
       return INITIAL_ICP;
     }
 
-    return await apiClient.getICP();
+    const result = await apiClient.getICP();
+    this.saveLocalICP(result);
+    return result;
   }
 
   public async updateICP(icp: IdealCustomerProfile): Promise<IdealCustomerProfile> {
@@ -241,15 +287,25 @@ class ProspectService {
       return updated;
     }
 
-    return await apiClient.updateICP(icp);
+    const saved = await apiClient.updateICP(icp);
+    this.saveLocalICP(saved);
+    return saved;
   }
 
-  public async getSignals(): Promise<ResearchSignal[]> {
+  public getCachedSignals(): ResearchSignal[] {
     return [...MOCK_SIGNALS];
   }
 
-  public async getEvalMetrics(): Promise<EvaluationMetric[]> {
+  public getCachedMetrics(): EvaluationMetric[] {
     return [...MOCK_EVAL_METRICS];
+  }
+
+  public async getSignals(): Promise<ResearchSignal[]> {
+    return this.getCachedSignals();
+  }
+
+  public async getEvalMetrics(): Promise<EvaluationMetric[]> {
+    return this.getCachedMetrics();
   }
 
   public async getActivities(limit: number = 20): Promise<ActivityItem[]> {
@@ -263,7 +319,9 @@ class ProspectService {
       return INITIAL_ACTIVITIES;
     }
 
-    return await apiClient.getActivities(limit);
+    const acts = await apiClient.getActivities(limit);
+    this.saveLocalActivities(acts);
+    return acts;
   }
 
   public async addActivity(item: Omit<ActivityItem, 'id' | 'timestamp'>): Promise<ActivityItem> {

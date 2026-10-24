@@ -27,6 +27,7 @@ interface NavbarProps {
   prospectsCount?: number;
   unreadSignalsCount?: number;
   activeProvenance?: string;
+  backendStatus?: 'connected' | 'waking_up' | 'disconnected' | 'local_demo';
 }
 
 interface NavGroupItem {
@@ -51,6 +52,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   prospectsCount = 8,
   unreadSignalsCount = 3,
   activeProvenance = 'demo',
+  backendStatus = 'connected',
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [hoveredTab, setHoveredTab] = useState<ViewTab | null>(null);
@@ -137,6 +139,22 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span className="font-bold tracking-wider">{bannerText}</span>
         </div>
         <div className="flex items-center gap-3">
+          {backendStatus === 'waking_up' && (
+            <span className="bg-[#FF7054] text-white px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1.5 animate-pulse">
+              <span className="w-1.5 h-1.5 rounded-full bg-white" />
+              <span>Cloud Server Waking (~20s)</span>
+            </span>
+          )}
+          {backendStatus === 'connected' && (
+            <span className="hidden sm:inline bg-[#9DE3D0]/20 text-[#9DE3D0] border border-[#9DE3D0]/40 px-2 py-0.5 rounded text-[10px] font-semibold">
+              ● Cloud Connected
+            </span>
+          )}
+          {backendStatus === 'local_demo' && (
+            <span className="hidden sm:inline bg-[#F7F2E8]/20 text-[#F7F2E8] border border-[#F7F2E8]/30 px-2 py-0.5 rounded text-[10px] font-semibold">
+              Offline Practice Mode
+            </span>
+          )}
           <span className="text-[#9DE3D0] hidden md:inline text-[10px]">
             You're in control of every message
           </span>

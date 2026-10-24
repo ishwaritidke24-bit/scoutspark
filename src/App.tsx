@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense, useRef } from 'react';
 import { 
   Prospect, 
   IdealCustomerProfile, 
@@ -13,69 +13,104 @@ import { prospectService } from './services/prospectService';
 import { API_BASE_URL } from './services/apiClient';
 import { Navbar } from './components/Navbar';
 import { ScoutMascot } from './components/ScoutMascot';
-import { GuidedDiscoveryModal } from './components/GuidedDiscoveryModal';
-import { ScoutGuideModal } from './components/ScoutGuideModal';
 import { ScoutCompanion } from './components/ScoutCompanion';
 import { ProspectDetailDrawer } from './components/ProspectDetailDrawer';
 import { OverviewView } from './views/OverviewView';
 import { ProspectsView } from './views/ProspectsView';
 import { PipelineView } from './views/PipelineView';
-import { CampaignStudioView } from './views/CampaignStudioView';
-import { EvaluationLabView } from './views/EvaluationLabView';
-import { SettingsView } from './views/SettingsView';
-import { ShieldCheck, AlertCircle, RefreshCw, Database, Sparkles, CheckCircle2, HelpCircle } from 'lucide-react';
+
+// Lazily load secondary views and modals to minimize initial JS bundle & accelerate page load
+const CampaignStudioView = lazy(() => import('./views/CampaignStudioView').then(m => ({ default: m.CampaignStudioView })));
+const EvaluationLabView = lazy(() => import('./views/EvaluationLabView').then(m => ({ default: m.EvaluationLabView })));
+const SettingsView = lazy(() => import('./views/SettingsView').then(m => ({ default: m.SettingsView })));
+const GuidedDiscoveryModal = lazy(() => import('./components/GuidedDiscoveryModal').then(m => ({ default: m.GuidedDiscoveryModal })));
+const ScoutGuideModal = lazy(() => import('./components/ScoutGuideModal').then(m => ({ default: m.ScoutGuideModal })));
+
+import { ShieldCheck, AlertCircle, RefreshCw, HelpCircle, CloudLightning } from 'lucide-react';
+
+const ViewLoader: React.FC = () => (
+  <div className="py-20 flex flex-col items-center justify-center text-center space-y-3">
+    <div className="w-7 h-7 rounded-full border-2 border-[#17271F] border-t-[#FF7054] animate-spin" />
+    <span className="text-xs font-mono text-[#4A5E52]">Loading workspace module...</span>
+  </div>
+);
 
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<ViewTab>('dashboard');
-  const [prospects, setProspects] = useState<Prospect[]>([]);
-  const [icp, setIcp] = useState<IdealCustomerProfile | null>(null);
-  const [signals, setSignals] = useState<ResearchSignal[]>([]);
-  const [metrics, setMetrics] = useState<EvaluationMetric[]>([]);
-  const [activities, setActivities] = useState<ActivityItem[]>([]);
+  
+  // Instant synchronous cache hydration: zero blank screen, zero blocking loader
+  const [prospects, setProspects] = useState<Prospect[]>(() => prospectService.getCachedProspects());
+  const [icp, setIcp] = useState<IdealCustomerProfile>(() => prospectService.getCachedICP());
+  const [signals, setSignals] = useState<ResearchSignal[]>(() => prospectService.getCachedSignals());
+  const [metrics, setMetrics] = useState<EvaluationMetric[]>(() => prospectService.getCachedMetrics());
+  const [activities, setActivities] = useState<ActivityItem[]>(() => prospectService.getCachedActivities());
+  
   const [selectedProspect, setSelectedProspect] = useState<Prospect | null>(null);
   const [isDiscoveryOpen, setIsDiscoveryOpen] = useState<boolean>(false);
   const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  const [backendStatus, setBackendStatus] = useState<string>('connecting');
+  const [backendStatus, setBackendStatus] = useState<'connected' | 'waking_up' | 'disconnected' | 'local_demo'>('waking_up');
 
-  // Load data on mount
+  const syncRetryTimerRef = useRef<any>(null);
+  const retryCountRef = useRef<number>(0);
+
+  // Non-blocking background sync on mount
   useEffect(() => {
-    loadAllData();
+    syncWithBackend();
+
+    return () => {
+      if (syncRetryTimerRef.current) {
+        clearTimeout(syncRetryTimerRef.current);
+      }
+    };
   }, []);
 
-  const loadAllData = async () => {
+  const syncWithBackend = async (isManualRetry: boolean = false) => {
     try {
-      setLoading(true);
-      setConnectionError(null);
-
-      // Check health first
-      const health = await prospectService.checkBackendHealth();
-      if (health) {
-        setBackendStatus(health.database === 'local_demo' ? 'local_demo' : 'connected');
+      setIsSyncing(true);
+      if (isManualRetry) {
+        setConnectionError(null);
       }
 
-      const [prospectsData, icpData, signalsData, metricsData, activitiesData] = await Promise.all([
-        prospectService.getProspects(),
-        prospectService.getICP(),
-        prospectService.getSignals(),
-        prospectService.getEvalMetrics(),
-        prospectService.getActivities(),
-      ]);
-      setProspects(prospectsData);
-      setIcp(icpData);
-      setSignals(signalsData);
-      setMetrics(metricsData);
-      setActivities(activitiesData);
-      setConnectionError(null);
+      // Fast 4000ms probe to check if Render cloud service is awake
+      const health = await prospectService.checkBackendHealth(4000);
+      if (health) {
+        setBackendStatus(health.database === 'local_demo' ? 'local_demo' : 'connected');
+        setConnectionError(null);
+        retryCountRef.current = 0;
+
+        // Fetch fresh cloud data in parallel
+        const [prospectsData, icpData, signalsData, metricsData, activitiesData] = await Promise.all([
+          prospectService.getProspects(),
+          prospectService.getICP(),
+          prospectService.getSignals(),
+          prospectService.getEvalMetrics(),
+          prospectService.getActivities(),
+        ]);
+        if (prospectsData && prospectsData.length > 0) setProspects(prospectsData);
+        if (icpData) setIcp(icpData);
+        if (signalsData) setSignals(signalsData);
+        if (metricsData) setMetrics(metricsData);
+        if (activitiesData) setActivities(activitiesData);
+      }
     } catch (err: any) {
-      console.error('Failed to load data from backend:', err);
-      setConnectionError(
-        err.detail || err.message || `Cannot connect to ScoutSpark backend at ${API_BASE_URL}.`
-      );
-      setBackendStatus('disconnected');
+      console.warn('Backend connection attempt:', err.message);
+      // Auto-retry while Render free-tier is waking up (up to 12 retries @ 5s = 60s max)
+      if (retryCountRef.current < 12 && !prospectService.getIsDemoMode()) {
+        retryCountRef.current += 1;
+        setBackendStatus('waking_up');
+        syncRetryTimerRef.current = setTimeout(() => {
+          syncWithBackend();
+        }, 5000);
+      } else {
+        setBackendStatus('disconnected');
+        setConnectionError(
+          err.detail || err.message || `Cannot connect to ScoutSpark backend at ${API_BASE_URL}.`
+        );
+      }
     } finally {
-      setLoading(false);
+      setIsSyncing(false);
     }
   };
 
@@ -139,57 +174,83 @@ export const App: React.FC = () => {
   };
 
   const handleSwitchToLocalDemo = () => {
+    if (syncRetryTimerRef.current) {
+      clearTimeout(syncRetryTimerRef.current);
+    }
     prospectService.setDemoMode(true);
     setConnectionError(null);
     setBackendStatus('local_demo');
-    loadAllData();
+    syncWithBackend(true);
   };
 
   const handleResetData = () => {
     if (window.confirm('Reset all demo data and pipeline stages back to factory default?')) {
       prospectService.resetDemoData();
-      loadAllData();
+      setProspects(prospectService.getCachedProspects());
+      setIcp(prospectService.getCachedICP());
+      setActivities(prospectService.getCachedActivities());
       setSelectedProspect(null);
+      syncWithBackend(true);
     }
   };
 
-  if (loading && !icp) {
-    return (
-      <div className="min-h-screen bg-[#F7F2E8] flex flex-col items-center justify-center p-6 text-center">
-        <ScoutMascot expression="thinking" size="xl" animate={true} />
-        <h2 className="text-xl font-editorial font-bold text-[#17271F] mt-4">
-          Getting ScoutSpark ready...
-        </h2>
-        <p className="text-xs text-[#4A5E52] mt-1 font-mono">
-          Loading your saved leads and settings
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen flex flex-col bg-[#F7F2E8] text-[#17271F]">
+      {/* Cloud Server Cold-Start Waking Banner (Render free tier wakes in ~15-25s) */}
+      {backendStatus === 'waking_up' && (
+        <div className="bg-[#FFF8E7] border-b-2 border-[#17271F] px-4 py-2 text-xs text-[#17271F] shadow-xs">
+          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#FF7054] animate-ping shrink-0" />
+              <CloudLightning className="w-4 h-4 text-[#FF7054] shrink-0" />
+              <div>
+                <span className="font-bold text-[#17271F]">Cloud Server Waking Up: </span>
+                <span className="text-[#4A5E52]">
+                  The Render cloud backend is booting up (~15-25s). You can explore, filter leads, and inspect sequences immediately in practice mode.
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => syncWithBackend(true)}
+                disabled={isSyncing}
+                className="btn-tactile-secondary px-2.5 py-1 rounded text-[11px] font-semibold flex items-center gap-1 cursor-pointer"
+              >
+                <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span>{isSyncing ? 'Checking...' : 'Check now'}</span>
+              </button>
+              <button
+                onClick={handleSwitchToLocalDemo}
+                className="btn-tactile-lime px-2.5 py-1 rounded text-[11px] font-bold text-[#17271F] cursor-pointer"
+              >
+                Practice mode
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Backend Connection Error Alert Banner */}
-      {connectionError && (
+      {connectionError && backendStatus === 'disconnected' && (
         <div className="bg-[#FFEAE5] border-b-2 border-[#FF7054] px-4 py-3 text-xs text-[#17271F] shadow-sm">
           <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <AlertCircle className="w-4 h-4 text-[#FF7054] shrink-0" />
               <div>
                 <span className="font-bold text-[#FF7054]">Server Not Connected: </span>
-                <span>We couldn't connect to the backend server. You can try reconnecting or use offline practice mode.</span>
+                <span>We couldn't connect to the backend server. You can try reconnecting or continue using practice mode without interruption.</span>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button
-                onClick={loadAllData}
-                className="btn-tactile-coral px-3 py-1 rounded text-[11px] font-bold flex items-center gap-1"
+                onClick={() => syncWithBackend(true)}
+                className="btn-tactile-coral px-3 py-1 rounded text-[11px] font-bold flex items-center gap-1 cursor-pointer"
               >
                 <RefreshCw className="w-3 h-3" /> Try connecting again
               </button>
               <button
                 onClick={handleSwitchToLocalDemo}
-                className="btn-tactile-secondary px-3 py-1 rounded text-[11px] font-semibold"
+                className="btn-tactile-secondary px-3 py-1 rounded text-[11px] font-semibold cursor-pointer"
               >
                 Use practice mode without server
               </button>
@@ -206,6 +267,7 @@ export const App: React.FC = () => {
         onOpenGuide={() => setIsGuideOpen(true)}
         onResetData={handleResetData}
         prospectsCount={prospects.length}
+        backendStatus={backendStatus}
         activeProvenance={
           selectedProspect 
             ? selectedProspect.provenance 
@@ -219,69 +281,73 @@ export const App: React.FC = () => {
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        {currentTab === 'dashboard' && (
-          <OverviewView
-            prospects={prospects}
-            signals={signals}
-            activities={activities}
-            onOpenDiscovery={() => setIsDiscoveryOpen(true)}
-            onOpenGuide={() => setIsGuideOpen(true)}
-            onSelectProspect={setSelectedProspect}
-            onNavigateToTab={setCurrentTab}
-          />
-        )}
+        <Suspense fallback={<ViewLoader />}>
+          {currentTab === 'dashboard' && (
+            <OverviewView
+              prospects={prospects}
+              signals={signals}
+              activities={activities}
+              onOpenDiscovery={() => setIsDiscoveryOpen(true)}
+              onOpenGuide={() => setIsGuideOpen(true)}
+              onSelectProspect={setSelectedProspect}
+              onNavigateToTab={setCurrentTab}
+            />
+          )}
 
-        {currentTab === 'prospects' && (
-          <ProspectsView
-            prospects={prospects}
-            onSelectProspect={setSelectedProspect}
-            onUpdateStage={(id, stage) => handleUpdateStage(id, stage)}
-            onRefresh={loadAllData}
-            onOpenDiscovery={() => setIsDiscoveryOpen(true)}
-            onNavigateToTab={setCurrentTab}
-            onOpenGuide={() => setIsGuideOpen(true)}
-          />
-        )}
+          {currentTab === 'prospects' && (
+            <ProspectsView
+              prospects={prospects}
+              onSelectProspect={setSelectedProspect}
+              onUpdateStage={(id, stage) => handleUpdateStage(id, stage)}
+              onRefresh={() => syncWithBackend(true)}
+              onOpenDiscovery={() => setIsDiscoveryOpen(true)}
+              onNavigateToTab={setCurrentTab}
+              onOpenGuide={() => setIsGuideOpen(true)}
+            />
+          )}
 
-        {currentTab === 'pipeline' && (
-          <PipelineView
-            prospects={prospects}
-            onSelectProspect={setSelectedProspect}
-            onUpdateStage={handleUpdateStage}
-            onOpenDiscovery={() => setIsDiscoveryOpen(true)}
-            onNavigateToTab={setCurrentTab}
-            onOpenGuide={() => setIsGuideOpen(true)}
-          />
-        )}
+          {currentTab === 'pipeline' && (
+            <PipelineView
+              prospects={prospects}
+              onSelectProspect={setSelectedProspect}
+              onUpdateStage={handleUpdateStage}
+              onOpenDiscovery={() => setIsDiscoveryOpen(true)}
+              onNavigateToTab={setCurrentTab}
+              onOpenGuide={() => setIsGuideOpen(true)}
+            />
+          )}
 
-        {currentTab === 'campaigns' && (
-          <CampaignStudioView 
-            onNavigateToTab={setCurrentTab}
-            onOpenGuide={() => setIsGuideOpen(true)}
-          />
-        )}
+          {currentTab === 'campaigns' && (
+            <CampaignStudioView 
+              onNavigateToTab={setCurrentTab}
+              onOpenGuide={() => setIsGuideOpen(true)}
+            />
+          )}
 
-        {currentTab === 'eval-lab' && (
-          <EvaluationLabView 
-            metrics={metrics} 
-            onNavigateToTab={setCurrentTab}
-            onOpenGuide={() => setIsGuideOpen(true)}
-          />
-        )}
+          {currentTab === 'eval-lab' && (
+            <EvaluationLabView 
+              metrics={metrics} 
+              onNavigateToTab={setCurrentTab}
+              onOpenGuide={() => setIsGuideOpen(true)}
+            />
+          )}
 
-        {currentTab === 'settings' && icp && (
-          <SettingsView
-            icp={icp}
-            onSaveICP={handleSaveICP}
-            onResetICP={() => {
-              prospectService.resetDemoData();
-              loadAllData();
-            }}
-            onNavigateToTab={setCurrentTab}
-            onOpenDiscovery={() => setIsDiscoveryOpen(true)}
-            onOpenGuide={() => setIsGuideOpen(true)}
-          />
-        )}
+          {currentTab === 'settings' && icp && (
+            <SettingsView
+              icp={icp}
+              onSaveICP={handleSaveICP}
+              onResetICP={() => {
+                prospectService.resetDemoData();
+                setIcp(prospectService.getCachedICP());
+                setProspects(prospectService.getCachedProspects());
+                syncWithBackend(true);
+              }}
+              onNavigateToTab={setCurrentTab}
+              onOpenDiscovery={() => setIsDiscoveryOpen(true)}
+              onOpenGuide={() => setIsGuideOpen(true)}
+            />
+          )}
+        </Suspense>
       </main>
 
       {/* Prospect Detail Drawer */}
@@ -294,35 +360,40 @@ export const App: React.FC = () => {
         onApproveDraft={handleApproveDraft}
       />
 
-      {/* Guided Discovery Interactive Modal */}
-      <GuidedDiscoveryModal
-        isOpen={isDiscoveryOpen}
-        onClose={() => setIsDiscoveryOpen(false)}
-        onSelectProspect={(prospect) => {
-          setSelectedProspect(prospect);
-          setCurrentTab('prospects');
-        }}
-        prospects={prospects}
-        onDiscoveryComplete={loadAllData}
-        icp={icp}
-        onSaveICP={handleSaveICP}
-        onNavigateToTab={setCurrentTab}
-        onUpdateStage={handleUpdateStage}
-      />
+      {/* Lazily Mounted Interactive Modals */}
+      <Suspense fallback={null}>
+        {isDiscoveryOpen && (
+          <GuidedDiscoveryModal
+            isOpen={isDiscoveryOpen}
+            onClose={() => setIsDiscoveryOpen(false)}
+            onSelectProspect={(prospect) => {
+              setSelectedProspect(prospect);
+              setCurrentTab('prospects');
+            }}
+            prospects={prospects}
+            onDiscoveryComplete={() => syncWithBackend(true)}
+            icp={icp}
+            onSaveICP={handleSaveICP}
+            onNavigateToTab={setCurrentTab}
+            onUpdateStage={handleUpdateStage}
+          />
+        )}
 
-      {/* ScoutStar Interactive Onboarding & Workflow Guide Modal */}
-      <ScoutGuideModal
-        isOpen={isGuideOpen}
-        onClose={() => setIsGuideOpen(false)}
-        onNavigateToTab={(tab) => {
-          setCurrentTab(tab);
-          setIsGuideOpen(false);
-        }}
-        onOpenDiscovery={() => {
-          setIsGuideOpen(false);
-          setIsDiscoveryOpen(true);
-        }}
-      />
+        {isGuideOpen && (
+          <ScoutGuideModal
+            isOpen={isGuideOpen}
+            onClose={() => setIsGuideOpen(false)}
+            onNavigateToTab={(tab) => {
+              setCurrentTab(tab);
+              setIsGuideOpen(false);
+            }}
+            onOpenDiscovery={() => {
+              setIsGuideOpen(false);
+              setIsDiscoveryOpen(true);
+            }}
+          />
+        )}
+      </Suspense>
 
       {/* ScoutStar Persistent Animated Companion (Available Across All Pages) */}
       <ScoutCompanion
@@ -369,7 +440,7 @@ export const App: React.FC = () => {
               <span>•</span>
               <button
                 onClick={() => setCurrentTab('eval-lab')}
-                className="text-[#FF7054] hover:underline font-medium"
+                className="text-[#FF7054] hover:underline font-medium cursor-pointer"
               >
                 Accuracy Lab & Tests
               </button>

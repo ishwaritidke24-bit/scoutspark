@@ -24,8 +24,16 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+export interface RequestOptions extends RequestInit {
+  timeoutMs?: number;
+}
+
+async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
+  const timeoutMs = options.timeoutMs ?? (endpoint === '/health' ? 4000 : 15000);
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
   const headers = {
     'Content-Type': 'application/json',
     ...(options.headers || {}),
@@ -34,8 +42,10 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
   try {
     const res = await fetch(url, {
       ...options,
+      signal: options.signal || controller.signal,
       headers,
     });
+    clearTimeout(timer);
 
     if (!res.ok) {
       let detail = res.statusText;
@@ -54,8 +64,15 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
     return await res.json();
   } catch (err: any) {
+    clearTimeout(timer);
     if (err instanceof ApiError) {
       throw err;
+    }
+    if (err.name === 'AbortError') {
+      throw new ApiError(
+        0,
+        `Request to backend timed out after ${timeoutMs}ms. The server may be waking up from sleep.`
+      );
     }
     throw new ApiError(
       0,
@@ -65,8 +82,8 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 }
 
 export const apiClient = {
-  async checkHealth(): Promise<{ status: string; database: string; version: string }> {
-    return request('/health');
+  async checkHealth(timeoutMs: number = 4000): Promise<{ status: string; database: string; version: string }> {
+    return request('/health', { timeoutMs });
   },
 
   async getDashboardSummary(): Promise<any> {
@@ -274,6 +291,7 @@ export const apiClient = {
     return request('/api/v1/research/run', {
       method: 'POST',
       body: JSON.stringify(payload),
+      timeoutMs: 90000,
     });
   },
 };
