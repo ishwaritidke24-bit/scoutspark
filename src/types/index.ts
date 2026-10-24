@@ -126,3 +126,5 @@ export interface ActivityItem {
 }
 
 export type ViewTab = 'dashboard' | 'prospects' | 'pipeline' | 'campaigns' | 'eval-lab' | 'settings';
+
+export type BackendStatus = 'connecting' | 'waking_up' | 'connected' | 'disconnected' | 'local_demo';

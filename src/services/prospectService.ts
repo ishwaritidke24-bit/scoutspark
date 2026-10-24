@@ -90,10 +90,7 @@ class ProspectService {
     this.isDemoMode = val;
   }
 
-  public async checkBackendHealth(timeoutMs: number = 4000): Promise<{ status: string; database: string; version: string } | null> {
-    if (this.isDemoMode) {
-      return { status: 'ok', database: 'local_demo', version: 'demo_mode' };
-    }
+  public async checkBackendHealth(timeoutMs: number = 7000): Promise<{ status: string; database: string; version: string }> {
     return await apiClient.checkHealth(timeoutMs);
   }
 

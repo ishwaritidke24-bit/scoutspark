@@ -7,7 +7,8 @@ import {
   ActivityItem, 
   ViewTab,
   PipelineStage,
-  EmailDraft
+  EmailDraft,
+  BackendStatus
 } from './types';
 import { prospectService } from './services/prospectService';
 import { API_BASE_URL } from './services/apiClient';
@@ -50,7 +51,7 @@ export const App: React.FC = () => {
   const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
   const [isSyncing, setIsSyncing] = useState<boolean>(false);
   const [connectionError, setConnectionError] = useState<string | null>(null);
-  const [backendStatus, setBackendStatus] = useState<'connected' | 'waking_up' | 'disconnected' | 'local_demo'>('waking_up');
+  const [backendStatus, setBackendStatus] = useState<BackendStatus>('connecting');
 
   const syncRetryTimerRef = useRef<any>(null);
   const retryCountRef = useRef<number>(0);
@@ -66,6 +67,27 @@ export const App: React.FC = () => {
     };
   }, []);
 
+  // When in practice mode (local_demo), poll quietly in the background so that
+  // when the real cloud or local backend becomes healthy, we automatically switch to live mode!
+  useEffect(() => {
+    if (backendStatus === 'local_demo') {
+      const pollTimer = setInterval(async () => {
+        try {
+          const health = await prospectService.checkBackendHealth(5000);
+          if (health && health.status === 'ok') {
+            console.info('Backend detected healthy. Automatically upgrading from practice mode to live mode.');
+            clearInterval(pollTimer);
+            syncWithBackend(true);
+          }
+        } catch {
+          // Stay quietly in practice mode
+        }
+      }, 15000);
+
+      return () => clearInterval(pollTimer);
+    }
+  }, [backendStatus]);
+
   const syncWithBackend = async (isManualRetry: boolean = false) => {
     try {
       setIsSyncing(true);
@@ -73,14 +95,16 @@ export const App: React.FC = () => {
         setConnectionError(null);
       }
 
-      // Fast 4000ms probe to check if Render cloud service is awake
-      const health = await prospectService.checkBackendHealth(4000);
-      if (health) {
-        setBackendStatus(health.database === 'local_demo' ? 'local_demo' : 'connected');
+      // Fast probe to verify real backend connectivity
+      const health = await prospectService.checkBackendHealth(7000);
+      if (health && health.status === 'ok') {
+        // Backend is healthy and reachable!
+        prospectService.setDemoMode(false);
+        setBackendStatus('connected');
         setConnectionError(null);
         retryCountRef.current = 0;
 
-        // Fetch fresh cloud data in parallel
+        // Fetch fresh cloud/server data in parallel
         const [prospectsData, icpData, signalsData, metricsData, activitiesData] = await Promise.all([
           prospectService.getProspects(),
           prospectService.getICP(),
@@ -96,18 +120,40 @@ export const App: React.FC = () => {
       }
     } catch (err: any) {
       console.warn('Backend connection attempt:', err.message);
-      // Auto-retry while Render free-tier is waking up (up to 12 retries @ 5s = 60s max)
-      if (retryCountRef.current < 12 && !prospectService.getIsDemoMode()) {
+
+      const isLocalhost = API_BASE_URL.includes('localhost') || API_BASE_URL.includes('127.0.0.1');
+      const isColdStartWaking = (err.isTimeout || err.name === 'AbortError') && !isLocalhost;
+      const is404 = err.status === 404 || err.isNotFound;
+
+      // If user has explicitly selected practice mode, do not disrupt them with error alerts
+      if (prospectService.getIsDemoMode()) {
+        setBackendStatus('local_demo');
+        return;
+      }
+
+      if (isColdStartWaking && retryCountRef.current < 10) {
+        // Genuine remote cloud cold-start (~15-25s on Render free tier)
         retryCountRef.current += 1;
         setBackendStatus('waking_up');
         syncRetryTimerRef.current = setTimeout(() => {
           syncWithBackend();
         }, 5000);
       } else {
+        // Server unavailable, 404, local server not running, or retries exhausted
         setBackendStatus('disconnected');
-        setConnectionError(
-          err.detail || err.message || `Cannot connect to ScoutSpark backend at ${API_BASE_URL}.`
-        );
+        if (is404) {
+          setConnectionError(
+            `Backend service returned 404 Not Found at ${API_BASE_URL}. Check your Vercel VITE_API_BASE_URL or Render web service configuration.`
+          );
+        } else if (isLocalhost) {
+          setConnectionError(
+            `Local backend is not running at ${API_BASE_URL}. Start it with 'uvicorn app.main:app' or continue using practice mode.`
+          );
+        } else {
+          setConnectionError(
+            err.detail || err.message || `Cannot connect to ScoutSpark backend at ${API_BASE_URL}.`
+          );
+        }
       }
     } finally {
       setIsSyncing(false);
@@ -180,7 +226,6 @@ export const App: React.FC = () => {
     prospectService.setDemoMode(true);
     setConnectionError(null);
     setBackendStatus('local_demo');
-    syncWithBackend(true);
   };
 
   const handleResetData = () => {
@@ -237,16 +282,21 @@ export const App: React.FC = () => {
             <div className="flex items-center gap-2.5">
               <AlertCircle className="w-4 h-4 text-[#FF7054] shrink-0" />
               <div>
-                <span className="font-bold text-[#FF7054]">Server Not Connected: </span>
-                <span>We couldn't connect to the backend server. You can try reconnecting or continue using practice mode without interruption.</span>
+                <span className="font-bold text-[#FF7054]">Server Offline / Unavailable: </span>
+                <span>{connectionError}</span>
               </div>
             </div>
             <div className="flex items-center gap-2 shrink-0">
               <button
-                onClick={() => syncWithBackend(true)}
+                onClick={() => {
+                  retryCountRef.current = 0;
+                  syncWithBackend(true);
+                }}
+                disabled={isSyncing}
                 className="btn-tactile-coral px-3 py-1 rounded text-[11px] font-bold flex items-center gap-1 cursor-pointer"
               >
-                <RefreshCw className="w-3 h-3" /> Try connecting again
+                <RefreshCw className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`} />
+                <span>{isSyncing ? 'Checking...' : 'Try connecting again'}</span>
               </button>
               <button
                 onClick={handleSwitchToLocalDemo}

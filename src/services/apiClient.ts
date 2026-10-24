@@ -6,8 +6,15 @@ import {
   EmailDraft 
 } from '../types';
 
-const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:8000';
-export const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
+// Normalize raw base URL: strip trailing slashes and any trailing /api/v1 so API_BASE_URL is always the root origin
+const rawBaseUrl = ((import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:8000').trim();
+const strippedBaseUrl = rawBaseUrl.replace(/\/+$/, '');
+export const API_BASE_URL = strippedBaseUrl.replace(/\/api\/v1\/?$/, '');
+
+export function buildApiUrl(endpoint: string): string {
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${API_BASE_URL}${cleanEndpoint}`;
+}
 
 export const IS_EXPLICIT_DEMO_MODE = 
   import.meta.env.VITE_DEMO_MODE === 'true';
@@ -15,12 +22,22 @@ export const IS_EXPLICIT_DEMO_MODE =
 export class ApiError extends Error {
   status: number;
   detail: string;
+  isTimeout: boolean;
+  isNotFound: boolean;
+  isConnectionRefused: boolean;
 
-  constructor(status: number, detail: string) {
+  constructor(
+    status: number, 
+    detail: string, 
+    flags: { isTimeout?: boolean; isNotFound?: boolean; isConnectionRefused?: boolean } = {}
+  ) {
     super(`API Error ${status}: ${detail}`);
     this.name = 'ApiError';
     this.status = status;
     this.detail = detail;
+    this.isTimeout = Boolean(flags.isTimeout);
+    this.isNotFound = status === 404 || Boolean(flags.isNotFound);
+    this.isConnectionRefused = Boolean(flags.isConnectionRefused);
   }
 }
 
@@ -29,8 +46,8 @@ export interface RequestOptions extends RequestInit {
 }
 
 async function request<T>(endpoint: string, options: RequestOptions = {}): Promise<T> {
-  const url = `${API_BASE_URL}${endpoint}`;
-  const timeoutMs = options.timeoutMs ?? (endpoint === '/health' ? 4000 : 15000);
+  const url = buildApiUrl(endpoint);
+  const timeoutMs = options.timeoutMs ?? (endpoint.includes('health') ? 7000 : 15000);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -55,7 +72,7 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
       } catch {
         // ignore JSON parse error on non-json error responses
       }
-      throw new ApiError(res.status, detail);
+      throw new ApiError(res.status, detail, { isNotFound: res.status === 404 });
     }
 
     if (res.status === 204) {
@@ -71,19 +88,33 @@ async function request<T>(endpoint: string, options: RequestOptions = {}): Promi
     if (err.name === 'AbortError') {
       throw new ApiError(
         0,
-        `Request to backend timed out after ${timeoutMs}ms. The server may be waking up from sleep.`
+        `Request to backend timed out after ${timeoutMs}ms. The server may be waking up from cold-start sleep.`,
+        { isTimeout: true }
       );
     }
+    const isLocalhost = API_BASE_URL.includes('localhost') || API_BASE_URL.includes('127.0.0.1');
+    const message = isLocalhost
+      ? `Cannot connect to local backend at ${API_BASE_URL}. Ensure the FastAPI server is running on port 8000.`
+      : `Cannot connect to ScoutSpark backend at ${API_BASE_URL}. Ensure the backend service is running and CORS allows this origin.`;
     throw new ApiError(
       0,
-      `Cannot connect to ScoutSpark backend at ${API_BASE_URL}. Ensure the backend service is running and CORS allows this origin.`
+      message,
+      { isConnectionRefused: true }
     );
   }
 }
 
 export const apiClient = {
-  async checkHealth(timeoutMs: number = 4000): Promise<{ status: string; database: string; version: string }> {
-    return request('/health', { timeoutMs });
+  async checkHealth(timeoutMs: number = 7000): Promise<{ status: string; database: string; version: string }> {
+    try {
+      return await request('/health', { timeoutMs });
+    } catch (err: any) {
+      // If /health returned 404, fallback to /api/v1/health in case server mounts under /api/v1
+      if (err instanceof ApiError && err.status === 404) {
+        return await request('/api/v1/health', { timeoutMs });
+      }
+      throw err;
+    }
   },
 
   async getDashboardSummary(): Promise<any> {
@@ -209,7 +240,7 @@ export const apiClient = {
     const formData = new FormData();
     formData.append('file', file);
 
-    const url = `${API_BASE_URL}/api/v1/prospects/import`;
+    const url = buildApiUrl('/api/v1/prospects/import');
     const res = await fetch(url, {
       method: 'POST',
       body: formData,

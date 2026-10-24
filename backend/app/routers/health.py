@@ -8,6 +8,7 @@ router = APIRouter(tags=["Health"])
 
 
 @router.get("/health")
+@router.get("/api/v1/health")
 def check_health(db: Session = Depends(get_db)):
     """Health check endpoint validating API and database connectivity."""
     db_status = "connected"

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ViewTab } from '../types';
+import { ViewTab, BackendStatus } from '../types';
 import { ScoutMascot } from './ScoutMascot';
 import { 
   Compass, 
@@ -27,7 +27,7 @@ interface NavbarProps {
   prospectsCount?: number;
   unreadSignalsCount?: number;
   activeProvenance?: string;
-  backendStatus?: 'connected' | 'waking_up' | 'disconnected' | 'local_demo';
+  backendStatus?: BackendStatus;
 }
 
 interface NavGroupItem {
@@ -139,6 +139,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span className="font-bold tracking-wider">{bannerText}</span>
         </div>
         <div className="flex items-center gap-3">
+          {backendStatus === 'connecting' && (
+            <span className="hidden sm:inline bg-[#D8FF65]/10 text-[#D8FF65] border border-[#D8FF65]/30 px-2 py-0.5 rounded text-[10px] font-semibold flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D8FF65] animate-ping" />
+              <span>Connecting...</span>
+            </span>
+          )}
           {backendStatus === 'waking_up' && (
             <span className="bg-[#FF7054] text-white px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1.5 animate-pulse">
               <span className="w-1.5 h-1.5 rounded-full bg-white" />
@@ -150,9 +156,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               ● Cloud Connected
             </span>
           )}
+          {backendStatus === 'disconnected' && (
+            <span className="hidden sm:inline bg-[#FF7054]/20 text-[#FF7054] border border-[#FF7054]/40 px-2 py-0.5 rounded text-[10px] font-semibold">
+              Server Offline
+            </span>
+          )}
           {backendStatus === 'local_demo' && (
             <span className="hidden sm:inline bg-[#F7F2E8]/20 text-[#F7F2E8] border border-[#F7F2E8]/30 px-2 py-0.5 rounded text-[10px] font-semibold">
-              Offline Practice Mode
+              Practice Mode
             </span>
           )}
           <span className="text-[#9DE3D0] hidden md:inline text-[10px]">
