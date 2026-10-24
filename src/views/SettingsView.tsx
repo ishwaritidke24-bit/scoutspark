@@ -130,7 +130,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         </div>
       </div>
 
-      <form onSubmit={handleSave} className="space-y-6">
+      <form 
+        data-scout-target="target-customer-form"
+        onSubmit={handleSave} 
+        className="space-y-6"
+      >
         {/* Startup Identity & Offering */}
         <div className="bg-white border-2 border-[#17271F] rounded-2xl p-6 shadow-[4px_4px_0px_#17271F] space-y-4">
           <div className="flex items-center gap-2 pb-3 border-b border-[#E2D9C8]">
@@ -171,6 +175,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               What does your business do? (in plain words)
             </label>
             <textarea
+              data-scout-target="target-customer-description"
               rows={2}
               value={formData.companyDescription}
               onChange={(e) => setFormData({ ...formData, companyDescription: e.target.value })}
@@ -412,6 +417,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
 
           <button
+            data-scout-target="target-customer-save-btn"
             type="submit"
             className="btn-tactile-coral px-6 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer shadow-[3px_3px_0px_#17271F]"
           >

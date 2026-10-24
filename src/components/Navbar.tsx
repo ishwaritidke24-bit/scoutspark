@@ -175,7 +175,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Grouped Desktop Navigation */}
-          <nav className="hidden xl:flex items-center gap-4">
+          <nav data-scout-target="nav-menu" className="hidden xl:flex items-center gap-4">
             {navGroups.map((group, groupIdx) => (
               <div key={group.groupName} className="flex items-center gap-1">
                 {groupIdx > 0 && (
@@ -270,6 +270,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             {/* Find My Next... Primary CTA */}
             <button
+              data-scout-target="nav-discovery-btn"
               onClick={onOpenDiscovery}
               className="btn-tactile-coral px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs flex items-center gap-1.5 sm:gap-2 font-bold cursor-pointer"
               title="Launch AI research to find your next customers"

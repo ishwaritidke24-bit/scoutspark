@@ -196,7 +196,10 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
       />
 
       {/* Header & Filter Controls */}
-      <div className="bg-white border-2 border-[#17271F] rounded-2xl p-5 shadow-[4px_4px_0px_#17271F] space-y-4">
+      <div 
+        data-scout-target="find-leads-actions"
+        className="bg-white border-2 border-[#17271F] rounded-2xl p-5 shadow-[4px_4px_0px_#17271F] space-y-4"
+      >
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
@@ -395,9 +398,10 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
       ) : viewMode === 'cards' ? (
         /* Grid Cards View */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {filteredProspects.map(prospect => (
+          {filteredProspects.map((prospect, idx) => (
             <div
               key={prospect.id}
+              data-scout-target={idx === 0 ? "first-lead-card" : undefined}
               onClick={() => onSelectProspect(prospect)}
               className="card-tactile rounded-2xl p-5 cursor-pointer hover:border-[#17271F] flex flex-col justify-between group relative overflow-hidden"
             >

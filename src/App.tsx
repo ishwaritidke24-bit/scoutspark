@@ -313,6 +313,10 @@ export const App: React.FC = () => {
         }}
         prospects={prospects}
         onDiscoveryComplete={loadAllData}
+        icp={icp}
+        onSaveICP={handleSaveICP}
+        onNavigateToTab={setCurrentTab}
+        onUpdateStage={handleUpdateStage}
       />
 
       {/* ScoutStar Interactive Onboarding & Workflow Guide Modal */}

@@ -220,7 +220,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
         </div>
       ) : (
         /* Kanban Board Container (Scrollable horizontally) */
-        <div className="overflow-x-auto pb-4">
+        <div data-scout-target="pipeline-board" className="overflow-x-auto pb-4">
           <div className="flex gap-4 min-w-[1380px]">
             {columns.map(col => {
               const stageProspects = prospects.filter(p => p.pipelineStage === col.id);
@@ -228,6 +228,7 @@ export const PipelineView: React.FC<PipelineViewProps> = ({
               return (
                 <div
                   key={col.id}
+                  data-scout-target={col.id === 'ready_to_review' ? 'pipeline-column-ready' : undefined}
                   className="w-72 flex-shrink-0 bg-[#FAF7F0] border-2 border-[#17271F] rounded-2xl p-3.5 shadow-[3px_3px_0px_#17271F] flex flex-col min-h-[580px]"
                 >
                   {/* Column Header */}

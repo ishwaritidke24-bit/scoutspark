@@ -222,7 +222,7 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({
 
       {/* 4 Core Metric Cards */}
       {(activeTabSection === 'all' || activeTabSection === 'metrics') && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div data-scout-target="accuracy-metrics" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {metrics.map(metric => (
             <div
               key={metric.id}
@@ -263,7 +263,7 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({
 
       {/* 12-Case Grounding & Precision Test Matrix */}
       {(activeTabSection === 'all' || activeTabSection === 'tests') && (
-        <div className="bg-white border-2 border-[#17271F] rounded-2xl p-6 shadow-[4px_4px_0px_#17271F] space-y-4">
+        <div data-scout-target="accuracy-tests" className="bg-white border-2 border-[#17271F] rounded-2xl p-6 shadow-[4px_4px_0px_#17271F] space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2D9C8]">
           <div>
             <div className="flex items-center gap-2">

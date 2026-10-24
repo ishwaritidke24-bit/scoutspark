@@ -188,7 +188,10 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       {/* =========================================================================
           HERO SECTION: PRODUCT PURPOSE INSTANTLY UNDERSTANDABLE WITHIN SECONDS
          ========================================================================= */}
-      <div className="card-tactile p-6 sm:p-10 rounded-3xl relative overflow-hidden bg-[#FAF7F0] border-2 border-[#17271F] shadow-[6px_6px_0px_#17271F]">
+      <div 
+        data-scout-target="overview-hero"
+        className="card-tactile p-6 sm:p-10 rounded-3xl relative overflow-hidden bg-[#FAF7F0] border-2 border-[#17271F] shadow-[6px_6px_0px_#17271F]"
+      >
         {/* Subtle decorative graph sketch pattern */}
         <div className="absolute right-0 top-0 w-96 h-96 bg-[radial-gradient(#D8FF65_1.5px,transparent_1.5px)] [background-size:18px_18px] opacity-40 pointer-events-none" />
 
@@ -227,6 +230,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             {/* Obvious Primary Call To Actions */}
             <div className="pt-2 flex flex-wrap items-center gap-3">
               <button
+                data-scout-target="start-scouting-btn"
                 onClick={onOpenDiscovery}
                 className="btn-tactile-coral px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 cursor-pointer shadow-[3px_3px_0px_#17271F] hover:-translate-y-0.5 transition-transform"
               >
@@ -300,7 +304,10 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       {/* =========================================================================
           DYNAMIC NEXT BEST ACTION CARD: GUIDES USER TOWARD IMMEDIATE VALUE
          ========================================================================= */}
-      <div className="p-5 sm:p-6 bg-white border-2 border-[#17271F] rounded-2xl shadow-[4px_4px_0px_#17271F] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div 
+        data-scout-target="priority-shortlist"
+        className="p-5 sm:p-6 bg-white border-2 border-[#17271F] rounded-2xl shadow-[4px_4px_0px_#17271F] flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
+      >
         <div className="flex items-start gap-3.5 max-w-2xl">
           <div className="p-2.5 rounded-xl bg-[#D8FF65] border-1.5 border-[#17271F] shrink-0 mt-0.5">
             <Sparkles className="w-5 h-5 text-[#17271F]" />
@@ -342,7 +349,10 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       {/* =========================================================================
           INTERACTIVE "HOW SCOUTSPARK WORKS" 4-STEP JOURNEY WITH LIVE PREVIEWS
          ========================================================================= */}
-      <div className="bg-white border-2 border-[#17271F] rounded-3xl p-6 sm:p-8 shadow-[5px_5px_0px_#17271F] space-y-6">
+      <div 
+        data-scout-target="workflow-preview"
+        className="bg-white border-2 border-[#17271F] rounded-3xl p-6 sm:p-8 shadow-[5px_5px_0px_#17271F] space-y-6"
+      >
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E2D9C8]">
           <div>
             <div className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-[#FF7054]">

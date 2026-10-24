@@ -12,14 +12,19 @@ import {
   Globe,
   Search,
   RefreshCw,
-  Cpu,
   Layers,
   ChevronRight,
   Sliders,
-  HelpCircle
+  Building2,
+  Plus,
+  RotateCcw,
+  Check,
+  Kanban,
+  Users
 } from 'lucide-react';
-import { Prospect } from '../types';
+import { Prospect, PipelineStage, IdealCustomerProfile, ViewTab } from '../types';
 import { prospectService } from '../services/prospectService';
+import confetti from 'canvas-confetti';
 
 interface GuidedDiscoveryModalProps {
   isOpen: boolean;
@@ -27,6 +32,10 @@ interface GuidedDiscoveryModalProps {
   onSelectProspect: (prospect: Prospect) => void;
   prospects: Prospect[];
   onDiscoveryComplete?: () => void;
+  icp?: IdealCustomerProfile | null;
+  onSaveICP?: (updated: IdealCustomerProfile) => Promise<void> | void;
+  onNavigateToTab?: (tab: ViewTab) => void;
+  onUpdateStage?: (id: string, stage: PipelineStage) => void;
 }
 
 interface ResearchConfigState {
@@ -91,30 +100,50 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
   onSelectProspect,
   prospects,
   onDiscoveryComplete,
+  icp,
+  onSaveICP,
+  onNavigateToTab,
+  onUpdateStage,
 }) => {
-  // Discovery mode & config state
+  // Config & Mode States
   const [config, setConfig] = useState<ResearchConfigState | null>(null);
   const [configLoading, setConfigLoading] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<'live' | 'demo'>('live');
-  
-  // Search inputs
-  const [userInstructions, setUserInstructions] = useState<string>('');
-  const [maxProspects, setMaxProspects] = useState<number>(3);
 
-  // Execution states
+  // Customer Discovery Inputs (Part B Core)
+  const [customerDescription, setCustomerDescription] = useState<string>('');
+  const [industry, setIndustry] = useState<string>('');
+  const [location, setLocation] = useState<string>('');
+  const [companySize, setCompanySize] = useState<string>('10-50 employees');
+  const [buyingIntent, setBuyingIntent] = useState<string>('');
+  const [exclusions, setExclusions] = useState<string>('');
+  const [maxProspects, setMaxProspects] = useState<number>(3);
+  const [showRefinements, setShowRefinements] = useState<boolean>(false);
+
+  // Validation & Execution States
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState<boolean>(false);
+  const [searchStepIndex, setSearchStepIndex] = useState<number>(0);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [result, setResult] = useState<ResearchResultState | null>(null);
+  const [addedLeadIds, setAddedLeadIds] = useState<Set<string>>(new Set());
 
-  // Demo walkthrough states (for deterministic simulation mode)
+  // Demo Walkthrough States
   const [demoStep, setDemoStep] = useState<number>(0);
   const [isDemoRunning, setIsDemoRunning] = useState<boolean>(false);
   const targetProspect = prospects.find(p => p.id === 'prospect-01') || prospects[0];
 
+  const honestSearchSteps = [
+    { label: "1. Understanding target customer criteria...", icon: "target" },
+    { label: "2. Searching public web sources via Tavily...", icon: "search" },
+    { label: "3. Checking candidate company websites & reading evidence...", icon: "globe" },
+    { label: "4. Grounding facts & calculating ICP match scores...", icon: "shield" }
+  ];
+
   const demoSteps = [
     {
       title: "1. Finding Clues Online",
-      subtitle: "Looking at public updates, job posts, and news",
+      subtitle: "Looking at public updates, job posts, and engineering blogs",
       expression: "focused" as ScoutExpression,
       speech: "Checking what this company is working on...",
       details: [
@@ -164,6 +193,31 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
     }
   ];
 
+  // Pre-populate from existing ICP when opened
+  useEffect(() => {
+    if (isOpen) {
+      if (icp) {
+        if (!customerDescription && icp.companyDescription) {
+          setCustomerDescription(icp.companyDescription);
+        }
+        if (!industry && icp.targetIndustries && icp.targetIndustries.length > 0) {
+          setIndustry(icp.targetIndustries.join(', '));
+        }
+        if (!location && icp.targetGeographies && icp.targetGeographies.length > 0) {
+          setLocation(icp.targetGeographies.join(', '));
+        }
+        if (!buyingIntent && icp.primaryPainPoint) {
+          setBuyingIntent(icp.primaryPainPoint);
+        }
+        if (!exclusions && icp.exclusions && icp.exclusions.length > 0) {
+          setExclusions(icp.exclusions.join(', '));
+        }
+      }
+      setValidationError(null);
+      setSearchError(null);
+    }
+  }, [isOpen, icp]);
+
   // Load backend research config on open
   useEffect(() => {
     if (!isOpen) {
@@ -182,7 +236,6 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
       .then(cfg => {
         if (!isMounted) return;
         setConfig(cfg);
-        // Default to live if configured, otherwise demo
         if (cfg.configured) {
           setActiveTab('live');
         } else {
@@ -214,33 +267,117 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
     return () => clearTimeout(timer);
   }, [activeTab, demoStep, isDemoRunning, demoSteps.length]);
 
+  // Simulated honest progress indicator timer while live searching
+  useEffect(() => {
+    let stepTimer: ReturnType<typeof setInterval>;
+    if (isSearching) {
+      setSearchStepIndex(0);
+      stepTimer = setInterval(() => {
+        setSearchStepIndex(prev => (prev < 3 ? prev + 1 : prev));
+      }, 3500);
+    }
+    return () => clearInterval(stepTimer);
+  }, [isSearching]);
+
   if (!isOpen) return null;
 
-  // Execute live research run
-  const handleExecuteResearch = async (forcedMode?: 'live' | 'demo') => {
+  // Handle Quick Example Chips
+  const handleSelectExample = (exampleText: string, exampleIndustry?: string, exampleIntent?: string) => {
+    setCustomerDescription(exampleText);
+    if (exampleIndustry) setIndustry(exampleIndustry);
+    if (exampleIntent) setBuyingIntent(exampleIntent);
+    setValidationError(null);
+  };
+
+  // Execute customer discovery
+  const handleStartScouting = async (forcedMode?: 'live' | 'demo') => {
     const runMode = forcedMode || activeTab;
+
+    // Validate Required Input: What kind of customers are you looking for?
+    const desc = customerDescription.trim();
+    if (!desc) {
+      setValidationError("Please describe the companies you are looking for before we search.");
+      return;
+    }
+    setValidationError(null);
+
     setIsSearching(true);
     setSearchError(null);
     setResult(null);
 
+    // 1. Persist the Target Customer Profile (ICP)
+    try {
+      if (icp) {
+        const updatedICP: IdealCustomerProfile = {
+          ...icp,
+          companyDescription: desc,
+          targetIndustries: industry.trim() 
+            ? industry.split(',').map(s => s.trim()).filter(Boolean) 
+            : icp.targetIndustries,
+          targetGeographies: location.trim() 
+            ? location.split(',').map(s => s.trim()).filter(Boolean) 
+            : icp.targetGeographies,
+          primaryPainPoint: buyingIntent.trim() || icp.primaryPainPoint,
+          exclusions: exclusions.trim() 
+            ? exclusions.split(',').map(s => s.trim()).filter(Boolean) 
+            : icp.exclusions,
+        };
+
+        if (onSaveICP) {
+          await onSaveICP(updatedICP);
+        } else {
+          await prospectService.updateICP(updatedICP);
+        }
+      }
+    } catch (saveErr) {
+      console.warn("Could not persist updated ICP prior to search:", saveErr);
+    }
+
+    // 2. Perform Real Public-Web Discovery
     try {
       const res = await prospectService.runResearch({
         maxProspects,
         mode: runMode,
-        userInstructions: userInstructions.trim() || undefined,
+        userInstructions: desc,
       });
 
       setResult(res as ResearchResultState);
 
-      // Trigger workspace refresh so newly saved prospects appear immediately
+      // Trigger workspace data refresh so newly saved prospects appear immediately
       if (res.candidatesSaved > 0 && onDiscoveryComplete) {
         onDiscoveryComplete();
       }
     } catch (err: any) {
-      const errorMsg = err.detail || err.message || 'Live research request failed.';
+      const errorMsg = err.detail || err.message || 'Customer discovery search failed.';
       setSearchError(errorMsg);
     } finally {
       setIsSearching(false);
+    }
+  };
+
+  // Add individual candidate lead to pipeline
+  const handleAddToPipeline = async (candidate: Prospect) => {
+    try {
+      if (onUpdateStage) {
+        onUpdateStage(candidate.id, 'ready_to_review');
+      } else {
+        await prospectService.updateProspectStage(candidate.id, 'ready_to_review');
+      }
+
+      setAddedLeadIds(prev => new Set(prev).add(candidate.id));
+
+      // Celebration confetti
+      confetti({
+        particleCount: 40,
+        spread: 60,
+        origin: { y: 0.65 }
+      });
+
+      if (onDiscoveryComplete) {
+        onDiscoveryComplete();
+      }
+    } catch (err: any) {
+      alert(`Could not add to pipeline: ${err.message || 'Error'}`);
     }
   };
 
@@ -249,7 +386,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#17271F]/60 backdrop-blur-xs animate-in fade-in duration-200">
       <div 
-        className="relative w-full max-w-2xl max-h-[92vh] bg-[#FAF7F0] border-2 border-[#17271F] rounded-2xl shadow-[6px_6px_0px_#17271F] flex flex-col overflow-hidden"
+        className="relative w-full max-w-3xl max-h-[92vh] bg-[#FAF7F0] border-2 border-[#17271F] rounded-2xl shadow-[6px_6px_0px_#17271F] flex flex-col overflow-hidden"
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
@@ -279,7 +416,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     ? 'bg-[#17271F] text-[#9DE3D0] border-[#9DE3D0]/60'
                     : 'bg-[#17271F] text-[#D8FF65] border-[#D8FF65]/40'
                 }`}>
-                  {activeTab === 'live' ? 'Live Web Search' : 'Interactive Demo'}
+                  {activeTab === 'live' ? 'Customer Discovery' : 'Interactive Demo'}
                 </span>
                 {config && (
                   <span className="text-[11px] text-[#F7F2E8]/70 font-mono">
@@ -288,13 +425,13 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                 )}
               </div>
               <h2 id="modal-title" className="text-base font-editorial font-bold text-white tracking-tight">
-                {activeTab === 'live' ? 'Find New Customers Online' : 'See How Scout Finds Leads'}
+                {activeTab === 'live' ? 'Who are you looking to find?' : 'See How Scout Finds Leads'}
               </h2>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-[#F7F2E8]/70 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-[#F7F2E8]/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -310,7 +447,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                 setResult(null);
                 setSearchError(null);
               }}
-              className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'live'
                   ? 'bg-[#17271F] text-[#F7F2E8] shadow-[2px_2px_0px_#9DE3D0]'
                   : 'text-[#4A5E52] hover:text-[#17271F] hover:bg-white/60'
@@ -326,7 +463,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                 setResult(null);
                 setSearchError(null);
               }}
-              className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
+              className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
                 activeTab === 'demo'
                   ? 'bg-[#17271F] text-[#F7F2E8] shadow-[2px_2px_0px_#D8FF65]'
                   : 'text-[#4A5E52] hover:text-[#17271F] hover:bg-white/60'
@@ -356,76 +493,179 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
 
         {/* Scrollable Modal Content */}
         <div className="p-6 overflow-y-auto space-y-5 flex-1">
-          {/* TAB 1: LIVE SEARCH INTERFACE */}
+          {/* TAB 1: LIVE SEARCH & TARGET CUSTOMER INPUT EXPERIENCE */}
           {activeTab === 'live' && (
             <div className="space-y-5">
-              {/* Provider Config Warning if not configured */}
+              {/* Missing Keys Notice if not configured */}
               {!configLoading && !config?.configured && (
-                <div className="p-3.5 rounded-xl bg-[#FFEAE5] border-1.5 border-[#FF7054] text-xs text-[#17271F] space-y-1.5">
+                <div className="p-3.5 rounded-xl bg-[#FFEAE5] border border-[#FF7054] text-xs text-[#17271F] space-y-1.5">
                   <div className="flex items-center gap-2 font-bold text-[#FF7054]">
                     <AlertCircle className="w-4 h-4 shrink-0" />
-                    <span>Search Keys Needed for Live Web Search</span>
+                    <span>Live Search Keys Needed</span>
                   </div>
                   <p className="text-[11px] text-[#4A5E52] leading-relaxed">
-                    Live prospect discovery requires <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">GEMINI_API_KEY</code> and <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">TAVILY_API_KEY</code> in <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">backend/.env</code>.
+                    Live prospect discovery searches public web pages via Tavily and scores with Gemini. Please add <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">GEMINI_API_KEY</code> and <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">TAVILY_API_KEY</code> to <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">backend/.env</code>.
                   </p>
                   <div className="pt-1 flex items-center gap-2">
                     <button
-                      onClick={() => handleExecuteResearch('demo')}
-                      className="btn-tactile-secondary px-2.5 py-1 rounded text-[11px] font-bold"
+                      onClick={() => handleStartScouting('demo')}
+                      className="btn-tactile-secondary px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer"
                     >
-                      Try the Interactive Demo Instead
+                      Run with Offline Demo Simulation
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Input Form (Shown when not searching and no completed result) */}
+              {/* Form Input View (When not searching and no completed results) */}
               {!isSearching && !result && (
                 <div className="space-y-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#17271F] text-[#9DE3D0]">
-                        Live Web Search
-                      </div>
-                      <h3 className="text-xl font-editorial font-bold text-[#17271F] mt-1.5">
-                        Find Businesses That Need What You Build
-                      </h3>
-                      <p className="text-xs text-[#4A5E52] mt-0.5 leading-relaxed">
-                        Scout searches the public web for companies that match your ideal customer profile, verifies real facts, checks fit, and drafts a personal message.
-                      </p>
-                    </div>
-
-                    <ScoutMascot 
-                      expression="curious" 
-                      size="lg" 
-                      speechText="Ready to look for your next customer!" 
-                      animate={true} 
-                    />
+                  {/* Title & Natural Guidance */}
+                  <div>
+                    <h3 className="text-2xl font-editorial font-bold text-[#17271F]">
+                      Who are you looking to find?
+                    </h3>
+                    <p className="text-xs text-[#4A5E52] mt-1 leading-relaxed">
+                      Describe your ideal customers. ScoutSpark will search for relevant companies and show you the public evidence behind each match.
+                    </p>
                   </div>
 
-                  {/* Search Options Box */}
-                  <div className="bg-white border-1.5 border-[#17271F] rounded-xl p-4 shadow-[2px_2px_0px_#17271F] space-y-3.5">
+                  {/* Required Target Customer Description Input */}
+                  <div className="bg-white border-2 border-[#17271F] rounded-2xl p-5 shadow-[3px_3px_0px_#17271F] space-y-3">
                     <div>
-                      <label className="block text-xs font-bold uppercase tracking-wider text-[#17271F] mb-1">
-                        Optional keywords or special instructions
-                      </label>
-                      <input
-                        type="text"
-                        value={userInstructions}
-                        onChange={(e) => setUserInstructions(e.target.value)}
-                        placeholder="e.g. Distributed tracing, Kubernetes, observability..."
-                        className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-3 py-2 text-xs text-[#17271F] focus:outline-none focus:ring-1 focus:ring-[#17271F]"
+                      <div className="flex items-center justify-between mb-1.5">
+                        <label className="text-xs font-bold uppercase tracking-wider text-[#17271F] flex items-center gap-1.5">
+                          <span>What kind of customers are you looking for?</span>
+                          <span className="text-[#FF7054] font-mono">* Required</span>
+                        </label>
+                      </div>
+
+                      <textarea
+                        rows={3}
+                        value={customerDescription}
+                        onChange={(e) => {
+                          setCustomerDescription(e.target.value);
+                          if (validationError) setValidationError(null);
+                        }}
+                        placeholder="e.g. I'm looking for early-stage SaaS companies in India that are hiring developers and could benefit from AI-powered developer tools."
+                        className={`w-full bg-[#FAF7F0] border-1.5 rounded-xl p-3 text-xs text-[#17271F] leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#D8FF65] transition-all ${
+                          validationError ? 'border-[#FF7054] bg-[#FFEAE5]/40' : 'border-[#17271F]'
+                        }`}
                       />
-                      <span className="text-[10px] text-[#4A5E52] mt-1 block">
-                        Leave blank to search based on your saved customer settings.
-                      </span>
+
+                      {/* Validation Error Message */}
+                      {validationError && (
+                        <div className="mt-2 text-xs font-semibold text-[#FF7054] flex items-center gap-1.5 animate-in fade-in">
+                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                          <span>{validationError}</span>
+                        </div>
+                      )}
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-[#E2D9C8]">
+                    {/* Quick Starter Example Chips */}
+                    <div className="space-y-1.5 pt-1">
+                      <span className="text-[10px] font-mono uppercase font-bold text-[#4A5E52]">
+                        Click an example to test:
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleSelectExample(
+                            "I'm looking for early-stage SaaS companies in India that are hiring developers and could benefit from AI-powered developer tools.",
+                            "Developer Tools, B2B SaaS",
+                            "Hiring engineers, using Kubernetes"
+                          )}
+                          className="text-[11px] bg-[#FAF7F0] hover:bg-[#D8FF65]/40 text-[#17271F] border border-[#17271F]/30 hover:border-[#17271F] px-2.5 py-1 rounded-lg text-left transition-colors cursor-pointer"
+                        >
+                          ⚡ Early-stage dev tools in India hiring engineers
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSelectExample(
+                            "Find healthcare technology startups in the US that need better document processing and workflow automation.",
+                            "Healthcare, HealthTech",
+                            "HIPAA compliance, patient records"
+                          )}
+                          className="text-[11px] bg-[#FAF7F0] hover:bg-[#D8FF65]/40 text-[#17271F] border border-[#17271F]/30 hover:border-[#17271F] px-2.5 py-1 rounded-lg text-left transition-colors cursor-pointer"
+                        >
+                          🏥 US HealthTech startups needing workflow automation
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Collapsible Refinements Accordion */}
+                    <div className="pt-2 border-t border-[#E2D9C8]">
+                      <button
+                        type="button"
+                        onClick={() => setShowRefinements(!showRefinements)}
+                        className="text-xs font-semibold text-[#17271F] hover:text-[#FF7054] flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Sliders className="w-3.5 h-3.5 text-[#FF7054]" />
+                        <span>{showRefinements ? "Hide Optional Refinements" : "+ Add Optional Refinements (Industry, Location, Exclusions)"}</span>
+                      </button>
+
+                      {showRefinements && (
+                        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 animate-in fade-in duration-150 text-xs">
+                          <div>
+                            <label className="block text-[11px] font-bold text-[#4A5E52] mb-1">
+                              Industry or Category
+                            </label>
+                            <input
+                              type="text"
+                              value={industry}
+                              onChange={(e) => setIndustry(e.target.value)}
+                              placeholder="e.g. Developer Tools, Healthcare, FinTech"
+                              className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs text-[#17271F] focus:outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-bold text-[#4A5E52] mb-1">
+                              Target Location / Geography
+                            </label>
+                            <input
+                              type="text"
+                              value={location}
+                              onChange={(e) => setLocation(e.target.value)}
+                              placeholder="e.g. United States, India, Remote"
+                              className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs text-[#17271F] focus:outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-bold text-[#4A5E52] mb-1">
+                              Buying-Intent Signal or Pain Point
+                            </label>
+                            <input
+                              type="text"
+                              value={buyingIntent}
+                              onChange={(e) => setBuyingIntent(e.target.value)}
+                              placeholder="e.g. Hiring engineers, migrating cloud, recent funding"
+                              className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs text-[#17271F] focus:outline-none"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-bold text-[#4A5E52] mb-1">
+                              Exclusions to Disqualify
+                            </label>
+                            <input
+                              type="text"
+                              value={exclusions}
+                              onChange={(e) => setExclusions(e.target.value)}
+                              placeholder="e.g. Agencies, non-profits, consulting firms"
+                              className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs text-[#17271F] focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* How many companies to discover */}
+                    <div className="flex items-center justify-between pt-3 border-t border-[#E2D9C8]">
                       <div>
-                        <span className="text-xs font-bold text-[#17271F]">How many companies to find: </span>
-                        <span className="text-xs text-[#4A5E52]">Maximum leads to discover</span>
+                        <span className="text-xs font-bold text-[#17271F]">Companies to discover: </span>
+                        <span className="text-[11px] text-[#4A5E52]">Keeps searches fast and focused</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         {[2, 3, 5].map((num) => (
@@ -433,25 +673,25 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                             key={num}
                             type="button"
                             onClick={() => setMaxProspects(num)}
-                            className={`px-3 py-1 rounded text-xs font-bold font-mono transition-all ${
+                            className={`px-3 py-1 rounded text-xs font-bold font-mono transition-all cursor-pointer ${
                               maxProspects === num
                                 ? 'bg-[#17271F] text-[#D8FF65] border border-[#17271F]'
                                 : 'bg-[#FAF7F0] text-[#17271F] border border-[#17271F]/40 hover:bg-[#E2D9C8]'
                             }`}
                           >
-                            {num} companies
+                            {num} leads
                           </button>
                         ))}
                       </div>
                     </div>
                   </div>
 
-                  {/* Error Box if previous attempt failed */}
+                  {/* Previous Error Notice if search failed */}
                   {searchError && (
                     <div className="p-3.5 rounded-xl bg-[#FFEAE5] border border-[#FF7054] text-xs text-[#17271F] flex items-start gap-2.5">
                       <AlertCircle className="w-4 h-4 text-[#FF7054] shrink-0 mt-0.5" />
                       <div>
-                        <span className="font-bold text-[#FF7054]">Research Run Failed: </span>
+                        <span className="font-bold text-[#FF7054]">Search could not be completed: </span>
                         <p className="mt-0.5 text-[11px] leading-relaxed">{searchError}</p>
                       </div>
                     </div>
@@ -459,62 +699,73 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                 </div>
               )}
 
-              {/* Honest Loading State (Running synchronous LangGraph) */}
+              {/* Honest Multi-Stage Progress State */}
               {isSearching && (
-                <div className="py-8 px-4 text-center space-y-4 bg-white border-1.5 border-[#17271F] rounded-xl shadow-[3px_3px_0px_#17271F]">
+                <div className="py-8 px-4 text-center space-y-5 bg-white border-2 border-[#17271F] rounded-2xl shadow-[4px_4px_0px_#17271F]">
                   <ScoutMascot expression="thinking" size="xl" animate={true} />
                   <div className="space-y-1.5 max-w-md mx-auto">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17271F] text-[#9DE3D0] text-xs font-mono font-bold animate-pulse">
                       <RefreshCw className="w-3 h-3 animate-spin" />
-                      <span>Searching the Web</span>
+                      <span>Searching the Live Web</span>
                     </div>
-                    <h3 className="text-lg font-editorial font-bold text-[#17271F]">
-                      Finding Leads & Checking Sources...
+                    <h3 className="text-xl font-editorial font-bold text-[#17271F]">
+                      Searching Public Web & Verifying Sources...
                     </h3>
                     <p className="text-xs text-[#4A5E52] leading-relaxed">
-                      Scout is searching public websites, checking links, calculating match scores, and writing draft messages for you.
+                      ScoutSpark is querying the live web, checking corporate websites, extracting verified clues, and scoring matches against your criteria.
                     </p>
                   </div>
 
                   {/* Honest steps indicators */}
-                  <div className="max-w-sm mx-auto pt-2 space-y-1.5 text-left text-xs font-mono text-[#4A5E52]">
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-[#9DE3D0] animate-ping" />
-                      <span>Finding good search terms...</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-[#D8FF65]" />
-                      <span>Reading real websites and public sources...</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-[#FF7054]" />
-                      <span>Separating source details from unconfirmed guesses...</span>
-                    </div>
+                  <div className="max-w-md mx-auto pt-2 space-y-2 text-left text-xs font-mono">
+                    {honestSearchSteps.map((step, idx) => {
+                      const isCurrent = idx === searchStepIndex;
+                      const isDone = idx < searchStepIndex;
+                      return (
+                        <div
+                          key={idx}
+                          className={`p-2 rounded-lg border transition-all flex items-center gap-2.5 ${
+                            isCurrent
+                              ? 'bg-[#FAF7F0] border-[#17271F] text-[#17271F] font-bold shadow-xs'
+                              : isDone
+                              ? 'bg-[#9DE3D0]/20 border-[#9DE3D0] text-[#17271F]'
+                              : 'border-transparent text-[#4A5E52]/60'
+                          }`}
+                        >
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${
+                            isCurrent ? 'bg-[#FF7054] animate-ping' : isDone ? 'bg-[#9DE3D0]' : 'bg-[#E2D9C8]'
+                          }`} />
+                          <span>{step.label}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
 
-              {/* Completed Results View */}
+              {/* Completed Results View with Working Lead Actions */}
               {!isSearching && result && (
                 <div className="space-y-4">
-                  {/* Result Header Banner */}
-                  <div className="p-4 rounded-xl bg-white border-1.5 border-[#17271F] shadow-[3px_3px_0px_#17271F] flex items-start justify-between gap-4">
+                  {/* Results Header Summary */}
+                  <div className="p-4 rounded-xl bg-white border-2 border-[#17271F] shadow-[3px_3px_0px_#17271F] flex items-start justify-between gap-4">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-[10px] uppercase font-bold font-mono px-2 py-0.5 rounded bg-[#9DE3D0] text-[#17271F] border border-[#17271F]">
                           {result.mode === 'live' ? 'Live Web Results' : 'Demo Results'}
                         </span>
                         <span className="text-xs font-semibold text-[#4A5E52] font-mono">
-                          {result.totalSourcesFound} websites read • {result.uniqueCandidatesConsidered ?? result.candidatesFound} companies checked • {result.candidatesSaved} good matches saved • {result.candidatesRejected ?? 0} skipped
+                          {result.totalSourcesFound} websites read • {result.candidatesSaved} matching leads saved • {result.candidatesRejected ?? 0} skipped
                         </span>
                       </div>
-                      <h3 className="text-lg font-editorial font-bold text-[#17271F] mt-1.5">
+                      <h3 className="text-xl font-editorial font-bold text-[#17271F] mt-1.5">
                         {result.candidatesSaved > 0 
-                          ? `Found ${result.candidatesSaved} Matching Companies`
+                          ? `Found ${result.candidatesSaved} Companies Matching Your Target`
                           : 'Search Finished — No Matching Companies Found'}
                       </h3>
                       <p className="text-xs text-[#4A5E52] mt-0.5">
-                        Saved to your leads list. Every claim is backed by real websites we found.
+                        {result.candidatesSaved > 0
+                          ? 'Each company is backed by verified public evidence with zero hallucinated facts.'
+                          : 'Try broadening your description or removing location/size constraints.'}
                       </p>
                     </div>
 
@@ -525,184 +776,130 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     />
                   </div>
 
-                  {/* Real Search Queries Executed */}
-                  {result.queriesExecuted.length > 0 && (
-                    <div className="bg-[#FAF7F0] border border-[#17271F]/30 rounded-lg p-3 text-xs space-y-1">
-                      <div className="text-[10px] font-bold uppercase tracking-wider text-[#4A5E52] flex items-center gap-1.5">
-                        <Search className="w-3 h-3 text-[#17271F]" />
-                        <span>Web Searches We Ran</span>
-                      </div>
-                      <div className="flex flex-wrap gap-1.5 pt-1">
-                        {result.queriesExecuted.map((q, idx) => (
-                          <span key={idx} className="font-mono text-[11px] bg-white border border-[#17271F]/20 px-2 py-0.5 rounded text-[#17271F]">
-                            "{q}"
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Relevance Gate Audit Log if rejections occurred */}
-                  {result.rejections && result.rejections.length > 0 && (
-                    <div className="bg-[#FAF7F0] border border-[#17271F]/30 rounded-xl p-3.5 space-y-2">
-                      <div className="flex items-center justify-between text-xs font-bold text-[#17271F] uppercase tracking-wider">
-                        <span className="flex items-center gap-1.5 text-[#FF7054]">
-                          <ShieldAlert className="w-3.5 h-3.5" />
-                          Companies We Skipped ({result.rejections.length})
-                        </span>
-                        <span className="text-[10px] font-mono text-[#4A5E52]">Unrelated or duplicate companies were removed</span>
-                      </div>
-                      <div className="space-y-1.5 pt-1">
-                        {result.rejections.map((rej, idx) => (
-                          <div key={idx} className="bg-white p-2 rounded border border-[#17271F]/15 flex items-start justify-between gap-2 text-xs">
-                            <div>
-                              <span className="font-semibold text-[#17271F]">{rej.companyName}</span>
-                              {rej.domain && <span className="text-[10px] text-[#4A5E52] font-mono ml-1.5">({rej.domain})</span>}
-                            </div>
-                            <span className="text-[11px] text-[#FF7054] font-medium bg-[#FFEAE5] px-1.5 py-0.5 rounded border border-[#FF7054]/30">
-                              {rej.reason}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Evidence Validation & Grounding Log */}
-                  {result.evidenceValidations && result.evidenceValidations.length > 0 && (
-                    <div className="bg-white border border-[#17271F]/30 rounded-xl p-3.5 space-y-2">
-                      <div className="flex items-center justify-between text-xs font-bold text-[#17271F] uppercase tracking-wider">
-                        <span className="flex items-center gap-1.5 text-[#17271F]">
-                          <ShieldCheck className="w-3.5 h-3.5 text-[#9DE3D0]" />
-                          Fact-Checking Results
-                        </span>
-                        <span className="text-[10px] font-mono text-[#4A5E52]">{result.evidenceValidations.length} Claims Checked</span>
-                      </div>
-                      <div className="space-y-1.5 max-h-36 overflow-y-auto pt-1">
-                        {result.evidenceValidations.map((ev, idx) => (
-                          <div key={idx} className="bg-[#FAF7F0] p-2 rounded border border-[#17271F]/15 text-xs flex items-start justify-between gap-2">
-                            <div className="flex-1">
-                              <span className="font-semibold text-[#17271F]">{ev.candidateName}: </span>
-                              <span className="italic text-[#4A5E52]">"{ev.claim}"</span>
-                            </div>
-                            <span className={`shrink-0 text-[10px] font-mono px-1.5 py-0.5 rounded border ${
-                              ev.status === 'verified'
-                                ? 'bg-[#9DE3D0] text-[#17271F] border-[#17271F]/40'
-                                : 'bg-[#FFEAE5] text-[#FF7054] border-[#FF7054]/40'
-                            }`}>
-                              {ev.status === 'verified' ? '✓ Found in source' : '⚡ Unconfirmed guess'}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
                   {/* Discovered Candidates List */}
                   <div className="space-y-3">
-                    <div className="text-xs font-bold uppercase tracking-wider text-[#17271F] flex items-center justify-between">
-                      <span>Saved Leads</span>
-                      <span className="text-[11px] text-[#4A5E52]">Match Score</span>
-                    </div>
-
                     {result.prospects.length === 0 ? (
-                      <div className="p-6 bg-white border border-[#17271F] rounded-xl text-center space-y-2">
-                        <p className="text-xs text-[#4A5E52]">
-                          No companies matched your criteria during this search.
+                      <div className="p-8 bg-white border-2 border-[#17271F] rounded-2xl text-center space-y-3">
+                        <ScoutMascot expression="thinking" size="lg" animate={true} />
+                        <h4 className="text-base font-editorial font-bold text-[#17271F]">
+                          We couldn't find matching companies on this pass
+                        </h4>
+                        <p className="text-xs text-[#4A5E52] max-w-md mx-auto">
+                          Try describing your target customer in broader terms or explore a different industry segment.
                         </p>
                         <button
                           onClick={() => setResult(null)}
-                          className="btn-tactile-secondary px-3 py-1.5 rounded text-xs font-bold"
+                          className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold cursor-pointer"
                         >
-                          Change Search Terms & Try Again
+                          Edit Target Description & Try Again
                         </button>
                       </div>
                     ) : (
-                      result.prospects.map((candidate) => (
-                        <div 
-                          key={candidate.id}
-                          className="bg-white border-1.5 border-[#17271F] rounded-xl p-4 shadow-[2px_2px_0px_#17271F] space-y-2.5 hover:border-[#FF7054] transition-all"
-                        >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex items-center gap-2.5">
-                              <div className="w-10 h-10 rounded-lg border border-[#17271F] bg-[#D8FF65] flex flex-col items-center justify-center font-bold font-mono">
-                                <span className="text-sm leading-none">{candidate.fitScore}</span>
-                                <span className="text-[7px] uppercase">SCORE</span>
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <h4 className="text-base font-editorial font-bold text-[#17271F]">
-                                    {candidate.companyName}
-                                  </h4>
-                                  <span className="sticker-badge bg-[#FAF7F0] text-[#17271F] border-[#17271F] text-[9px]">
-                                    {candidate.fitLevel}
-                                  </span>
-                                  <span className="sticker-badge bg-[#9DE3D0] text-[#17271F] border-[#17271F] text-[9px] font-mono">
-                                    🌐 Live Web
-                                  </span>
-                                </div>
-                                <div className="text-xs text-[#4A5E52]">
-                                  {candidate.industry} • {candidate.headquarters || 'Location not specified'}
-                                </div>
-                              </div>
-                            </div>
+                      result.prospects.map((candidate) => {
+                        const isAdded = addedLeadIds.has(candidate.id) || candidate.pipelineStage === 'ready_to_review' || candidate.pipelineStage === 'approved';
 
-                            <button
-                              onClick={() => {
-                                onClose();
-                                onSelectProspect(candidate);
-                              }}
-                              className="btn-tactile-coral px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 shrink-0"
-                            >
-                              <span>View Lead Details</span>
-                              <ChevronRight className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-
-                          {/* Verified Facts & Sources */}
-                          {candidate.observedFacts && candidate.observedFacts.length > 0 && (
-                            <div className="pt-2 border-t border-[#E2D9C8] space-y-1.5">
-                              <div className="text-[10px] font-bold uppercase tracking-wider text-[#4A5E52]">
-                                Found in source snippet
+                        return (
+                          <div 
+                            key={candidate.id}
+                            className="bg-white border-2 border-[#17271F] rounded-2xl p-4 shadow-[3px_3px_0px_#17271F] space-y-3 hover:border-[#FF7054] transition-all"
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                              <div className="flex items-start gap-3">
+                                <div className="w-12 h-12 rounded-xl border border-[#17271F] bg-[#D8FF65] flex flex-col items-center justify-center font-bold font-mono shrink-0 shadow-[2px_2px_0px_#17271F]">
+                                  <span className="text-base leading-none">{candidate.fitScore}</span>
+                                  <span className="text-[7px] uppercase">SCORE</span>
+                                </div>
+                                <div>
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <h4 className="text-base font-editorial font-bold text-[#17271F]">
+                                      {candidate.companyName}
+                                    </h4>
+                                    <span className="sticker-badge bg-[#FAF7F0] text-[#17271F] border-[#17271F] text-[9px]">
+                                      {candidate.fitLevel}
+                                    </span>
+                                    <span className="sticker-badge bg-[#9DE3D0] text-[#17271F] border-[#17271F] text-[9px] font-mono">
+                                      🌐 Verified Web
+                                    </span>
+                                  </div>
+                                  <div className="text-xs text-[#4A5E52] mt-0.5">
+                                    {candidate.industry} • {candidate.headquarters || 'Location not specified'} • {candidate.domain}
+                                  </div>
+                                </div>
                               </div>
-                              <div className="text-xs text-[#17271F] flex items-start gap-2 bg-[#FAF7F0] p-2 rounded border border-[#17271F]/15">
-                                <span className="shrink-0 text-xs text-[#17271F] font-bold">✓</span>
-                                <div className="flex-1">
-                                  <span>{candidate.observedFacts[0].fact}</span>
-                                  {candidate.observedFacts[0].sourceUrl && (
-                                    <a 
-                                      href={candidate.observedFacts[0].sourceUrl} 
-                                      target="_blank" 
-                                      rel="noreferrer"
-                                      className="mt-1 text-[11px] text-[#FF7054] hover:underline flex items-center gap-1 font-mono break-all"
-                                    >
-                                      <ExternalLink className="w-3 h-3 shrink-0" />
-                                      <span>{candidate.observedFacts[0].sourceUrl}</span>
-                                    </a>
+
+                              {/* Working Lead Action Buttons */}
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  onClick={() => handleAddToPipeline(candidate)}
+                                  className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                                    isAdded 
+                                      ? 'bg-[#9DE3D0] text-[#17271F] border border-[#17271F]'
+                                      : 'btn-tactile-coral'
+                                  }`}
+                                  title="Add to Pipeline in Ready to Review stage"
+                                >
+                                  {isAdded ? (
+                                    <>
+                                      <Check className="w-3.5 h-3.5" />
+                                      <span>In Pipeline</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Plus className="w-3.5 h-3.5" />
+                                      <span>Add to Pipeline</span>
+                                    </>
                                   )}
-                                </div>
+                                </button>
+
+                                <button
+                                  onClick={() => {
+                                    onClose();
+                                    onSelectProspect(candidate);
+                                  }}
+                                  className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 cursor-pointer"
+                                  title="Open full dossier & message drafts"
+                                >
+                                  <span>View Lead Details</span>
+                                  <ChevronRight className="w-3.5 h-3.5" />
+                                </button>
                               </div>
                             </div>
-                          )}
-                        </div>
-                      ))
-                    )}
-                  </div>
 
-                  {/* Completed LangGraph Step Audit */}
-                  <div className="bg-[#FAF7F0] border border-[#17271F]/20 rounded-xl p-3 space-y-2">
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-[#4A5E52] flex items-center justify-between">
-                      <span>Research Steps Completed</span>
-                      <span className="font-mono text-[#17271F]">{result.stepOutcomes.length} Steps</span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-1.5 text-[11px] font-mono">
-                      {result.stepOutcomes.map((outcome, idx) => (
-                        <div key={idx} className="flex items-center gap-1.5 bg-white px-2 py-1 rounded border border-[#17271F]/15">
-                          <CheckCircle2 className="w-3 h-3 text-[#17271F] shrink-0" />
-                          <span className="truncate">{outcome.summary}</span>
-                        </div>
-                      ))}
-                    </div>
+                            {/* Why it matches */}
+                            <div className="p-2.5 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] text-xs text-[#17271F]">
+                              <span className="font-bold text-[#FF7054]">Why it fits: </span>
+                              <span>{candidate.summary}</span>
+                            </div>
+
+                            {/* Verified Facts & Sources with Clickable URLs */}
+                            {candidate.observedFacts && candidate.observedFacts.length > 0 && (
+                              <div className="pt-2 border-t border-[#E2D9C8] space-y-1">
+                                <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#4A5E52]">
+                                  Verified Evidence Snippet:
+                                </div>
+                                <div className="text-xs text-[#17271F] flex items-start gap-2 bg-white p-2.5 rounded-lg border border-[#17271F]/15">
+                                  <span className="shrink-0 text-xs text-[#17271F] font-bold">✓</span>
+                                  <div className="flex-1 space-y-1">
+                                    <p className="italic text-[#17271F]">"{candidate.observedFacts[0].fact}"</p>
+                                    {candidate.observedFacts[0].sourceUrl && (
+                                      <a 
+                                        href={candidate.observedFacts[0].sourceUrl} 
+                                        target="_blank" 
+                                        rel="noreferrer"
+                                        className="text-[11px] text-[#FF7054] hover:underline flex items-center gap-1 font-mono break-all font-semibold"
+                                      >
+                                        <ExternalLink className="w-3 h-3 shrink-0" />
+                                        <span>{candidate.observedFacts[0].sourceUrl}</span>
+                                      </a>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })
+                    )}
                   </div>
                 </div>
               )}
@@ -745,7 +942,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                         setDemoStep(idx);
                         setIsDemoRunning(false);
                       }}
-                      className={`py-2 px-3 text-left border-r border-[#17271F]/15 last:border-r-0 transition-all ${
+                      className={`py-2 px-3 text-left border-r border-[#17271F]/15 last:border-r-0 transition-all cursor-pointer ${
                         isCurrent 
                           ? 'bg-[#D8FF65]/40 border-b-2 border-b-[#17271F] font-semibold' 
                           : isCompleted 
@@ -761,7 +958,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
               </div>
 
               {/* Details breakdown */}
-              <div className="bg-white border-1.5 border-[#17271F] rounded-xl p-4 shadow-[2px_2px_0px_#17271F] space-y-2.5">
+              <div className="bg-white border-2 border-[#17271F] rounded-xl p-4 shadow-[2px_2px_0px_#17271F] space-y-2.5">
                 <div className="text-xs font-bold uppercase tracking-wider text-[#4A5E52] flex items-center justify-between border-b border-[#E2D9C8] pb-1.5">
                   <span>Interactive Walkthrough</span>
                   <span className="font-mono text-[11px] text-[#FF7054] font-semibold">EXAMPLE: KiteMetrics</span>
@@ -790,7 +987,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
           )}
 
           {/* Explicit Human In Control Guarantee */}
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-[#FFEAE5] border border-[#FF7054]/40 text-xs text-[#17271F]">
+          <div className="flex items-center gap-3 p-3 rounded-xl bg-[#FFEAE5] border border-[#FF7054]/40 text-xs text-[#17271F]">
             <ShieldCheck className="w-4 h-4 text-[#FF7054] shrink-0" />
             <div>
               <span className="font-bold">Human Control Promise: </span>
@@ -799,11 +996,11 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
           </div>
         </div>
 
-        {/* Modal Footer */}
-        <div className="flex items-center justify-between px-6 py-4 bg-[#F7F2E8] border-t border-[#17271F]/15 shrink-0">
+        {/* Modal Footer with Meaningful Working Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-between px-6 py-4 bg-[#F7F2E8] border-t border-[#17271F]/15 shrink-0 gap-3">
           <div className="flex items-center gap-2 text-xs text-[#4A5E52]">
             <span className={`inline-block w-2 h-2 rounded-full ${activeTab === 'live' ? 'bg-[#9DE3D0]' : 'bg-[#D8FF65]'} animate-pulse`} />
-            <span>
+            <span className="text-[11px] font-mono">
               {activeTab === 'live' 
                 ? `${config?.llmProvider || 'Google Gemini'} (${config?.model || 'Configured'}) + ${config?.searchProvider || 'Tavily Search API'}` 
                 : 'Offline Demo Mode'}
@@ -819,32 +1016,49 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                       setResult(null);
                       setSearchError(null);
                     }}
-                    className="btn-tactile-secondary px-3.5 py-1.5 rounded-lg text-xs font-semibold"
+                    className="btn-tactile-secondary px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
                   >
-                    New Search
+                    Refine & Search Again
                   </button>
+
                   <button
-                    onClick={onClose}
-                    className="btn-tactile-coral px-4 py-2 rounded-lg text-xs font-bold"
+                    onClick={() => {
+                      onClose();
+                      if (onNavigateToTab) onNavigateToTab('pipeline');
+                    }}
+                    className="btn-tactile-coral px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-[2px_2px_0px_#17271F]"
                   >
-                    Done & View Leads
+                    <Kanban className="w-3.5 h-3.5" />
+                    <span>Done & View in Pipeline</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      onClose();
+                      if (onNavigateToTab) onNavigateToTab('prospects');
+                    }}
+                    className="btn-tactile-secondary px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    <span>View All Leads</span>
                   </button>
                 </>
               ) : (
                 <button
-                  onClick={() => handleExecuteResearch()}
+                  onClick={() => handleStartScouting()}
                   disabled={isSearching}
-                  className="btn-tactile-coral px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                  className="btn-tactile-coral px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-[2px_2px_0px_#17271F]"
                 >
                   {isSearching ? (
                     <>
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                      <span>Researching Web...</span>
+                      <span>Searching the Live Web...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Find My Next Customers</span>
+                      <Sparkles className="w-3.5 h-3.5 text-[#D8FF65]" />
+                      <span>Find My Customers</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}
                 </button>
@@ -857,7 +1071,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     setDemoStep(prev => prev + 1);
                     setIsDemoRunning(false);
                   }}
-                  className="btn-tactile-secondary px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5"
+                  className="btn-tactile-secondary px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
                 >
                   Next Step <ArrowRight className="w-3.5 h-3.5" />
                 </button>
@@ -867,7 +1081,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     onClose();
                     onSelectProspect(targetProspect);
                   }}
-                  className="btn-tactile-coral px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5"
+                  className="btn-tactile-coral px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
                 >
                   <Sparkles className="w-3.5 h-3.5" /> Open Elena's Lead Profile
                 </button>

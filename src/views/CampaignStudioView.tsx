@@ -187,7 +187,7 @@ Alex`,
       </div>
 
       {/* Campaign Sequence Timeline & Inspector */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div data-scout-target="sequence-composer" className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Sequence Steps (4 cols) */}
         <div className="lg:col-span-4 space-y-3">
           <div className="text-xs font-bold uppercase tracking-wider text-[#4A5E52] px-1">
