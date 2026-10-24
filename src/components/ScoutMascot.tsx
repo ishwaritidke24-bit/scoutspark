@@ -1,6 +1,16 @@
 import React from 'react';
 
-export type ScoutExpression = 'idle' | 'curious' | 'thinking' | 'celebratory' | 'focused' | 'waving' | 'pointing';
+export type ScoutExpression = 
+  | 'idle' 
+  | 'curious' 
+  | 'thinking' 
+  | 'celebratory' 
+  | 'focused' 
+  | 'waving' 
+  | 'pointing'
+  | 'talking'
+  | 'listening'
+  | 'roaming';
 
 interface ScoutMascotProps {
   expression?: ScoutExpression;
@@ -30,6 +40,91 @@ export const ScoutMascot: React.FC<ScoutMascotProps> = ({
   // Helper to render eyes & mouth based on expression
   const renderFace = () => {
     switch (expression) {
+      case 'talking':
+        return (
+          <>
+            {/* Friendly animated talk eyes */}
+            <circle cx="26" cy="30" r="3.2" fill="#17271F" />
+            <circle cx="42" cy="30" r="3.2" fill="#17271F" />
+            <circle cx="27.5" cy="28.8" r="1.1" fill="#FFFFFF" />
+            <circle cx="43.5" cy="28.8" r="1.1" fill="#FFFFFF" />
+            {/* Rosy blush */}
+            <circle cx="21" cy="33" r="2.2" fill="#FF7054" opacity="0.65" />
+            <circle cx="47" cy="33" r="2.2" fill="#FF7054" opacity="0.65" />
+            {/* Animated opening/closing speaking mouth */}
+            <g className={animate ? 'animate-scout-talk' : ''}>
+              <ellipse cx="34" cy="36" rx="3.5" ry="2.2" fill="#17271F" />
+              <path d="M 32 37 Q 34 39 36 37" stroke="#FF7054" strokeWidth="1" fill="none" />
+            </g>
+            {/* Sound resonance ripples near cheek */}
+            <path d="M 49 32 Q 52 35 49 38" stroke="#17271F" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" />
+            <path d="M 52 30 Q 56 35 52 40" stroke="#FF7054" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.75" />
+          </>
+        );
+
+      case 'listening':
+        return (
+          <>
+            {/* Attentive, slightly wider eyes looking toward user */}
+            <circle cx="26" cy="30" r="3.4" fill="#17271F" />
+            <circle cx="42" cy="30" r="3.4" fill="#17271F" />
+            <circle cx="27.8" cy="28.5" r="1.2" fill="#FFFFFF" />
+            <circle cx="43.8" cy="28.5" r="1.2" fill="#FFFFFF" />
+            {/* Soft blush */}
+            <circle cx="21" cy="33" r="2" fill="#FF7054" opacity="0.5" />
+            <circle cx="47" cy="33" r="2" fill="#FF7054" opacity="0.5" />
+            {/* Attentive small smile */}
+            <path
+              d="M 30 35 Q 34 38 38 35"
+              stroke="#17271F"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              fill="none"
+            />
+            {/* Antenna ear radar pulse at top star tip */}
+            <g className={animate ? 'animate-scout-listen' : ''}>
+              <circle cx="34" cy="6" r="3" fill="#D8FF65" stroke="#17271F" strokeWidth="1.2" />
+              <circle cx="34" cy="6" r="1.2" fill="#FF7054" />
+            </g>
+          </>
+        );
+
+      case 'roaming':
+        return (
+          <>
+            {/* Adventurous wind-swept joyful curved squint eyes */}
+            <path
+              d="M 23 30 Q 27 26 31 30"
+              stroke="#17271F"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              fill="none"
+            />
+            <path
+              d="M 37 30 Q 41 26 45 30"
+              stroke="#17271F"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              fill="none"
+            />
+            {/* Rosy blush */}
+            <circle cx="21" cy="33" r="2.2" fill="#FF7054" opacity="0.7" />
+            <circle cx="47" cy="33" r="2.2" fill="#FF7054" opacity="0.7" />
+            {/* Excited open grin */}
+            <path
+              d="M 29 34 Q 34 40 39 34"
+              stroke="#17271F"
+              strokeWidth="2"
+              fill="#17271F"
+              strokeLinecap="round"
+            />
+            {/* Trailing speed wind lines on the left */}
+            <line x1="10" y1="28" x2="16" y2="28" stroke="#17271F" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+            <line x1="8" y1="34" x2="15" y2="34" stroke="#FF7054" strokeWidth="1.5" strokeLinecap="round" opacity="0.75" />
+            <line x1="12" y1="40" x2="17" y2="40" stroke="#17271F" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
+          </>
+        );
+
       case 'waving':
         return (
           <>

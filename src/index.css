@@ -224,6 +224,52 @@
   animation: scout-bounce-gentle 2s ease-in-out infinite;
 }
 
+@keyframes scout-talk {
+  0%, 100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(1.8) scaleX(1.1);
+  }
+}
+
+@keyframes scout-listen-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes scout-roam-drift {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-5px) rotate(3deg);
+  }
+  66% {
+    transform: translateY(-2px) rotate(-3deg);
+  }
+}
+
+.animate-scout-talk {
+  transform-origin: 34px 36px;
+  animation: scout-talk 0.35s ease-in-out infinite;
+}
+
+.animate-scout-listen {
+  transform-origin: 34px 8px;
+  animation: scout-listen-pulse 1.2s ease-in-out infinite;
+}
+
+.animate-scout-roam {
+  animation: scout-roam-drift 3s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
