@@ -232,6 +232,8 @@ class ResearchGraphRunner:
             }
 
     def _node_search_sources(self, state: ResearchState) -> Dict[str, Any]:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
         outcomes = list(state.get("step_outcomes", []))
         warnings = list(state.get("warnings", []))
         queries = state.get("search_queries", [])
@@ -239,18 +241,26 @@ class ResearchGraphRunner:
         all_sources: List[SourceReference] = []
         seen_urls = set()
 
-        for q in queries:
-            try:
-                results = self.search_provider.search(query=q, max_results=3)
-                for res in results:
-                    if res.url not in seen_urls:
-                        seen_urls.add(res.url)
-                        res.source_id = f"src-{len(all_sources) + 1}"
-                        all_sources.append(res)
-                        if len(all_sources) >= 8:
-                            break
-            except Exception as e:
-                warnings.append(f"Search provider error on query '{q}': {str(e)}")
+        def _execute_single_search(query_str: str) -> List[SourceReference]:
+            return self.search_provider.search(query=query_str, max_results=3)
+
+        if queries:
+            max_workers = min(len(queries), 4)
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                future_to_query = {executor.submit(_execute_single_search, q): q for q in queries}
+                for future in as_completed(future_to_query):
+                    q = future_to_query[future]
+                    try:
+                        results = future.result()
+                        for res in results:
+                            if res.url not in seen_urls:
+                                seen_urls.add(res.url)
+                                res.source_id = f"src-{len(all_sources) + 1}"
+                                all_sources.append(res)
+                                if len(all_sources) >= 8:
+                                    break
+                    except Exception as e:
+                        warnings.append(f"Search provider error on query '{q}': {str(e)}")
 
         if not all_sources:
             outcomes.append(
@@ -650,48 +660,61 @@ class ResearchGraphRunner:
         }
 
     def _node_synthesize_outreach(self, state: ResearchState) -> Dict[str, Any]:
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
         outcomes = list(state.get("step_outcomes", []))
         warnings = list(state.get("warnings", []))
         icp = state.get("icp", {})
         qualified = state.get("qualified_prospects", [])
 
-        for item in qualified:
-            c: CandidateCompany = item["candidate"]
+        def _generate_draft_for_candidate(item_dict: Dict[str, Any]) -> Tuple[Dict[str, Any], Optional[Dict[str, Any]], Optional[str]]:
+            c: CandidateCompany = item_dict["candidate"]
             try:
                 draft_data = self.llm_provider.generate_outreach_draft(
                     candidate=c,
                     verified_facts=c.observed_facts,
                     icp=icp,
                 )
-                item["email_draft"] = {
-                    "subject": draft_data["subject"],
-                    "body": draft_data["body"],
-                    "customizationVariables": {
-                        "{{first_name}}": c.target_buyer_name or "there",
-                        "{{company}}": c.company_name,
-                    },
-                    "isApproved": False,
-                    "notes": f"Generated from {len(c.observed_facts)} verified public sources. Requires founder approval before send.",
-                }
-                item["recommended_angle"] = {
-                    "hook": draft_data["hook"],
-                    "valueProposition": draft_data["value_proposition"],
-                    "suggestedCta": draft_data["suggested_cta"],
-                }
+                return item_dict, draft_data, None
             except Exception as e:
-                warnings.append(f"Draft synthesis warning for {c.company_name}: {str(e)}")
-                item["email_draft"] = {
-                    "subject": f"Connecting regarding {c.company_name}",
-                    "body": f"Hi,\n\nNoticed {c.company_name}'s recent work.\n\nBest,\nFounding Team",
-                    "customizationVariables": {},
-                    "isApproved": False,
-                    "notes": "Generated with standard template.",
-                }
-                item["recommended_angle"] = {
-                    "hook": f"Recent activity at {c.company_name}",
-                    "valueProposition": icp.get("value_proposition", ""),
-                    "suggestedCta": "10-minute peer comparison",
-                }
+                return item_dict, None, str(e)
+
+        if qualified:
+            with ThreadPoolExecutor(max_workers=min(len(qualified), 4)) as executor:
+                futures = [executor.submit(_generate_draft_for_candidate, item) for item in qualified]
+                for future in as_completed(futures):
+                    item, draft_data, err = future.result()
+                    c = item["candidate"]
+                    if draft_data:
+                        item["email_draft"] = {
+                            "subject": draft_data["subject"],
+                            "body": draft_data["body"],
+                            "customizationVariables": {
+                                "{{first_name}}": c.target_buyer_name or "there",
+                                "{{company}}": c.company_name,
+                            },
+                            "isApproved": False,
+                            "notes": f"Generated from {len(c.observed_facts)} verified public sources. Requires founder approval before send.",
+                        }
+                        item["recommended_angle"] = {
+                            "hook": draft_data["hook"],
+                            "valueProposition": draft_data["value_proposition"],
+                            "suggestedCta": draft_data["suggested_cta"],
+                        }
+                    else:
+                        warnings.append(f"Draft synthesis warning for {c.company_name}: {err}")
+                        item["email_draft"] = {
+                            "subject": f"Connecting regarding {c.company_name}",
+                            "body": f"Hi,\n\nNoticed {c.company_name}'s recent work.\n\nBest,\nFounding Team",
+                            "customizationVariables": {},
+                            "isApproved": False,
+                            "notes": "Generated with standard template.",
+                        }
+                        item["recommended_angle"] = {
+                            "hook": f"Recent activity at {c.company_name}",
+                            "valueProposition": icp.get("value_proposition", ""),
+                            "suggestedCta": "10-minute peer comparison",
+                        }
 
         outcomes.append(
             StepOutcome(

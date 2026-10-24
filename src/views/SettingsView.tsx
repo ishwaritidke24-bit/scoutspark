@@ -13,7 +13,15 @@ import {
   Target, 
   Globe, 
   SlidersHorizontal,
-  Layers
+  Layers,
+  Rocket,
+  Terminal,
+  Bot,
+  Stethoscope,
+  CreditCard,
+  Shield,
+  Zap,
+  Trash2
 } from 'lucide-react';
 
 import { ScoutPageBanner } from '../components/ScoutPageBanner';
@@ -27,6 +35,101 @@ interface SettingsViewProps {
   onOpenDiscovery?: () => void;
   onOpenGuide?: () => void;
 }
+
+interface ICPPreset {
+  id: string;
+  title: string;
+  badge: string;
+  category: string;
+  iconType: 'rocket' | 'terminal' | 'bot' | 'stethoscope' | 'creditCard' | 'shield';
+  description: string;
+  industries: string[];
+  roles: string[];
+  painPoint: string;
+  geographies: string[];
+  exclusions: string[];
+}
+
+const ICP_PRESETS: ICPPreset[] = [
+  {
+    id: 'b2b-saas',
+    title: 'Early-Stage B2B SaaS',
+    badge: '⚡ Popular',
+    category: 'Sales & Growth',
+    iconType: 'rocket',
+    description: "Early-stage B2B software companies in India and the US with 10-50 employees that are hiring sales development representatives or account executives to scale pipeline.",
+    industries: ['B2B SaaS', 'Cloud Software', 'Productivity'],
+    roles: ['Founder / CEO', 'VP of Sales', 'Head of Growth'],
+    painPoint: 'Wasting founder and sales rep time on manual prospect research and ungrounded cold emails',
+    geographies: ['United States', 'India', 'Remote'],
+    exclusions: ['Agencies', 'IT staffing', 'Consultancies']
+  },
+  {
+    id: 'devtools',
+    title: 'Developer Tools & Infra',
+    badge: '🛠️ High-Fit',
+    category: 'Infrastructure',
+    iconType: 'terminal',
+    description: "Developer tooling and cloud infrastructure startups with engineering teams building or scaling Kubernetes, CI/CD, observability, or distributed telemetry.",
+    industries: ['Developer Tools', 'DevOps', 'Cloud Infrastructure'],
+    roles: ['VP of Engineering', 'CTO', 'Platform Lead'],
+    painPoint: 'Complex cloud telemetry bottlenecks and high compute costs',
+    geographies: ['United States', 'Europe', 'Remote'],
+    exclusions: ['Software outsourcing', 'Design agencies']
+  },
+  {
+    id: 'ai-startups',
+    title: 'AI & Agentic Tech',
+    badge: '🤖 Trending',
+    category: 'Artificial Intelligence',
+    iconType: 'bot',
+    description: "Fast-moving AI startups building autonomous agents, LLM applications, or automated workflows seeking enterprise pilot customers.",
+    industries: ['Artificial Intelligence', 'Generative AI', 'B2B SaaS'],
+    roles: ['CEO', 'Head of AI', 'Lead Product Manager'],
+    painPoint: 'Need verified enterprise buyers willing to pilot new AI software',
+    geographies: ['United States', 'India', 'Global Remote'],
+    exclusions: ['Consumer mobile games', 'Crypto coins']
+  },
+  {
+    id: 'healthtech',
+    title: 'HealthTech & Clinical',
+    badge: '🏥 Regulated',
+    category: 'Healthcare',
+    iconType: 'stethoscope',
+    description: "Healthcare technology companies and clinical software providers that need HIPAA-compliant document processing and workflow automation.",
+    industries: ['HealthTech', 'Healthcare IT', 'Digital Health'],
+    roles: ['Head of Operations', 'CEO', 'Chief Medical Officer'],
+    painPoint: 'HIPAA compliance overhead and manual patient intake workflows',
+    geographies: ['United States', 'Canada'],
+    exclusions: ['Physical dental offices', 'Pharmacies', 'Hospitals']
+  },
+  {
+    id: 'fintech',
+    title: 'FinTech & Payments',
+    badge: '💳 Enterprise',
+    category: 'Financial Services',
+    iconType: 'creditCard',
+    description: "FinTech and payments platforms handling high transaction volume, risk compliance, KYC automation, or automated billing systems.",
+    industries: ['FinTech', 'Payments', 'Banking Software'],
+    roles: ['Head of Product', 'VP of Risk & Compliance', 'Founder'],
+    painPoint: 'Regulatory audit pressure and transaction scaling delays',
+    geographies: ['United States', 'United Kingdom', 'India'],
+    exclusions: ['Payday lenders', 'Retail bank branches']
+  },
+  {
+    id: 'cybersecurity',
+    title: 'Cybersecurity & Defense',
+    badge: '🔒 High Value',
+    category: 'Security',
+    iconType: 'shield',
+    description: "Cloud security startups providing automated SOC2/ISO compliance, vulnerability scanning, or zero-trust identity management.",
+    industries: ['Cybersecurity', 'Cloud Compliance', 'Infosec'],
+    roles: ['CISO', 'VP of Information Security', 'VP of IT'],
+    painPoint: 'SOC2 compliance audit deadlines and cloud configuration risks',
+    geographies: ['United States', 'Europe', 'Remote'],
+    exclusions: ['Physical guard agencies', 'Locksmiths']
+  }
+];
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   icp,
@@ -80,6 +183,23 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     }));
   };
 
+  const [selectedPresetId, setSelectedPresetId] = useState<string>('');
+
+  const handleApplyPreset = (presetId: string) => {
+    setSelectedPresetId(presetId);
+    const p = ICP_PRESETS.find(x => x.id === presetId);
+    if (!p) return;
+    setFormData(prev => ({
+      ...prev,
+      companyDescription: p.description,
+      targetIndustries: p.industries,
+      targetRoles: p.roles,
+      primaryPainPoint: p.painPoint,
+      targetGeographies: p.geographies,
+      exclusions: p.exclusions,
+    }));
+  };
+
   return (
     <div className="space-y-8 pb-12 max-w-4xl mx-auto">
       {/* ScoutStar Contextual Guidance Banner */}
@@ -127,6 +247,91 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           >
             <RotateCcw className="w-3.5 h-3.5" /> Reset to defaults
           </button>
+        </div>
+      </div>
+
+      {/* Pre-Built Customer Profiles: Dropdown & Suggestion Boxes */}
+      <div className="bg-white border-2 border-[#17271F] rounded-2xl p-6 shadow-[4px_4px_0px_#17271F] space-y-4">
+        <div>
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-editorial font-bold text-[#17271F] flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-[#FF7054]" />
+              <span>Suggested Customer Archetypes</span>
+            </h2>
+            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#D8FF65] text-[#17271F] border border-[#17271F]">
+              1-Click Setup
+            </span>
+          </div>
+          <p className="text-xs text-[#4A5E52] mt-0.5">
+            Select a pre-built profile from the dropdown menu or click any suggestion box to populate your ideal customer criteria.
+          </p>
+        </div>
+
+        {/* Dropdown Menu */}
+        <div>
+          <label className="block text-[11px] font-bold uppercase text-[#17271F] mb-1.5 flex items-center gap-1.5">
+            <Target className="w-3.5 h-3.5 text-[#FF7054]" />
+            <span>Select from Dropdown Menu:</span>
+          </label>
+          <select
+            value={selectedPresetId}
+            onChange={(e) => handleApplyPreset(e.target.value)}
+            className="w-full bg-[#FAF7F0] border-1.5 border-[#17271F] rounded-lg px-3 py-2 text-xs font-semibold text-[#17271F] focus:outline-none focus:ring-2 focus:ring-[#D8FF65] cursor-pointer"
+          >
+            <option value="">-- Choose a pre-built customer profile (or customize below) --</option>
+            {ICP_PRESETS.map((arch) => (
+              <option key={arch.id} value={arch.id}>
+                {arch.title} — {arch.category} ({arch.roles.join(', ')})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Suggestion Boxes (Cards) */}
+        <div className="pt-2 border-t border-[#E2D9C8]">
+          <span className="text-[10px] font-mono uppercase font-bold text-[#4A5E52] block mb-2">
+            Or choose a suggestion box:
+          </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+            {ICP_PRESETS.map((arch) => {
+              const isSelected = selectedPresetId === arch.id;
+              return (
+                <button
+                  key={arch.id}
+                  type="button"
+                  onClick={() => handleApplyPreset(arch.id)}
+                  className={`p-3 rounded-xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between ${
+                    isSelected
+                      ? 'bg-[#D8FF65]/30 border-[#17271F] shadow-[3px_3px_0px_#17271F]'
+                      : 'bg-[#FAF7F0] border-[#17271F]/40 hover:border-[#17271F] hover:bg-white shadow-[1px_1px_0px_#17271F]'
+                  }`}
+                >
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between gap-1">
+                      <span className="font-bold text-xs text-[#17271F]">
+                        {arch.title}
+                      </span>
+                      <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-white border border-[#17271F]/30 text-[#17271F]">
+                        {arch.badge}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-[#4A5E52] line-clamp-2 leading-relaxed">
+                      {arch.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-2 pt-1.5 border-t border-[#17271F]/15 flex items-center justify-between text-[10px]">
+                    <span className="font-mono text-[#17271F] font-semibold truncate max-w-[170px]">
+                      👤 {arch.roles[0]}
+                    </span>
+                    <span className="text-[#FF7054] font-bold">
+                      {isSelected ? '✓ Loaded' : 'Use →'}
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
