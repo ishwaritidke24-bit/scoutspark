@@ -85,18 +85,18 @@ export const Navbar: React.FC<NavbarProps> = ({
       items: [
         {
           id: 'campaigns',
-          label: 'Message Sequences',
+          label: 'Sequences',
           shortDesc: 'Multi-touch follow-up email templates & evidence hooks',
           icon: <Send className="w-4 h-4" />
         }
       ]
     },
     {
-      groupName: "INTELLIGENCE & QUALITY",
+      groupName: "INTELLIGENCE",
       items: [
         {
           id: 'settings',
-          label: 'Target Customer',
+          label: 'Target ICP',
           shortDesc: 'Define your ICP: target roles, company size & exclusions',
           icon: <Settings className="w-4 h-4" />
         },
@@ -105,7 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           label: 'Accuracy Lab',
           shortDesc: 'Hallucination defense metrics & 12 automated test cases',
           icon: <FlaskConical className="w-4 h-4" />,
-          badge: '12 Tests'
+          badge: '12'
         }
       ]
     }
@@ -151,11 +151,11 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Main Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-2">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 gap-3">
           {/* Logo & Brand */}
           <div 
-            className="flex items-center gap-3 cursor-pointer select-none shrink-0" 
+            className="flex items-center gap-2.5 cursor-pointer select-none shrink-0" 
             onClick={() => handleTabClick('dashboard')}
           >
             <ScoutMascot expression="idle" size="sm" animate={true} />
@@ -175,14 +175,14 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
 
           {/* Grouped Desktop Navigation */}
-          <nav data-scout-target="nav-menu" className="hidden xl:flex items-center gap-4">
+          <nav data-scout-target="nav-menu" className="hidden xl:flex items-center gap-1.5 2xl:gap-2.5">
             {navGroups.map((group, groupIdx) => (
               <div key={group.groupName} className="flex items-center gap-1">
                 {groupIdx > 0 && (
-                  <div className="h-5 w-[1.5px] bg-[#E2D9C8] mx-1" aria-hidden="true" />
+                  <div className="h-4 w-[1px] bg-[#E2D9C8] mx-0.5" aria-hidden="true" />
                 )}
                 
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-0.5 2xl:gap-1">
                   {group.items.map(item => {
                     const isActive = currentTab === item.id;
                     return (
@@ -191,7 +191,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           onClick={() => handleTabClick(item.id)}
                           onMouseEnter={() => setHoveredTab(item.id)}
                           onMouseLeave={() => setHoveredTab(null)}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                          className={`flex items-center gap-1.5 px-2 py-1.5 2xl:px-3 2xl:py-2 rounded-xl text-xs 2xl:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${
                             isActive
                               ? 'bg-[#17271F] text-[#F7F2E8] shadow-[2px_2px_0px_#FF7054]'
                               : 'text-[#17271F] hover:bg-white hover:text-[#17271F]'
@@ -200,7 +200,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           {item.icon}
                           <span>{item.label}</span>
                           {item.badge && (
-                            <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+                            <span className={`text-[11px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
                               isActive ? 'bg-[#D8FF65] text-[#17271F]' : 'bg-[#E2D9C8] text-[#17271F]'
                             }`}>
                               {item.badge}
@@ -210,8 +210,8 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                         {/* Hover Tooltip explaining purpose */}
                         <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 hidden group-hover:block z-50 pointer-events-none min-w-[200px] max-w-xs animate-in fade-in duration-150">
-                          <div className="bg-[#17271F] text-[#F7F2E8] text-[11px] rounded-lg px-2.5 py-1.5 shadow-lg border border-[#2A4034]">
-                            <div className="text-[9px] font-mono text-[#D8FF65] uppercase font-bold tracking-wider mb-0.5">
+                          <div className="bg-[#17271F] text-[#F7F2E8] text-xs rounded-lg px-3 py-2 shadow-lg border border-[#2A4034]">
+                            <div className="text-[10px] font-mono text-[#D8FF65] uppercase font-bold tracking-wider mb-0.5">
                               {group.groupName}
                             </div>
                             <p className="leading-snug text-[#F7F2E8]/90 font-normal">
@@ -229,14 +229,14 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Medium Desktop Compact Nav (for screens between lg and xl) */}
           <nav className="hidden lg:flex xl:hidden items-center gap-1">
-            {navGroups.flatMap(g => g.items).map(item => {
+            {navGroups.flatMap(g => g.items).slice(0, 5).map(item => {
               const isActive = currentTab === item.id;
               return (
                 <button
                   key={item.id}
                   onClick={() => handleTabClick(item.id)}
                   title={item.shortDesc}
-                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                     isActive
                       ? 'bg-[#17271F] text-[#F7F2E8] shadow-[2px_2px_0px_#FF7054]'
                       : 'text-[#17271F] hover:bg-white'
@@ -245,7 +245,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {item.icon}
                   <span>{item.label}</span>
                   {item.badge && (
-                    <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+                    <span className={`text-[10px] font-mono px-1 py-0.2 rounded-full font-bold ${
                       isActive ? 'bg-[#D8FF65] text-[#17271F]' : 'bg-[#E2D9C8] text-[#17271F]'
                     }`}>
                       {item.badge}
@@ -256,27 +256,27 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          {/* Primary Action Buttons (Guide & Find My Next) */}
-          <div className="flex items-center gap-2">
-            {/* ScoutStar Interactive Guide Button */}
+          {/* Primary Action Buttons (Guide & Find My Next Customer) */}
+          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 z-10">
+            {/* Scout Guide Button */}
             <button
               onClick={onOpenGuide}
-              className="btn-tactile-secondary px-3 py-1.5 sm:py-2 rounded-xl text-xs flex items-center gap-1.5 font-semibold text-[#17271F] cursor-pointer"
+              className="btn-tactile-secondary px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 font-semibold text-[#17271F] cursor-pointer whitespace-nowrap shrink-0"
               title="Open interactive guide, tour and workflow map"
             >
-              <HelpCircle className="w-3.5 h-3.5 text-[#FF7054]" />
+              <HelpCircle className="w-4 h-4 text-[#FF7054]" />
               <span className="hidden sm:inline">Guide</span>
             </button>
 
-            {/* Find My Next... Primary CTA */}
+            {/* Find My Next Customer Primary CTA */}
             <button
               data-scout-target="nav-discovery-btn"
               onClick={onOpenDiscovery}
-              className="btn-tactile-coral px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs flex items-center gap-1.5 sm:gap-2 font-bold cursor-pointer"
+              className="btn-tactile-coral px-3.5 sm:px-4 2xl:px-5 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 font-bold cursor-pointer whitespace-nowrap shrink-0 shadow-[2px_2px_0px_#17271F] hover:shadow-[3px_3px_0px_#17271F] transition-all"
               title="Launch AI research to find your next customers"
             >
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Find My Next…</span>
+              <Sparkles className="w-4 h-4 text-white shrink-0" />
+              <span>Find My Next Customer →</span>
             </button>
 
             {/* Mobile menu hamburger button */}

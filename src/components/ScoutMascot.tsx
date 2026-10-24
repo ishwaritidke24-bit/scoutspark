@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 export type ScoutExpression = 
   | 'idle' 
@@ -37,39 +37,121 @@ export const ScoutMascot: React.FC<ScoutMascotProps> = ({
 }) => {
   const { width, height } = sizeMap[size];
 
+  // Continuous, varied, natural eye blinking state
+  const [isBlinking, setIsBlinking] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!animate) return;
+
+    let timer: ReturnType<typeof setTimeout>;
+    let resetTimer: ReturnType<typeof setTimeout>;
+    let doubleTimer: ReturnType<typeof setTimeout>;
+    let doubleResetTimer: ReturnType<typeof setTimeout>;
+    let isMounted = true;
+
+    const scheduleNextBlink = () => {
+      // Natural varied blinking interval: between 2.2s and 4.6s
+      const delay = Math.floor(Math.random() * 2400) + 2200;
+
+      timer = setTimeout(() => {
+        if (!isMounted) return;
+        setIsBlinking(true);
+
+        // Smooth, subtle, quick blink duration: ~135ms
+        resetTimer = setTimeout(() => {
+          if (!isMounted) return;
+          setIsBlinking(false);
+
+          // 18% chance of a realistic quick double-blink (natural eye flutter)
+          if (Math.random() < 0.18) {
+            doubleTimer = setTimeout(() => {
+              if (!isMounted) return;
+              setIsBlinking(true);
+
+              doubleResetTimer = setTimeout(() => {
+                if (!isMounted) return;
+                setIsBlinking(false);
+                scheduleNextBlink();
+              }, 115);
+            }, 125);
+          } else {
+            scheduleNextBlink();
+          }
+        }, 135);
+      }, delay);
+    };
+
+    scheduleNextBlink();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timer);
+      clearTimeout(resetTimer);
+      clearTimeout(doubleTimer);
+      clearTimeout(doubleResetTimer);
+    };
+  }, [animate]);
+
+  // Helper to render eyes with smooth natural blinking
+  const renderEyes = (leftCx = 26, rightCx = 42, cy = 30, r = 2.8, catchlight = true) => {
+    if (isBlinking) {
+      // Natural, gentle curved eyelid lines during blink
+      return (
+        <g className="transition-all duration-75">
+          <path
+            d={`M ${leftCx - 3.2} ${cy} Q ${leftCx} ${cy + 1.5} ${leftCx + 3.2} ${cy}`}
+            stroke="#17271F"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            fill="none"
+          />
+          <path
+            d={`M ${rightCx - 3.2} ${cy} Q ${rightCx} ${cy + 1.5} ${rightCx + 3.2} ${cy}`}
+            stroke="#17271F"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            fill="none"
+          />
+        </g>
+      );
+    }
+
+    return (
+      <g className="transition-all duration-75">
+        <circle cx={leftCx} cy={cy} r={r} fill="#17271F" />
+        <circle cx={rightCx} cy={cy} r={r} fill="#17271F" />
+        {catchlight && (
+          <>
+            <circle cx={leftCx + 1.2} cy={cy - 1.2} r={r * 0.32} fill="#FFFFFF" />
+            <circle cx={rightCx + 1.2} cy={cy - 1.2} r={r * 0.32} fill="#FFFFFF" />
+          </>
+        )}
+      </g>
+    );
+  };
+
   // Helper to render eyes & mouth based on expression
   const renderFace = () => {
     switch (expression) {
       case 'talking':
         return (
           <>
-            {/* Friendly animated talk eyes */}
-            <circle cx="26" cy="30" r="3.2" fill="#17271F" />
-            <circle cx="42" cy="30" r="3.2" fill="#17271F" />
-            <circle cx="27.5" cy="28.8" r="1.1" fill="#FFFFFF" />
-            <circle cx="43.5" cy="28.8" r="1.1" fill="#FFFFFF" />
+            {/* Friendly animated talk eyes with natural blinking */}
+            {renderEyes(26, 42, 30, 3.0, true)}
             {/* Rosy blush */}
             <circle cx="21" cy="33" r="2.2" fill="#FF7054" opacity="0.65" />
             <circle cx="47" cy="33" r="2.2" fill="#FF7054" opacity="0.65" />
-            {/* Animated opening/closing speaking mouth */}
-            <g className={animate ? 'animate-scout-talk' : ''}>
-              <ellipse cx="34" cy="36" rx="3.5" ry="2.2" fill="#17271F" />
-              <path d="M 32 37 Q 34 39 36 37" stroke="#FF7054" strokeWidth="1" fill="none" />
-            </g>
-            {/* Sound resonance ripples near cheek */}
-            <path d="M 49 32 Q 52 35 49 38" stroke="#17271F" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.6" />
-            <path d="M 52 30 Q 56 35 52 40" stroke="#FF7054" strokeWidth="1.2" strokeLinecap="round" fill="none" opacity="0.75" />
+            {/* Subtle speaking mouth */}
+            <ellipse cx="34" cy="36" rx="3.2" ry="1.8" fill="#17271F" />
+            <path d="M 32 37 Q 34 38.5 36 37" stroke="#FF7054" strokeWidth="1" fill="none" />
           </>
         );
 
       case 'listening':
         return (
           <>
-            {/* Attentive, slightly wider eyes looking toward user */}
-            <circle cx="26" cy="30" r="3.4" fill="#17271F" />
-            <circle cx="42" cy="30" r="3.4" fill="#17271F" />
-            <circle cx="27.8" cy="28.5" r="1.2" fill="#FFFFFF" />
-            <circle cx="43.8" cy="28.5" r="1.2" fill="#FFFFFF" />
+            {/* Attentive eyes with natural blinking */}
+            {renderEyes(26, 42, 30, 3.2, true)}
             {/* Soft blush */}
             <circle cx="21" cy="33" r="2" fill="#FF7054" opacity="0.5" />
             <circle cx="47" cy="33" r="2" fill="#FF7054" opacity="0.5" />
@@ -81,104 +163,99 @@ export const ScoutMascot: React.FC<ScoutMascotProps> = ({
               strokeLinecap="round"
               fill="none"
             />
-            {/* Antenna ear radar pulse at top star tip */}
-            <g className={animate ? 'animate-scout-listen' : ''}>
-              <circle cx="34" cy="6" r="3" fill="#D8FF65" stroke="#17271F" strokeWidth="1.2" />
-              <circle cx="34" cy="6" r="1.2" fill="#FF7054" />
-            </g>
           </>
         );
 
       case 'roaming':
         return (
           <>
-            {/* Adventurous wind-swept joyful curved squint eyes */}
+            {/* Joyful curved squint eyes */}
             <path
-              d="M 23 30 Q 27 26 31 30"
+              d="M 23 30 Q 27 27 31 30"
               stroke="#17271F"
-              strokeWidth="2.5"
+              strokeWidth="2.3"
               strokeLinecap="round"
               fill="none"
             />
             <path
-              d="M 37 30 Q 41 26 45 30"
+              d="M 37 30 Q 41 27 45 30"
               stroke="#17271F"
-              strokeWidth="2.5"
+              strokeWidth="2.3"
               strokeLinecap="round"
               fill="none"
             />
             {/* Rosy blush */}
-            <circle cx="21" cy="33" r="2.2" fill="#FF7054" opacity="0.7" />
-            <circle cx="47" cy="33" r="2.2" fill="#FF7054" opacity="0.7" />
-            {/* Excited open grin */}
+            <circle cx="21" cy="33" r="2.2" fill="#FF7054" opacity="0.65" />
+            <circle cx="47" cy="33" r="2.2" fill="#FF7054" opacity="0.65" />
+            {/* Warm friendly smile */}
             <path
-              d="M 29 34 Q 34 40 39 34"
+              d="M 29 35 Q 34 39 39 35"
               stroke="#17271F"
-              strokeWidth="2"
-              fill="#17271F"
+              strokeWidth="1.8"
+              fill="none"
               strokeLinecap="round"
             />
-            {/* Trailing speed wind lines on the left */}
-            <line x1="10" y1="28" x2="16" y2="28" stroke="#17271F" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
-            <line x1="8" y1="34" x2="15" y2="34" stroke="#FF7054" strokeWidth="1.5" strokeLinecap="round" opacity="0.75" />
-            <line x1="12" y1="40" x2="17" y2="40" stroke="#17271F" strokeWidth="1.5" strokeLinecap="round" opacity="0.6" />
           </>
         );
 
       case 'waving':
         return (
           <>
-            {/* Friendly wide joyful eyes */}
-            <circle cx="26" cy="30" r="3.2" fill="#17271F" />
-            <circle cx="42" cy="30" r="3.2" fill="#17271F" />
-            <circle cx="27.5" cy="28.8" r="1.1" fill="#FFFFFF" />
-            <circle cx="43.5" cy="28.8" r="1.1" fill="#FFFFFF" />
+            {/* Friendly wide joyful eyes with natural blinking */}
+            {renderEyes(26, 42, 30, 3.0, true)}
             {/* Rosy blush */}
             <circle cx="21" cy="33" r="2.2" fill="#FF7054" opacity="0.65" />
             <circle cx="47" cy="33" r="2.2" fill="#FF7054" opacity="0.65" />
             {/* Warm open smile */}
             <path
-              d="M 28 34 Q 34 40 40 34"
+              d="M 29 35 Q 34 39 39 35"
               stroke="#17271F"
-              strokeWidth="2"
-              fill="#17271F"
+              strokeWidth="1.8"
+              fill="none"
               strokeLinecap="round"
             />
-            {/* Waving star arm / hand accent on top right */}
-            <g className={animate ? 'animate-scout-wave' : ''}>
-              <circle cx="58" cy="22" r="3.5" fill="#D8FF65" stroke="#17271F" strokeWidth="1.5" />
-              <circle cx="58" cy="22" r="1" fill="#FF7054" />
-            </g>
+            {/* Subtle friendly wave badge on top right */}
+            <circle cx="58" cy="22" r="3" fill="#D8FF65" stroke="#17271F" strokeWidth="1.3" />
+            <circle cx="58" cy="22" r="1" fill="#FF7054" />
           </>
         );
 
       case 'pointing':
         return (
           <>
-            {/* Playful wink: left eye wink curve, right eye alert & focused */}
+            {/* Playful wink: left eye wink curve, right eye blinks naturally */}
             <path
-              d="M 22 30 Q 26 26 30 30"
+              d="M 22 30 Q 26 27 30 30"
               stroke="#17271F"
-              strokeWidth="2.5"
+              strokeWidth="2.4"
               strokeLinecap="round"
               fill="none"
             />
-            <circle cx="42" cy="30" r="3.2" fill="#17271F" />
-            <circle cx="43.5" cy="28.8" r="1" fill="#FFFFFF" />
+            {isBlinking ? (
+              <path
+                d="M 39 30 Q 42 31.5 45 30"
+                stroke="#17271F"
+                strokeWidth="2.2"
+                strokeLinecap="round"
+                fill="none"
+              />
+            ) : (
+              <>
+                <circle cx="42" cy="30" r="3.0" fill="#17271F" />
+                <circle cx="43.2" cy="28.8" r="1" fill="#FFFFFF" />
+              </>
+            )}
             {/* Rosy blush */}
             <circle cx="21" cy="33" r="2" fill="#FF7054" opacity="0.6" />
             <circle cx="47" cy="33" r="2" fill="#FF7054" opacity="0.6" />
-            {/* Encouraging grin */}
+            {/* Encouraging smile */}
             <path
-              d="M 29 35 Q 34 38 39 34"
+              d="M 29 35 Q 34 38 39 35"
               stroke="#17271F"
-              strokeWidth="2"
+              strokeWidth="1.8"
               strokeLinecap="round"
               fill="none"
             />
-            {/* Pointing cue arrow / indicator dot */}
-            <circle cx="62" cy="34" r="3" fill="#FF7054" className={animate ? 'animate-ping' : ''} />
-            <path d="M 58 34 L 65 34 M 62 31 L 65 34 L 62 37" stroke="#17271F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
           </>
         );
 
@@ -187,28 +264,28 @@ export const ScoutMascot: React.FC<ScoutMascotProps> = ({
           <>
             {/* Joyful curved eyes */}
             <path
-              d="M 23 29 Q 27 24 31 29"
+              d="M 23 29 Q 27 25 31 29"
               stroke="#17271F"
-              strokeWidth="2.5"
+              strokeWidth="2.3"
               strokeLinecap="round"
               fill="none"
             />
             <path
-              d="M 37 29 Q 41 24 45 29"
+              d="M 37 29 Q 41 25 45 29"
               stroke="#17271F"
-              strokeWidth="2.5"
+              strokeWidth="2.3"
               strokeLinecap="round"
               fill="none"
             />
             {/* Rosy blush */}
-            <circle cx="21" cy="33" r="2.5" fill="#FF7054" opacity="0.6" />
-            <circle cx="47" cy="33" r="2.5" fill="#FF7054" opacity="0.6" />
-            {/* Big cheerful open smile */}
+            <circle cx="21" cy="33" r="2.2" fill="#FF7054" opacity="0.6" />
+            <circle cx="47" cy="33" r="2.2" fill="#FF7054" opacity="0.6" />
+            {/* Cheerful welcoming smile */}
             <path
-              d="M 28 34 Q 34 40 40 34"
+              d="M 29 35 Q 34 39 39 35"
               stroke="#17271F"
-              strokeWidth="2"
-              fill="#17271F"
+              strokeWidth="1.8"
+              fill="none"
               strokeLinecap="round"
             />
           </>
@@ -217,11 +294,10 @@ export const ScoutMascot: React.FC<ScoutMascotProps> = ({
       case 'thinking':
         return (
           <>
-            {/* Inquisitive raised eyebrow / tilted gaze */}
+            {/* Inquisitive tilted gaze */}
             <path d="M 23 25 L 30 27" stroke="#17271F" strokeWidth="1.5" strokeLinecap="round" />
             <circle cx="27" cy="30" r="2.8" fill="#17271F" />
             <circle cx="41" cy="29" r="2.8" fill="#17271F" />
-            {/* Small glint in eyes */}
             <circle cx="28" cy="29" r="0.8" fill="#FFFFFF" />
             <circle cx="42" cy="28" r="0.8" fill="#FFFFFF" />
             {/* Quizzical pursed mouth */}
@@ -232,12 +308,8 @@ export const ScoutMascot: React.FC<ScoutMascotProps> = ({
       case 'curious':
         return (
           <>
-            {/* Large curious wide eyes */}
-            <circle cx="26" cy="30" r="3.2" fill="#17271F" className={animate ? 'animate-scout-blink' : ''} />
-            <circle cx="42" cy="30" r="3.2" fill="#17271F" className={animate ? 'animate-scout-blink' : ''} />
-            {/* Dual sparkle catchlights */}
-            <circle cx="27.2" cy="28.8" r="1" fill="#FFFFFF" />
-            <circle cx="43.2" cy="28.8" r="1" fill="#FFFFFF" />
+            {/* Large curious wide eyes with natural blinking */}
+            {renderEyes(26, 42, 30, 3.2, true)}
             {/* Tiny intrigued open mouth */}
             <circle cx="34" cy="36" r="1.5" fill="#17271F" />
             {/* Soft coral cheek dots */}
@@ -249,12 +321,12 @@ export const ScoutMascot: React.FC<ScoutMascotProps> = ({
       case 'focused':
         return (
           <>
-            {/* Focused monocle / scanner ring on right eye */}
+            {/* Focused monocle on right eye */}
             <circle cx="26" cy="30" r="2.8" fill="#17271F" />
             <circle cx="42" cy="30" r="2.8" fill="#17271F" />
             <circle cx="42" cy="30" r="5.5" stroke="#17271F" strokeWidth="1.2" fill="none" strokeDasharray="2 2" />
             <line x1="46" y1="34" x2="50" y2="38" stroke="#17271F" strokeWidth="1.5" strokeLinecap="round" />
-            {/* Small determined smirk */}
+            {/* Small determined smile */}
             <path
               d="M 29 35 Q 34 37 38 34"
               stroke="#17271F"
@@ -269,17 +341,12 @@ export const ScoutMascot: React.FC<ScoutMascotProps> = ({
       default:
         return (
           <>
-            {/* Classic expressive blinking eyes */}
-            <g className={animate ? 'animate-scout-blink' : ''}>
-              <circle cx="26" cy="30" r="2.8" fill="#17271F" />
-              <circle cx="27.2" cy="28.8" r="0.9" fill="#FFFFFF" />
-              <circle cx="42" cy="30" r="2.8" fill="#17271F" />
-              <circle cx="43.2" cy="28.8" r="0.9" fill="#FFFFFF" />
-            </g>
+            {/* Natural, continuously blinking friendly eyes */}
+            {renderEyes(26, 42, 30, 2.8, true)}
             {/* Tiny blush */}
             <circle cx="20" cy="33" r="1.8" fill="#FF7054" opacity="0.5" />
             <circle cx="48" cy="33" r="1.8" fill="#FF7054" opacity="0.5" />
-            {/* Friendly mini smile */}
+            {/* Small warm welcoming smile */}
             <path
               d="M 30 35 Q 34 38 38 35"
               stroke="#17271F"
@@ -294,7 +361,8 @@ export const ScoutMascot: React.FC<ScoutMascotProps> = ({
 
   return (
     <div className={`inline-flex items-center gap-2 relative ${className}`}>
-      <div className={`relative ${animate ? 'animate-scout-float' : ''}`} style={{ width, height }}>
+      {/* Calm, steady mascot body without full-body bouncing or bobbing */}
+      <div className="relative" style={{ width, height }}>
         <svg
           viewBox="0 0 68 68"
           width={width}
@@ -317,18 +385,7 @@ export const ScoutMascot: React.FC<ScoutMascotProps> = ({
             </filter>
           </defs>
 
-          {/* Sparkle satellite dots (tactile, charming) */}
-          {animate && expression === 'celebratory' && (
-            <>
-              <circle cx="12" cy="12" r="2" fill="#FF7054" className="animate-ping" style={{ animationDuration: '1.8s' }} />
-              <circle cx="56" cy="14" r="2.5" fill="#D8FF65" />
-              <circle cx="58" cy="52" r="1.8" fill="#FF7054" />
-              <circle cx="10" cy="48" r="2" fill="#9DE3D0" />
-            </>
-          )}
-
           {/* Scout's Main 4-Point Star Body */}
-          {/* Symmetrical, organic 4-point star curve: Top (34,4), Right (64,34), Bottom (34,64), Left (4,34) */}
           <path
             d="M 34 4
                C 34 18 46 30 64 34

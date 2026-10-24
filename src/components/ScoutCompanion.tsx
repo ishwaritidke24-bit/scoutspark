@@ -690,33 +690,33 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
             ) : (
               /* Unexpanded: Fixed Corner Mascot with Interactive Speech Bubble */
               <div className="flex items-center gap-2 group">
-                {/* Context Speech Bubble */}
-                <div 
-                  onClick={() => {
-                    setIsPanelOpen(true);
-                    setExpression('talking');
-                    speakText("Hey! Click me anytime for help, shortcuts, or to chat.");
-                  }}
-                  className="bg-white border-2 border-[#17271F] px-3.5 py-2 rounded-2xl text-xs font-medium text-[#17271F] shadow-[3px_3px_0px_#17271F] max-w-[220px] sm:max-w-[270px] cursor-pointer hover:border-[#FF7054] hover:shadow-[4px_4px_0px_#FF7054] transition-all group animate-in fade-in duration-200"
-                  title="Click to talk with ScoutStar"
-                >
-                  <div className="flex items-center justify-between text-[10px] text-[#4A5E52] mb-0.5">
-                    <span className="font-mono font-bold text-[#FF7054] uppercase flex items-center gap-1">
-                      <span>ScoutStar</span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#D8FF65] animate-ping" />
-                    </span>
-                    <span className="group-hover:text-[#17271F] underline text-[9px]">Click to chat</span>
+                {/* Context Speech Bubble (shown on non-dashboard tabs to avoid duplicate greeting) */}
+                {currentTab !== 'dashboard' && (
+                  <div 
+                    onClick={() => {
+                      setIsPanelOpen(true);
+                      setExpression('talking');
+                      speakText("Hey! Click me anytime for help, shortcuts, or to chat.");
+                    }}
+                    className="bg-white border-2 border-[#17271F] px-3.5 py-2 rounded-2xl text-xs font-medium text-[#17271F] shadow-[3px_3px_0px_#17271F] max-w-[220px] sm:max-w-[270px] cursor-pointer hover:border-[#FF7054] hover:shadow-[4px_4px_0px_#FF7054] transition-all group animate-in fade-in duration-200"
+                    title="Click to talk with Scout"
+                  >
+                    <div className="flex items-center justify-between text-[10px] text-[#4A5E52] mb-0.5">
+                      <span className="font-mono font-bold text-[#FF7054] uppercase flex items-center gap-1">
+                        <span>Scout</span>
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#D8FF65] animate-ping" />
+                      </span>
+                      <span className="group-hover:text-[#17271F] underline text-[9px]">Click to chat</span>
+                    </div>
+                    <p className="text-[11px] text-[#17271F] leading-snug line-clamp-2">
+                      {readyLeads.length > 0 
+                        ? `Psst! ${readyLeads.length} leads are waiting in Ready to Review!`
+                        : currentTab === 'settings'
+                        ? "Describe your ideal customer in plain English!"
+                        : "I'm right here in your corner to help. Click to chat!"}
+                    </p>
                   </div>
-                  <p className="text-[11px] text-[#17271F] leading-snug line-clamp-2">
-                    {readyLeads.length > 0 
-                      ? `Psst! ${readyLeads.length} leads are waiting in Ready to Review!`
-                      : currentTab === 'dashboard' 
-                      ? "Ready to find customers? Click Start Scouting to begin!"
-                      : currentTab === 'settings'
-                      ? "Describe your ideal customer in plain English!"
-                      : "I'm right here in your corner to help. Click to chat!"}
-                  </p>
-                </div>
+                )}
 
                 {/* Interactive Mascot Avatar */}
                 <button

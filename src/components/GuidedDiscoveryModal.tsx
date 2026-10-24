@@ -448,7 +448,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
     // Validate Required Input
     const desc = customerDescription.trim();
     if (!desc) {
-      setValidationError("Please type your client or ideal customer in the space box before we search.");
+      setValidationError("Please describe your target client or ideal customer before we search.");
       return;
     }
     setValidationError(null);
@@ -690,7 +690,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                         Who are your clients or ideal customers?
                       </h3>
                       <p className="text-xs text-[#4A5E52] mt-0.5 leading-relaxed">
-                        Type in the space box below, pick from the dropdown menu, or select any of the suggestion boxes.
+                        Describe your ideal customer below, pick from the dropdown menu, or select any of the suggestion archetypes.
                       </p>
                     </div>
 
@@ -784,15 +784,12 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     </div>
                   </div>
 
-                  {/* 3. DEDICATED SPACE BOX FOR USER'S CLIENT / IDEAL CUSTOMER */}
+                  {/* 3. TARGET CLIENT / IDEAL CUSTOMER DESCRIPTION */}
                   <div className="bg-white border-2 border-[#17271F] rounded-2xl p-5 shadow-[4px_4px_0px_#17271F] space-y-4">
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
                         <label className="text-xs font-bold uppercase tracking-wider text-[#17271F] flex items-center gap-2">
-                          <span className="px-2 py-0.5 rounded bg-[#17271F] text-[#D8FF65] font-mono text-[10px]">
-                            SPACE BOX
-                          </span>
-                          <span>Type Your Client / Ideal Customer:</span>
+                          <span>Target Client / Ideal Customer:</span>
                           <span className="text-[#FF7054] font-mono">* Required</span>
                         </label>
 
@@ -804,10 +801,10 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                               setSelectedArchetypeId('');
                             }}
                             className="text-[11px] text-[#FF7054] hover:underline flex items-center gap-1 cursor-pointer"
-                            title="Clear space box"
+                            title="Clear customer description"
                           >
                             <Trash2 className="w-3 h-3" />
-                            <span>Clear box</span>
+                            <span>Clear description</span>
                           </button>
                         )}
                       </div>
@@ -1127,7 +1124,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                           We couldn't find matching companies on this pass
                         </h4>
                         <p className="text-xs text-[#4A5E52] max-w-md mx-auto">
-                          Try typing broader customer requirements in the space box or select one of the suggested archetypes.
+                          Try typing broader customer requirements or select one of the suggested archetypes.
                         </p>
                         <button
                           onClick={() => setResult(null)}

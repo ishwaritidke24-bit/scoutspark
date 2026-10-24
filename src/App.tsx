@@ -39,19 +39,9 @@ export const App: React.FC = () => {
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [backendStatus, setBackendStatus] = useState<string>('connecting');
 
-  // Load data on mount & check for first-time tour
+  // Load data on mount
   useEffect(() => {
     loadAllData();
-
-    // Check if new user has completed tour
-    const hasSeenTour = localStorage.getItem('scoutspark_onboarding_completed');
-    const hideAuto = localStorage.getItem('scoutspark_hide_auto_tour');
-    if (!hasSeenTour && hideAuto !== 'true') {
-      const timer = setTimeout(() => {
-        setIsGuideOpen(true);
-      }, 700);
-      return () => clearTimeout(timer);
-    }
   }, []);
 
   const loadAllData = async () => {
@@ -356,15 +346,6 @@ export const App: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span className="font-editorial font-bold text-sm text-[#17271F]">ScoutSpark</span>
                   <span className="text-[#4A5E52]">• Find your next yes.</span>
-                  <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded border font-bold ${
-                    backendStatus === 'connected' 
-                      ? 'bg-[#9DE3D0] text-[#17271F] border-[#17271F]' 
-                      : backendStatus === 'local_demo'
-                      ? 'bg-[#D8FF65] text-[#17271F] border-[#17271F]'
-                      : 'bg-[#FFEAE5] text-[#FF7054] border-[#FF7054]'
-                  }`}>
-                    {backendStatus === 'connected' ? 'Database: Connected' : backendStatus === 'local_demo' ? 'Practice Mode' : 'Server Disconnected'}
-                  </span>
                 </div>
                 <p className="text-[11px] text-[#4A5E52] mt-0.5">
                   Reason-driven lead research and outreach for early-stage B2B founders
