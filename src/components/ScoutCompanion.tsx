@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { ViewTab, Prospect, IdealCustomerProfile } from '../types';
 import { ScoutMascot, ScoutExpression } from './ScoutMascot';
 import { 
@@ -7,18 +7,14 @@ import {
   ArrowRight, 
   HelpCircle, 
   Minimize2, 
-  Maximize2,
-  CheckCircle2,
-  Send,
-  Volume2,
-  VolumeX,
-  Compass,
-  Move,
-  MessageSquare,
-  Target,
-  FileText,
-  Navigation,
-  Home
+  Send, 
+  Volume2, 
+  VolumeX, 
+  Compass, 
+  MessageSquare, 
+  Target, 
+  FileText, 
+  CheckCircle2
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -51,19 +47,12 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
   onOpenDiscovery,
   onOpenTour,
   prospects,
-  icp,
   onSelectProspect,
-  isDrawerOpen = false,
 }) => {
   // UI & Mode States
   const [isPanelOpen, setIsPanelOpen] = useState<boolean>(false);
   const [isMinimized, setIsMinimized] = useState<boolean>(false);
   const [activeTab, setActivePanelTab] = useState<'chat' | 'page-guide'>('chat');
-  
-  // Dynamic Screen Coordinates (x, y relative to viewport)
-  const [coords, setCoords] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
-  const [activeTarget, setActiveTarget] = useState<string>('resting-br');
-  const [isReducedMotion, setIsReducedMotion] = useState<boolean>(false);
 
   // Expression & Speech States
   const [expression, setExpression] = useState<ScoutExpression>('idle');
@@ -76,186 +65,19 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
   const [isThinking, setIsThinking] = useState<boolean>(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Route tracking
-  const [prevTab, setPrevTab] = useState<ViewTab>(currentTab);
-
   // Computed data summaries
   const readyLeads = prospects.filter(p => p.pipelineStage === 'ready_to_review');
-  const approvedLeads = prospects.filter(p => p.pipelineStage === 'approved');
   const topScoredProspect = useMemo(() => {
     if (!prospects.length) return null;
     return [...prospects].sort((a, b) => b.fitScore - a.fitScore)[0];
   }, [prospects]);
 
-  // Check speech synthesis & motion preferences
+  // Check speech synthesis availability
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if ('speechSynthesis' in window) {
-        setIsSpeechAvailable(true);
-      }
-      const mediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-      setIsReducedMotion(mediaQuery.matches);
-      const listener = (e: MediaQueryListEvent) => setIsReducedMotion(e.matches);
-      mediaQuery.addEventListener('change', listener);
-      return () => mediaQuery.removeEventListener('change', listener);
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      setIsSpeechAvailable(true);
     }
   }, []);
-
-  // Compute screen coordinates for a given target identifier or resting corner
-  const computeTargetPosition = useCallback((targetKey: string): { x: number; y: number } => {
-    if (typeof window === 'undefined') return { x: 20, y: 20 };
-
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const compWidth = isMinimized ? 150 : isPanelOpen ? 370 : 280;
-    const compHeight = isMinimized ? 44 : isPanelOpen ? 480 : 80;
-
-    // Fixed fallback corners
-    if (targetKey === 'resting-br' || isDrawerOpen) {
-      // If drawer is open on the right, rest comfortably at bottom-left instead
-      if (isDrawerOpen) {
-        return { x: 24, y: Math.max(76, vh - compHeight - 24) };
-      }
-      return {
-        x: Math.max(20, vw - compWidth - 24),
-        y: Math.max(76, vh - compHeight - 24)
-      };
-    }
-
-    if (targetKey === 'resting-bl') {
-      return { x: 24, y: Math.max(76, vh - compHeight - 24) };
-    }
-
-    if (targetKey === 'resting-tr') {
-      return {
-        x: Math.max(20, vw - compWidth - 24),
-        y: 84
-      };
-    }
-
-    // Try locating DOM element with data-scout-target
-    const el = document.querySelector(`[data-scout-target="${targetKey}"]`);
-    if (!el) {
-      // If element is not found on page, fallback to resting corner
-      return {
-        x: Math.max(20, vw - compWidth - 24),
-        y: Math.max(76, vh - compHeight - 24)
-      };
-    }
-
-    const rect = el.getBoundingClientRect();
-
-    // Check if element is reasonably visible in the viewport
-    if (rect.bottom < 50 || rect.top > vh - 50) {
-      // Out of viewport, rest at corner
-      return {
-        x: Math.max(20, vw - compWidth - 24),
-        y: Math.max(76, vh - compHeight - 24)
-      };
-    }
-
-    // Attempt placement to the right of the element
-    let x = rect.right + 18;
-    let y = rect.top + Math.max(0, (rect.height - compHeight) / 2);
-
-    // If placing to the right would overflow viewport, flip to left of element
-    if (x + compWidth > vw - 16) {
-      x = rect.left - compWidth - 18;
-    }
-
-    // If placing to left would overflow as well, place directly below or above
-    if (x < 16) {
-      x = Math.max(16, Math.min(vw - compWidth - 16, rect.left));
-      if (rect.bottom + compHeight + 16 < vh) {
-        y = rect.bottom + 12;
-      } else {
-        y = Math.max(76, rect.top - compHeight - 12);
-      }
-    }
-
-    // Strictly clamp within viewport
-    x = Math.max(16, Math.min(vw - compWidth - 16, x));
-    y = Math.max(76, Math.min(vh - compHeight - 16, y));
-
-    return { x, y };
-  }, [isPanelOpen, isMinimized, isDrawerOpen]);
-
-  // Update coordinates whenever target, panel, drawer, or viewport changes
-  const updatePosition = useCallback(() => {
-    const nextCoords = computeTargetPosition(activeTarget);
-    setCoords(nextCoords);
-  }, [activeTarget, computeTargetPosition]);
-
-  // Window scroll & resize listeners to keep ScoutStar anchored beside its target
-  useEffect(() => {
-    updatePosition();
-
-    let animationFrameId: number;
-    const handleScrollOrResize = () => {
-      cancelAnimationFrame(animationFrameId);
-      animationFrameId = requestAnimationFrame(() => {
-        updatePosition();
-      });
-    };
-
-    window.addEventListener('scroll', handleScrollOrResize, { passive: true });
-    window.addEventListener('resize', handleScrollOrResize, { passive: true });
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener('scroll', handleScrollOrResize);
-      window.removeEventListener('resize', handleScrollOrResize);
-    };
-  }, [updatePosition]);
-
-  // Route transition behavior: roam directly to the active feature on that page!
-  useEffect(() => {
-    if (currentTab !== prevTab) {
-      setPrevTab(currentTab);
-
-      // Select meaningful page element target based on route
-      let nextElementTarget = 'resting-br';
-      let entryExpression: ScoutExpression = 'waving';
-
-      switch (currentTab) {
-        case 'dashboard':
-          nextElementTarget = 'start-scouting-btn';
-          entryExpression = 'waving';
-          break;
-        case 'settings':
-          nextElementTarget = 'target-customer-description';
-          entryExpression = 'pointing';
-          break;
-        case 'prospects':
-          nextElementTarget = 'find-leads-actions';
-          entryExpression = 'curious';
-          break;
-        case 'pipeline':
-          nextElementTarget = 'pipeline-column-ready';
-          entryExpression = 'pointing';
-          break;
-        case 'campaigns':
-          nextElementTarget = 'sequence-composer';
-          entryExpression = 'focused';
-          break;
-        case 'eval-lab':
-          nextElementTarget = 'accuracy-metrics';
-          entryExpression = 'thinking';
-          break;
-      }
-
-      setActiveTarget(nextElementTarget);
-      setExpression(entryExpression);
-
-      // After 6 seconds of introducing the element, gently glide down to resting corner
-      const timer = setTimeout(() => {
-        setActiveTarget('resting-br');
-        setExpression('idle');
-      }, 6000);
-
-      return () => clearTimeout(timer);
-    }
-  }, [currentTab, prevTab]);
 
   // Voice speech synthesis helper
   const speakText = (text: string) => {
@@ -293,11 +115,11 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
     }
   };
 
-  // Initial greeting messages based on page
+  // Initial greeting messages
   const initialMessages: ChatMessage[] = useMemo(() => {
     const defaultGreeting = readyLeads.length > 0 
       ? `Hey, scout! ⭐ I'm ScoutStar. You currently have ${readyLeads.length} leads in your workspace ready for review, including ${readyLeads[0].companyName}. What would you like to explore?`
-      : `Hey there! ⭐ I'm ScoutStar, your B2B sales intelligence companion. I roam around ScoutSpark with you to guide you through finding customers, calibrating your profile, and writing grounded outreach.`;
+      : `Hey there! ⭐ I'm ScoutStar, your B2B sales intelligence companion. I'm right here in your corner to help guide you through finding customers, calibrating your profile, and writing grounded outreach.`;
 
     return [
       {
@@ -309,7 +131,7 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
           'What is ScoutSpark?',
           'What should I do first?',
           'Show me my top leads',
-          'Where can you roam?'
+          'Who built ScoutSpark?'
         ]
       }
     ];
@@ -328,67 +150,6 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
   const generateScoutResponse = (userQuestion: string): ChatMessage => {
     const q = userQuestion.toLowerCase().trim();
     const timeStr = 'Just now';
-
-    // Roam questions
-    if (q.includes('roam') || q.includes('move') || q.includes('fly') || q.includes('where can you')) {
-      return {
-        id: String(Date.now()),
-        sender: 'scout',
-        text: `I can roam right next to any tool on this page! Choose where you want me to glide:`,
-        timestamp: timeStr,
-        suggestedReplies: [
-          'Glide to Main Action',
-          'Glide to Form / Inputs',
-          'Glide to Navigation',
-          'Rest at Corner'
-        ]
-      };
-    }
-
-    if (q.includes('glide to main action') || q.includes('show main action')) {
-      setActiveTarget(currentTab === 'dashboard' ? 'start-scouting-btn' : currentTab === 'prospects' ? 'find-leads-actions' : 'resting-tr');
-      setExpression('pointing');
-      return {
-        id: String(Date.now()),
-        sender: 'scout',
-        text: `Gliding beside the primary action for this section! 👉 Click it whenever you're ready.`,
-        timestamp: timeStr,
-      };
-    }
-
-    if (q.includes('glide to form') || q.includes('glide to input')) {
-      if (currentTab !== 'settings') onNavigateToTab('settings');
-      setActiveTarget('target-customer-description');
-      setExpression('pointing');
-      return {
-        id: String(Date.now()),
-        sender: 'scout',
-        text: `Flying beside the Target Customer form! Here is where you tell me who you're looking for in plain English.`,
-        timestamp: timeStr,
-      };
-    }
-
-    if (q.includes('glide to navigation') || q.includes('show navigation')) {
-      setActiveTarget('nav-menu');
-      setExpression('waving');
-      return {
-        id: String(Date.now()),
-        sender: 'scout',
-        text: `Here is the top navigation bar with your Workspace, Outreach, Intelligence & Quality sections!`,
-        timestamp: timeStr,
-      };
-    }
-
-    if (q.includes('rest at corner') || q.includes('go home')) {
-      setActiveTarget('resting-br');
-      setExpression('idle');
-      return {
-        id: String(Date.now()),
-        sender: 'scout',
-        text: `Resting comfortably in the corner. Click me or ask a question anytime you need help!`,
-        timestamp: timeStr,
-      };
-    }
 
     // Creator attribution
     if (q.includes('creator') || q.includes('who built') || q.includes('who made') || q.includes('ishwari')) {
@@ -486,7 +247,7 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
             setIsPanelOpen(false);
           }
         },
-        suggestedReplies: ['Explain the 12 automated tests', 'Show me my top leads']
+        suggestedReplies: ['What is ScoutSpark?', 'Show me my top leads']
       };
     }
 
@@ -505,7 +266,7 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
               setIsPanelOpen(false);
             }
           },
-          suggestedReplies: ['How do I find 75%+ score leads?', 'What should I do first?']
+          suggestedReplies: ['What should I do first?', 'Calibrate Target Customer']
         };
       } else {
         return {
@@ -529,12 +290,12 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
     return {
       id: String(Date.now()),
       sender: 'scout',
-      text: `I'm happy to help you with Target Customer criteria, live web discovery, pipeline tracking, or roaming around the page!`,
+      text: `I'm happy to help you with Target Customer criteria, live web discovery, pipeline tracking, or message sequences! Ask me anything.`,
       timestamp: timeStr,
       suggestedReplies: [
-        'Where can you roam?',
         'What should I do first?',
-        'Show me my top leads'
+        'Show me my top leads',
+        'Who built ScoutSpark?'
       ]
     };
   };
@@ -570,40 +331,19 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
     }, 450);
   };
 
-  // Manual Roam command
-  const handleRoamTo = (targetKey: string) => {
-    setActiveTarget(targetKey);
-    setExpression('pointing');
-    setTimeout(() => setExpression('idle'), 2000);
-  };
-
-  // Cycle position manually
-  const handleCyclePosition = () => {
-    const targets = ['resting-br', 'start-scouting-btn', 'target-customer-description', 'find-leads-actions', 'resting-bl'];
-    const nextIdx = (targets.indexOf(activeTarget) + 1) % targets.length;
-    handleRoamTo(targets[nextIdx]);
-  };
-
   // Celebration helper
   const triggerCelebration = () => {
     confetti({
       particleCount: 45,
       spread: 60,
-      origin: { y: 0.85, x: coords.x > window.innerWidth / 2 ? 0.85 : 0.15 }
+      origin: { y: 0.85, x: 0.85 }
     });
     setExpression('celebratory');
     setTimeout(() => setExpression('idle'), 2500);
   };
 
   return (
-    <div 
-      className="fixed z-40 select-none pointer-events-none"
-      style={{
-        left: `${coords.x}px`,
-        top: `${coords.y}px`,
-        transition: isReducedMotion ? 'none' : 'left 0.65s cubic-bezier(0.16,1,0.3,1), top 0.65s cubic-bezier(0.16,1,0.3,1)'
-      }}
-    >
+    <div className="fixed bottom-6 right-6 z-40 select-none pointer-events-none">
       <div className="pointer-events-auto">
         {/* Minimized Floating Star Button */}
         {isMinimized ? (
@@ -642,7 +382,7 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
                       <div className="text-xs font-editorial font-bold text-white flex items-center gap-1.5">
                         <span>ScoutStar</span>
                         <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-[#D8FF65] text-[#17271F] font-bold">
-                          {isSpeaking ? 'SPEAKING' : isThinking ? 'THINKING' : 'ROAMING'}
+                          {isSpeaking ? 'SPEAKING' : isThinking ? 'THINKING' : 'ONLINE'}
                         </span>
                       </div>
                       <div className="text-[10px] text-[#9DE3D0] leading-none">
@@ -651,7 +391,7 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
                     </div>
                   </div>
 
-                  {/* Header Controls: Voice Mute/Unmute, Roam Position, Minimize, Close */}
+                  {/* Header Controls: Voice Mute/Unmute, Minimize, Close */}
                   <div className="flex items-center gap-1">
                     {/* Voice Toggle */}
                     {isSpeechAvailable && (
@@ -676,16 +416,6 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
                         {!isVoiceMuted ? <Volume2 className="w-3.5 h-3.5" /> : <VolumeX className="w-3.5 h-3.5" />}
                       </button>
                     )}
-
-                    {/* Roam Cycle Button */}
-                    <button
-                      onClick={handleCyclePosition}
-                      className="p-1.5 rounded text-[#F7F2E8]/70 hover:text-white hover:bg-white/10 transition-colors"
-                      title="Glide ScoutStar to next element"
-                      aria-label="Glide ScoutStar"
-                    >
-                      <Move className="w-3.5 h-3.5" />
-                    </button>
 
                     {/* Minimize Button */}
                     <button
@@ -716,7 +446,7 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
                   </div>
                 </div>
 
-                {/* Sub-Tabs: "Chat & Ask" vs "Roam & Guide" */}
+                {/* Sub-Tabs: "Chat & Ask" vs "Quick Guide" */}
                 <div className="flex border-b border-[#E2D9C8] bg-[#F7F2E8] px-3 pt-2 text-xs font-semibold shrink-0">
                   <button
                     onClick={() => setActivePanelTab('chat')}
@@ -739,7 +469,7 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
                     }`}
                   >
                     <Compass className="w-3.5 h-3.5 text-[#17271F]" />
-                    <span>Roam & Guide</span>
+                    <span>Quick Shortcuts</span>
                   </button>
                 </div>
 
@@ -831,7 +561,7 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
                         type="text"
                         value={chatInput}
                         onChange={(e) => setChatInput(e.target.value)}
-                        placeholder="Ask ScoutStar anything (e.g. 'Where can you roam?')..."
+                        placeholder="Ask ScoutStar anything (e.g. 'What should I do first?')..."
                         className="flex-1 bg-[#FAF7F0] border border-[#17271F] rounded-xl px-3 py-2 text-xs text-[#17271F] placeholder-[#4A5E52]/60 focus:outline-none focus:ring-1 focus:ring-[#FF7054]"
                       />
                       <button
@@ -846,74 +576,78 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
                     </form>
                   </div>
                 ) : (
-                  /* Roam & Guide Sub-Tab */
+                  /* Quick Shortcuts Sub-Tab */
                   <div className="p-4 space-y-3.5 text-xs overflow-y-auto max-h-[440px]">
                     <div className="space-y-1">
                       <div className="flex items-center gap-1.5 text-[10px] font-mono text-[#FF7054] font-bold uppercase tracking-wider">
                         <Sparkles className="w-3.5 h-3.5" />
-                        <span>Interactive Roaming Hub</span>
+                        <span>Quick Navigation & Tools</span>
                       </div>
                       <h4 className="font-editorial font-bold text-base text-[#17271F]">
-                        Where should ScoutStar glide?
+                        Where would you like to go?
                       </h4>
                       <p className="text-[12px] text-[#4A5E52] leading-relaxed">
-                        Click any element below to watch ScoutStar travel right beside it on your screen.
+                        Instant shortcuts to your workspace views and features:
                       </p>
                     </div>
 
-                    {/* Roam Targets Grid */}
-                    <div className="space-y-2">
-                      <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-[#17271F]">
-                        On-Screen Elements:
-                      </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          onClick={() => handleRoamTo('start-scouting-btn')}
-                          className="p-2.5 bg-white border border-[#17271F] rounded-xl text-left hover:bg-[#D8FF65]/30 transition-colors flex items-center gap-2 cursor-pointer shadow-[1px_1px_0px_#17271F]"
-                        >
-                          <Target className="w-3.5 h-3.5 text-[#FF7054] shrink-0" />
-                          <div>
-                            <div className="font-bold text-[11px] text-[#17271F]">Start Scouting</div>
-                            <div className="text-[9px] text-[#4A5E52]">Main action button</div>
-                          </div>
-                        </button>
+                    {/* Shortcuts Grid */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => {
+                          setIsPanelOpen(false);
+                          onOpenDiscovery();
+                        }}
+                        className="p-2.5 bg-white border border-[#17271F] rounded-xl text-left hover:bg-[#D8FF65]/30 transition-colors flex items-center gap-2 cursor-pointer shadow-[1px_1px_0px_#17271F]"
+                      >
+                        <Target className="w-3.5 h-3.5 text-[#FF7054] shrink-0" />
+                        <div>
+                          <div className="font-bold text-[11px] text-[#17271F]">Start Scouting</div>
+                          <div className="text-[9px] text-[#4A5E52]">Find new leads</div>
+                        </div>
+                      </button>
 
-                        <button
-                          onClick={() => {
-                            if (currentTab !== 'settings') onNavigateToTab('settings');
-                            handleRoamTo('target-customer-description');
-                          }}
-                          className="p-2.5 bg-white border border-[#17271F] rounded-xl text-left hover:bg-[#D8FF65]/30 transition-colors flex items-center gap-2 cursor-pointer shadow-[1px_1px_0px_#17271F]"
-                        >
-                          <FileText className="w-3.5 h-3.5 text-[#FF7054] shrink-0" />
-                          <div>
-                            <div className="font-bold text-[11px] text-[#17271F]">Target Form</div>
-                            <div className="text-[9px] text-[#4A5E52]">Customer criteria</div>
-                          </div>
-                        </button>
+                      <button
+                        onClick={() => {
+                          onNavigateToTab('settings');
+                          setIsPanelOpen(false);
+                        }}
+                        className="p-2.5 bg-white border border-[#17271F] rounded-xl text-left hover:bg-[#D8FF65]/30 transition-colors flex items-center gap-2 cursor-pointer shadow-[1px_1px_0px_#17271F]"
+                      >
+                        <FileText className="w-3.5 h-3.5 text-[#FF7054] shrink-0" />
+                        <div>
+                          <div className="font-bold text-[11px] text-[#17271F]">Target Customer</div>
+                          <div className="text-[9px] text-[#4A5E52]">Calibrate criteria</div>
+                        </div>
+                      </button>
 
-                        <button
-                          onClick={() => handleRoamTo('nav-menu')}
-                          className="p-2.5 bg-white border border-[#17271F] rounded-xl text-left hover:bg-[#D8FF65]/30 transition-colors flex items-center gap-2 cursor-pointer shadow-[1px_1px_0px_#17271F]"
-                        >
-                          <Navigation className="w-3.5 h-3.5 text-[#FF7054] shrink-0" />
-                          <div>
-                            <div className="font-bold text-[11px] text-[#17271F]">Navigation Bar</div>
-                            <div className="text-[9px] text-[#4A5E52]">Workspace tools</div>
-                          </div>
-                        </button>
+                      <button
+                        onClick={() => {
+                          onNavigateToTab('prospects');
+                          setIsPanelOpen(false);
+                        }}
+                        className="p-2.5 bg-white border border-[#17271F] rounded-xl text-left hover:bg-[#D8FF65]/30 transition-colors flex items-center gap-2 cursor-pointer shadow-[1px_1px_0px_#17271F]"
+                      >
+                        <Compass className="w-3.5 h-3.5 text-[#FF7054] shrink-0" />
+                        <div>
+                          <div className="font-bold text-[11px] text-[#17271F]">Find Leads</div>
+                          <div className="text-[9px] text-[#4A5E52]">{prospects.length} verified dossiers</div>
+                        </div>
+                      </button>
 
-                        <button
-                          onClick={() => handleRoamTo('resting-br')}
-                          className="p-2.5 bg-white border border-[#17271F] rounded-xl text-left hover:bg-[#D8FF65]/30 transition-colors flex items-center gap-2 cursor-pointer shadow-[1px_1px_0px_#17271F]"
-                        >
-                          <Home className="w-3.5 h-3.5 text-[#FF7054] shrink-0" />
-                          <div>
-                            <div className="font-bold text-[11px] text-[#17271F]">Corner Home</div>
-                            <div className="text-[9px] text-[#4A5E52]">Calm resting spot</div>
-                          </div>
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => {
+                          onNavigateToTab('pipeline');
+                          setIsPanelOpen(false);
+                        }}
+                        className="p-2.5 bg-white border border-[#17271F] rounded-xl text-left hover:bg-[#D8FF65]/30 transition-colors flex items-center gap-2 cursor-pointer shadow-[1px_1px_0px_#17271F]"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-[#FF7054] shrink-0" />
+                        <div>
+                          <div className="font-bold text-[11px] text-[#17271F]">Pipeline</div>
+                          <div className="text-[9px] text-[#4A5E52]">Manage stages</div>
+                        </div>
+                      </button>
                     </div>
 
                     {/* Primary Action Button */}
@@ -954,14 +688,14 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
                 )}
               </div>
             ) : (
-              /* Unexpanded: Floating Roaming Mascot with Interactive Speech Bubble */
+              /* Unexpanded: Fixed Corner Mascot with Interactive Speech Bubble */
               <div className="flex items-center gap-2 group">
                 {/* Context Speech Bubble */}
                 <div 
                   onClick={() => {
                     setIsPanelOpen(true);
                     setExpression('talking');
-                    speakText("Hey! Click me to chat or tell me where you'd like me to roam.");
+                    speakText("Hey! Click me anytime for help, shortcuts, or to chat.");
                   }}
                   className="bg-white border-2 border-[#17271F] px-3.5 py-2 rounded-2xl text-xs font-medium text-[#17271F] shadow-[3px_3px_0px_#17271F] max-w-[220px] sm:max-w-[270px] cursor-pointer hover:border-[#FF7054] hover:shadow-[4px_4px_0px_#FF7054] transition-all group animate-in fade-in duration-200"
                   title="Click to talk with ScoutStar"
@@ -980,7 +714,7 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
                       ? "Ready to find customers? Click Start Scouting to begin!"
                       : currentTab === 'settings'
                       ? "Describe your ideal customer in plain English!"
-                      : "I'm roaming alongside your journey. Click to chat!"}
+                      : "I'm right here in your corner to help. Click to chat!"}
                   </p>
                 </div>
 
