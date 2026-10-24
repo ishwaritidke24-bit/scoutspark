@@ -14,6 +14,7 @@ import { Navbar } from './components/Navbar';
 import { ScoutMascot } from './components/ScoutMascot';
 import { GuidedDiscoveryModal } from './components/GuidedDiscoveryModal';
 import { ScoutGuideModal } from './components/ScoutGuideModal';
+import { ScoutCompanion } from './components/ScoutCompanion';
 import { ProspectDetailDrawer } from './components/ProspectDetailDrawer';
 import { OverviewView } from './views/OverviewView';
 import { ProspectsView } from './views/ProspectsView';
@@ -328,55 +329,79 @@ export const App: React.FC = () => {
         }}
       />
 
-      {/* Footer */}
+      {/* ScoutStar Persistent Animated Companion (Available Across All Pages) */}
+      <ScoutCompanion
+        currentTab={currentTab}
+        onNavigateToTab={setCurrentTab}
+        onOpenDiscovery={() => setIsDiscoveryOpen(true)}
+        onOpenTour={() => setIsGuideOpen(true)}
+        prospects={prospects}
+        icp={icp}
+        onSelectProspect={setSelectedProspect}
+        isDrawerOpen={Boolean(selectedProspect)}
+      />
+
+      {/* Global Creator Footer */}
       <footer className="mt-auto border-t-2 border-[#17271F] bg-[#FAF7F0] py-8 text-xs text-[#4A5E52]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <ScoutMascot expression="idle" size="xs" animate={true} />
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-editorial font-bold text-sm text-[#17271F]">ScoutSpark</span>
-                <span className="text-[#4A5E52]">• Find your next yes.</span>
-                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded border font-bold ${
-                  backendStatus === 'connected' 
-                    ? 'bg-[#9DE3D0] text-[#17271F] border-[#17271F]' 
-                    : backendStatus === 'local_demo'
-                    ? 'bg-[#D8FF65] text-[#17271F] border-[#17271F]'
-                    : 'bg-[#FFEAE5] text-[#FF7054] border-[#FF7054]'
-                }`}>
-                  {backendStatus === 'connected' ? 'Database: Connected' : backendStatus === 'local_demo' ? 'Practice Mode' : 'Server Disconnected'}
-                </span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <ScoutMascot expression="idle" size="xs" animate={true} />
+              <div>
+                <div className="flex items-center gap-2">
+                  <span className="font-editorial font-bold text-sm text-[#17271F]">ScoutSpark</span>
+                  <span className="text-[#4A5E52]">• Find your next yes.</span>
+                  <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded border font-bold ${
+                    backendStatus === 'connected' 
+                      ? 'bg-[#9DE3D0] text-[#17271F] border-[#17271F]' 
+                      : backendStatus === 'local_demo'
+                      ? 'bg-[#D8FF65] text-[#17271F] border-[#17271F]'
+                      : 'bg-[#FFEAE5] text-[#FF7054] border-[#FF7054]'
+                  }`}>
+                    {backendStatus === 'connected' ? 'Database: Connected' : backendStatus === 'local_demo' ? 'Practice Mode' : 'Server Disconnected'}
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#4A5E52] mt-0.5">
+                  Reason-driven lead research and outreach for early-stage B2B founders
+                </p>
               </div>
-              <p className="text-[11px] text-[#4A5E52] mt-0.5">
-                Smart lead research for early-stage startups
-              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-4 text-[11px]">
+              <span className="flex items-center gap-1 font-semibold text-[#17271F]">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#FF7054]" />
+                You approve every message before it sends
+              </span>
+              <span>•</span>
+              <button
+                onClick={() => setIsGuideOpen(true)}
+                className="text-[#17271F] hover:text-[#FF7054] font-semibold flex items-center gap-1 cursor-pointer"
+              >
+                <HelpCircle className="w-3 h-3 text-[#FF7054]" />
+                <span>ScoutStar Guide & Tour</span>
+              </button>
+              <span>•</span>
+              <button
+                onClick={() => setCurrentTab('eval-lab')}
+                className="text-[#FF7054] hover:underline font-medium"
+              >
+                Accuracy Lab & Tests
+              </button>
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 text-[11px]">
-            <span className="flex items-center gap-1 font-semibold text-[#17271F]">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#FF7054]" />
-              You approve every message before it sends
-            </span>
-            <span>•</span>
-            <button
-              onClick={() => setIsGuideOpen(true)}
-              className="text-[#17271F] hover:text-[#FF7054] font-semibold flex items-center gap-1 cursor-pointer"
-            >
-              <HelpCircle className="w-3 h-3 text-[#FF7054]" />
-              <span>ScoutStar Guide & Tour</span>
-            </button>
-            <span>•</span>
-            <span className="font-mono text-[#17271F]">
-              PRACTICE WORKSPACE — SAMPLE DATA
-            </span>
-            <span>•</span>
-            <button
-              onClick={() => setCurrentTab('eval-lab')}
-              className="text-[#FF7054] hover:underline font-medium"
-            >
-              Accuracy Lab & Tests
-            </button>
+          {/* Deliberate Creator Attribution */}
+          <div className="pt-4 border-t border-[#E2D9C8] flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-[#4A5E52]">
+            <div className="font-mono font-medium text-[#17271F]">
+              © 2026 ScoutSpark · Designed & Built by Ishwari Tidke
+            </div>
+            <div className="flex items-center gap-3 text-[10px] text-[#4A5E52]">
+              <span>Zero-Spam Policy</span>
+              <span>•</span>
+              <span>Public Web Citations</span>
+              <span>•</span>
+              <span>Human in the Loop</span>
+            </div>
           </div>
         </div>
       </footer>

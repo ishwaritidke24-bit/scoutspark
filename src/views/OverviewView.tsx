@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Prospect, ResearchSignal, ActivityItem, PipelineStage, ViewTab } from '../types';
 import { ScoutMascot } from '../components/ScoutMascot';
-import { ScoutPageBanner } from '../components/ScoutPageBanner';
 import { 
   Sparkles, 
   ArrowRight, 
@@ -18,7 +17,15 @@ import {
   Zap,
   Kanban,
   Send,
-  HelpCircle
+  HelpCircle,
+  Search,
+  Check,
+  Flame,
+  Globe,
+  Sliders,
+  X,
+  AlertTriangle,
+  Lightbulb
 } from 'lucide-react';
 
 interface OverviewViewProps {
@@ -40,6 +47,9 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   onSelectProspect,
   onNavigateToTab,
 }) => {
+  // Interactive "How It Works" active tab state
+  const [activeWorkflowStep, setActiveWorkflowStep] = useState<number>(1);
+
   // Compute pipeline stage counts
   const stageCounts: Record<PipelineStage, number> = {
     to_research: prospects.filter(p => p.pipelineStage === 'to_research').length,
@@ -99,7 +109,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
     return {
       title: "Find More High-Intent Customers",
       desc: "All current leads have been processed. Run a fresh discovery search across the public web or explore additional market segments.",
-      buttonText: "Find My Next…",
+      buttonText: "Start Scouting",
       action: onOpenDiscovery,
       secondaryText: "View Leads",
       secondaryAction: () => onNavigateToTab('prospects'),
@@ -109,82 +119,187 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
   const nextAction = getNextBestAction();
 
-  return (
-    <div className="space-y-8 pb-12">
-      {/* Editorial Hero Banner */}
-      <div className="card-tactile p-6 sm:p-8 rounded-2xl relative overflow-hidden bg-[#FAF7F0] border-2 border-[#17271F]">
-        {/* Subtle decorative background sketch */}
-        <div className="absolute right-0 top-0 w-96 h-96 bg-[radial-gradient(#D8FF65_1px,transparent_1px)] [background-size:16px_16px] opacity-30 pointer-events-none" />
+  // Reference prospect for interactive demonstration (uses first prospect or fallback)
+  const sampleProspect: Prospect = prospects[0] || {
+    id: "sample-1",
+    companyName: "KiteMetrics",
+    domain: "kitemetrics.internal",
+    industry: "Developer Tools & Observability",
+    subIndustry: "Distributed Tracing",
+    headquarters: "San Francisco, CA",
+    employeeCount: "42 employees",
+    stage: "Series A • $14M ARR",
+    fitScore: 88,
+    fitLevel: "exceptional",
+    fitReasons: [
+      "Series A observability platform experiencing 3x trace volume growth",
+      "Public postmortem discussing Kafka buffer saturation and ingest lag"
+    ],
+    summary: "Cloud-native distributed tracing platform scaling enterprise data collectors.",
+    pipelineStage: "ready_to_review",
+    observedFacts: [
+      {
+        id: "f-1",
+        fact: "Published engineering postmortem on Kafka buffer latency during enterprise ingest spike.",
+        source: "KiteMetrics Engineering Blog (Sept 2026)",
+        verified: true
+      },
+      {
+        id: "f-2",
+        fact: "Actively hiring 4 distributed systems engineers for collector infrastructure.",
+        source: "Public Careers Page",
+        verified: true
+      }
+    ],
+    hypotheses: [
+      {
+        id: "h-1",
+        hypothesis: "Likely struggling with high cloud storage tier bills due to uncompressed cold traces.",
+        rationale: "Typical scaling bottleneck when trace cardinality triples at Series A.",
+        confidence: "high"
+      }
+    ],
+    missingInformation: ["Exact monthly cloud egress budget"],
+    recommendedAngle: {
+      hook: "Referencing their postmortem on Kafka buffer saturation",
+      valueProposition: "65% trace storage cost reduction with zero collector rewrites",
+      suggestedCta: "12-minute technical peer review on ingestion proxies"
+    },
+    targetBuyer: {
+      name: "Elena Vance",
+      title: "VP of Engineering",
+      emailPlaceholder: "elena@kitemetrics.internal",
+      linkedinNote: "Head of Infrastructure scaling telemetry collectors",
+      roleType: "Technical Decision Maker"
+    },
+    emailDraft: {
+      subject: "Your post on Kafka trace overhead & KiteMetrics' p99 latency",
+      body: "Hi Elena,\n\nRead your candid postmortem on KiteMetrics' Kafka buffer saturation during last month's enterprise ingest surge. Loved the transparency on where your team spent 36 hours diagnosing span drops.\n\nMost Series A observability startups hit that exact wall when trace cardinality triples...",
+      customizationVariables: {},
+      isApproved: false
+    },
+    uncertaintyIndicators: [],
+    lastUpdated: "Just now",
+    tags: ["Observability", "Kafka", "Series A"]
+  };
 
-        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-          <div className="max-w-2xl space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17271F] text-[#D8FF65] text-xs font-mono font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#D8FF65] animate-ping" />
-              SMART LEAD SEARCH FOR STARTUP FOUNDERS
+  return (
+    <div className="space-y-10 pb-16">
+      {/* =========================================================================
+          HERO SECTION: PRODUCT PURPOSE INSTANTLY UNDERSTANDABLE WITHIN SECONDS
+         ========================================================================= */}
+      <div className="card-tactile p-6 sm:p-10 rounded-3xl relative overflow-hidden bg-[#FAF7F0] border-2 border-[#17271F] shadow-[6px_6px_0px_#17271F]">
+        {/* Subtle decorative graph sketch pattern */}
+        <div className="absolute right-0 top-0 w-96 h-96 bg-[radial-gradient(#D8FF65_1.5px,transparent_1.5px)] [background-size:18px_18px] opacity-40 pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8">
+          <div className="max-w-3xl space-y-4">
+            {/* Target Audience & Purpose Eyebrow Badge */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#17271F] text-[#D8FF65] text-xs font-mono font-bold">
+                <span className="w-2 h-2 rounded-full bg-[#D8FF65] animate-ping" />
+                AI RESEARCH & OUTREACH FOR FOUNDER-LED SALES
+              </span>
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-[#FFEAE5] border border-[#FF7054] text-[#17271F] text-[11px] font-semibold">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#FF7054]" />
+                Zero Automated Email Spam
+              </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-editorial font-bold text-[#17271F] tracking-tight leading-[1.15]">
-              Stop guessing. Let's find your next customer.
+            {/* Memorable Headline */}
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-editorial font-bold text-[#17271F] tracking-tight leading-[1.12]">
+              Find the right companies. See why they fit. Turn verified clues into booked calls.
             </h1>
 
+            {/* Plain-English Problem, Solution & Audience Description */}
             <p className="text-sm sm:text-base text-[#4A5E52] leading-relaxed font-normal">
-              Find businesses that might need your product, see why they could be a good fit, and write messages that feel personal. You stay in control of every message.
+              Most B2B lead generation relies on stale databases and cold-email blasts that ruin your domain. 
+              <strong> ScoutSpark searches the live public web</strong> for companies with real buying signals (hiring surges, infrastructure migrations, executive changes), cites proof for every claim, and drafts personalized messages for you to review. 
+              <strong> You approve and send every email directly from your own inbox.</strong>
             </p>
 
+            {/* Target Audience Callout */}
+            <div className="inline-flex items-center gap-2 text-xs font-mono text-[#17271F] bg-white border border-[#E2D9C8] px-3 py-1.5 rounded-xl">
+              <span className="font-bold text-[#FF7054]">BUILT FOR:</span>
+              <span>Early-stage founders, technical CEOs & B2B teams doing high-conviction sales.</span>
+            </div>
+
+            {/* Obvious Primary Call To Actions */}
             <div className="pt-2 flex flex-wrap items-center gap-3">
               <button
                 onClick={onOpenDiscovery}
-                className="btn-tactile-coral px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 cursor-pointer"
+                className="btn-tactile-coral px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 cursor-pointer shadow-[3px_3px_0px_#17271F] hover:-translate-y-0.5 transition-transform"
               >
                 <Sparkles className="w-4 h-4" />
-                <span>Find my next customers</span>
+                <span>Start Scouting Leads</span>
                 <ArrowRight className="w-4 h-4 ml-1" />
               </button>
 
               <button
-                onClick={() => onNavigateToTab('prospects')}
+                onClick={() => onNavigateToTab('settings')}
                 className="btn-tactile-secondary px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 cursor-pointer"
               >
-                <span>See all {prospects.length} businesses</span>
+                <Target className="w-4 h-4 text-[#FF7054]" />
+                <span>Define Target Customer</span>
               </button>
 
               {onOpenGuide && (
                 <button
                   onClick={onOpenGuide}
-                  className="btn-tactile-secondary px-3.5 py-3 rounded-xl text-sm font-semibold flex items-center gap-1.5 cursor-pointer text-[#FF7054]"
+                  className="btn-tactile-secondary px-3.5 py-3 rounded-xl text-sm font-semibold flex items-center gap-1.5 cursor-pointer text-[#17271F] hover:text-[#FF7054]"
                 >
-                  <HelpCircle className="w-4 h-4" />
-                  <span>How it works</span>
+                  <HelpCircle className="w-4 h-4 text-[#FF7054]" />
+                  <span>60-Sec Product Tour</span>
                 </button>
               )}
+            </div>
 
-              <span className="text-xs text-[#4A5E52] italic flex items-center gap-1.5">
-                <ShieldCheck className="w-4 h-4 text-[#FF7054]" />
-                We never send messages without you
-              </span>
+            {/* 4 Value Pillars Checklist */}
+            <div className="pt-3 border-t border-[#E2D9C8] grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs text-[#17271F]">
+              <div className="flex items-center gap-1.5 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#FF7054] shrink-0" />
+                <span>100% Human Approval</span>
+              </div>
+              <div className="flex items-center gap-1.5 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#FF7054] shrink-0" />
+                <span>Verified Web Citations</span>
+              </div>
+              <div className="flex items-center gap-1.5 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#FF7054] shrink-0" />
+                <span>Calibrated 0-100 Fit Score</span>
+              </div>
+              <div className="flex items-center gap-1.5 font-medium">
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#FF7054] shrink-0" />
+                <span>Zero AI Hallucinations</span>
+              </div>
             </div>
           </div>
 
-          {/* Scout Mascot Feature Box */}
-          <div className="bg-[#FFFFFF] border-2 border-[#17271F] rounded-2xl p-5 shadow-[4px_4px_0px_#17271F] flex flex-col items-center text-center max-w-xs shrink-0">
-            <ScoutMascot expression="curious" size="lg" animate={true} />
+          {/* ScoutStar Interactive Companion Hero Card */}
+          <div className="bg-[#FFFFFF] border-2 border-[#17271F] rounded-2xl p-6 shadow-[5px_5px_0px_#17271F] flex flex-col items-center text-center max-w-xs shrink-0 self-center lg:self-auto">
+            <ScoutMascot expression="waving" size="lg" animate={true} />
             <div className="mt-3">
-              <div className="text-xs font-bold text-[#17271F] uppercase tracking-wider font-mono">
-                Meet ScoutStar
+              <div className="inline-flex items-center gap-1 text-[10px] font-bold text-[#17271F] uppercase tracking-wider font-mono bg-[#D8FF65] px-2 py-0.5 rounded border border-[#17271F]">
+                Meet ScoutStar ⭐
               </div>
-              <p className="text-xs text-[#4A5E52] mt-1 italic">
-                "I dig through real news and company updates so you never have to send boring copy-paste emails."
+              <h2 className="text-sm font-editorial font-bold text-[#17271F] mt-1.5">
+                Your AI Research Companion
+              </h2>
+              <p className="text-xs text-[#4A5E52] mt-1 italic leading-relaxed">
+                "I crawl public news, job postings, and technical blogs so you never send generic copy-paste emails."
               </p>
-              <div className="mt-3 pt-2.5 border-t border-[#E2D9C8] text-[11px] text-[#17271F] font-semibold flex items-center justify-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#9DE3D0]" />
-                <span>{signals.length} fresh updates found today</span>
+              <div className="mt-4 pt-3 border-t border-[#E2D9C8] text-[11px] text-[#17271F] font-semibold flex items-center justify-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#9DE3D0] animate-pulse" />
+                <span>{signals.length} verified updates found today</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ScoutStar Dynamic Next Best Action Card */}
+      {/* =========================================================================
+          DYNAMIC NEXT BEST ACTION CARD: GUIDES USER TOWARD IMMEDIATE VALUE
+         ========================================================================= */}
       <div className="p-5 sm:p-6 bg-white border-2 border-[#17271F] rounded-2xl shadow-[4px_4px_0px_#17271F] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div className="flex items-start gap-3.5 max-w-2xl">
           <div className="p-2.5 rounded-xl bg-[#D8FF65] border-1.5 border-[#17271F] shrink-0 mt-0.5">
@@ -209,14 +324,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
           {nextAction.secondaryText && (
             <button
               onClick={nextAction.secondaryAction}
-              className="btn-tactile-secondary px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer"
+              className="btn-tactile-secondary px-3.5 py-2 rounded-xl text-xs font-semibold cursor-pointer"
             >
               {nextAction.secondaryText}
             </button>
           )}
           <button
             onClick={nextAction.action}
-            className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+            className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-[2px_2px_0px_#17271F]"
           >
             <span>{nextAction.buttonText}</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -224,78 +339,323 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         </div>
       </div>
 
-      {/* 4-Step Interactive Workflow Journey Strip */}
-      <div className="bg-white border-2 border-[#17271F] rounded-2xl p-5 shadow-[3px_3px_0px_#17271F]">
-        <div className="text-xs font-bold uppercase tracking-wider text-[#4A5E52] mb-3 flex items-center justify-between">
-          <span>The ScoutSpark Customer Journey</span>
-          <span className="text-[11px] font-mono text-[#FF7054]">4 CONNECTED STAGES</span>
+      {/* =========================================================================
+          INTERACTIVE "HOW SCOUTSPARK WORKS" 4-STEP JOURNEY WITH LIVE PREVIEWS
+         ========================================================================= */}
+      <div className="bg-white border-2 border-[#17271F] rounded-3xl p-6 sm:p-8 shadow-[5px_5px_0px_#17271F] space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E2D9C8]">
+          <div>
+            <div className="inline-flex items-center gap-1.5 text-xs font-mono font-bold uppercase tracking-wider text-[#FF7054]">
+              <Sparkles className="w-3.5 h-3.5" /> HOW SCOUTSPARK WORKS
+            </div>
+            <h2 className="text-2xl font-editorial font-bold text-[#17271F] mt-0.5">
+              The 4-Step Journey: From Target Profile to Booked Call
+            </h2>
+            <p className="text-xs text-[#4A5E52] mt-0.5">
+              Click any stage below to inspect real application data and how ScoutSpark connects the workflow.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-semibold text-[#17271F] bg-[#FAF7F0] px-3 py-1.5 rounded-xl border border-[#17271F]">
+              STAGE {activeWorkflowStep} OF 4
+            </span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div 
-            onClick={() => onNavigateToTab('settings')}
-            className="p-3.5 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] hover:border-[#17271F] cursor-pointer transition-all space-y-1 group"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">1</span>
-                <span className="text-xs font-bold text-[#17271F] group-hover:text-[#FF7054] transition-colors">Target Customer</span>
+        {/* 4 Step Selector Buttons */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { step: 1, title: "1. Target Customer", subtitle: "Define ICP criteria", icon: <Target className="w-4 h-4" /> },
+            { step: 2, title: "2. AI Discovery", subtitle: "Live web search & clues", icon: <Search className="w-4 h-4" /> },
+            { step: 3, title: "3. Grounded Scoring", subtitle: "Evidence & fit scores", icon: <ShieldCheck className="w-4 h-4" /> },
+            { step: 4, title: "4. Human Outreach", subtitle: "Approve & send drafts", icon: <Send className="w-4 h-4" /> },
+          ].map((item) => (
+            <button
+              key={item.step}
+              onClick={() => setActiveWorkflowStep(item.step)}
+              className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer ${
+                activeWorkflowStep === item.step
+                  ? 'bg-[#17271F] text-[#F7F2E8] border-[#17271F] shadow-[3px_3px_0px_#FF7054]'
+                  : 'bg-[#FAF7F0] text-[#17271F] border-[#E2D9C8] hover:border-[#17271F]'
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className={`p-1.5 rounded-lg ${activeWorkflowStep === item.step ? 'bg-[#2A4034] text-[#D8FF65]' : 'bg-white text-[#FF7054] border border-[#E2D9C8]'}`}>
+                  {item.icon}
+                </span>
+                <span className={`text-[10px] font-mono font-bold ${activeWorkflowStep === item.step ? 'text-[#D8FF65]' : 'text-[#4A5E52]'}`}>
+                  0{item.step}
+                </span>
               </div>
-              <ArrowRight className="w-3.5 h-3.5 text-[#4A5E52] group-hover:translate-x-0.5 transition-transform" />
+              <div className="text-xs font-bold font-editorial">{item.title}</div>
+              <div className={`text-[11px] ${activeWorkflowStep === item.step ? 'text-[#F7F2E8]/80' : 'text-[#4A5E52]'}`}>
+                {item.subtitle}
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {/* Interactive Step Preview Panel (Showcasing real sample data) */}
+        <div className="p-5 sm:p-6 bg-[#FAF7F0] border-2 border-[#17271F] rounded-2xl space-y-4">
+          {activeWorkflowStep === 1 && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#17271F] text-[#D8FF65]">STEP 1 · TARGET CUSTOMER</span>
+                  <h3 className="text-lg font-editorial font-bold text-[#17271F] mt-1">
+                    Define who you sell to, and who to eliminate automatically
+                  </h3>
+                  <p className="text-xs text-[#4A5E52]">
+                    ScoutStar uses your ICP to filter out irrelevant companies before you ever spend time reading them.
+                  </p>
+                </div>
+                <button
+                  onClick={() => onNavigateToTab('settings')}
+                  className="btn-tactile-coral px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0"
+                >
+                  <span>Configure My ICP</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Real UI Preview of ICP */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-white p-4 rounded-xl border border-[#17271F]">
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono uppercase text-[#4A5E52] font-bold">Target Roles</span>
+                  <div className="flex flex-wrap gap-1">
+                    <span className="px-2 py-0.5 bg-[#FAF7F0] rounded border border-[#E2D9C8] font-semibold text-[#17271F]">VP of Engineering</span>
+                    <span className="px-2 py-0.5 bg-[#FAF7F0] rounded border border-[#E2D9C8] font-semibold text-[#17271F]">Head of Infrastructure</span>
+                    <span className="px-2 py-0.5 bg-[#FAF7F0] rounded border border-[#E2D9C8] font-semibold text-[#17271F]">CTO</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono uppercase text-[#4A5E52] font-bold">Target Industries & Sizes</span>
+                  <div className="flex flex-wrap gap-1">
+                    <span className="px-2 py-0.5 bg-[#D8FF65]/30 rounded border border-[#17271F] font-semibold text-[#17271F]">Developer Tools</span>
+                    <span className="px-2 py-0.5 bg-[#D8FF65]/30 rounded border border-[#17271F] font-semibold text-[#17271F]">Observability</span>
+                    <span className="px-2 py-0.5 bg-[#FAF7F0] rounded border border-[#E2D9C8] text-[#4A5E52]">20-100 Employees</span>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <span className="text-[10px] font-mono uppercase text-[#FF7054] font-bold">Disqualification Exclusions</span>
+                  <div className="flex flex-wrap gap-1">
+                    <span className="px-2 py-0.5 bg-[#FFEAE5] text-[#FF7054] rounded border border-[#FF7054] font-semibold">Crypto / Web3</span>
+                    <span className="px-2 py-0.5 bg-[#FFEAE5] text-[#FF7054] rounded border border-[#FF7054] font-semibold">Agencies / Dev Shops</span>
+                  </div>
+                </div>
+              </div>
             </div>
-            <p className="text-[11px] text-[#4A5E52]">Tell ScoutStar your target industry, company size, and role titles.</p>
+          )}
+
+          {activeWorkflowStep === 2 && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#17271F] text-[#D8FF65]">STEP 2 · DISCOVERY & SEARCH</span>
+                  <h3 className="text-lg font-editorial font-bold text-[#17271F] mt-1">
+                    AI crawls the live web for buying signals, not stale phone lists
+                  </h3>
+                  <p className="text-xs text-[#4A5E52]">
+                    Tavily Search + Google Gemini identify public postmortems, hiring surges, and tech stack migrations.
+                  </p>
+                </div>
+                <button
+                  onClick={onOpenDiscovery}
+                  className="btn-tactile-coral px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Launch Discovery</span>
+                </button>
+              </div>
+
+              {/* Real UI Preview of Discovered Signal */}
+              <div className="bg-white p-4 rounded-xl border border-[#17271F] space-y-2 text-xs">
+                <div className="flex items-center justify-between pb-2 border-b border-[#E2D9C8]">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-[#9DE3D0] animate-pulse" />
+                    <span className="font-bold text-[#17271F]">Live Signal Found: KiteMetrics</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-[#4A5E52]">Source: kitemetrics.io/blog/postmortem-kafka-surge</span>
+                </div>
+                <p className="text-[11px] text-[#4A5E52]">
+                  <strong className="text-[#17271F]">Verified Web Snippet: </strong>
+                  "During our enterprise ingest surge last month, our Kafka buffer hit saturation, dropping spans and costing our team 36 hours of diagnosis..."
+                </p>
+                <div className="flex items-center gap-3 text-[10px] text-[#FF7054] font-semibold pt-1">
+                  <span>⚡ Signal: Kafka Buffer Latency Spike</span>
+                  <span>•</span>
+                  <span>Confidence: 94%</span>
+                  <span>•</span>
+                  <span>Relevance: 88/100</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeWorkflowStep === 3 && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#17271F] text-[#D8FF65]">STEP 3 · EVIDENCE & SCORING</span>
+                  <h3 className="text-lg font-editorial font-bold text-[#17271F] mt-1">
+                    Every claim is verified. Unsupported claims are demoted to hypotheses.
+                  </h3>
+                  <p className="text-xs text-[#4A5E52]">
+                    ScoutSpark separates source-backed facts from AI guesses so you never look foolish in front of a buyer.
+                  </p>
+                </div>
+                <button
+                  onClick={() => onNavigateToTab('prospects')}
+                  className="btn-tactile-coral px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0"
+                >
+                  <span>See Evaluated Leads</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Real UI Preview of Grounded Dossier */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                <div className="bg-white p-3.5 rounded-xl border border-[#17271F] space-y-2">
+                  <div className="text-[10px] font-mono font-bold uppercase text-[#9DE3D0] bg-[#17271F] px-2 py-0.5 rounded inline-block">
+                    ✓ VERIFIED OBSERVED FACTS (2)
+                  </div>
+                  <ul className="space-y-1 text-[11px] text-[#17271F]">
+                    <li>• Postmortem published on Kafka buffer saturation during enterprise surge.</li>
+                    <li>• Actively hiring 4 distributed systems engineers for collectors.</li>
+                  </ul>
+                </div>
+
+                <div className="bg-white p-3.5 rounded-xl border border-[#17271F] space-y-2">
+                  <div className="text-[10px] font-mono font-bold uppercase text-[#FF7054] bg-[#FFEAE5] px-2 py-0.5 rounded border border-[#FF7054] inline-block">
+                    ⚡ LABELED AI HYPOTHESES (1)
+                  </div>
+                  <p className="text-[11px] text-[#4A5E52]">
+                    • Likely experiencing cloud storage tier cost spikes as trace cardinality triples at Series A. (Marked as hypothesis to double check).
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeWorkflowStep === 4 && (
+            <div className="space-y-4 animate-in fade-in duration-200">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#17271F] text-[#D8FF65]">STEP 4 · PERSONALIZED OUTREACH</span>
+                  <h3 className="text-lg font-editorial font-bold text-[#17271F] mt-1">
+                    Human-approved messages you copy and send from your own inbox
+                  </h3>
+                  <p className="text-xs text-[#4A5E52]">
+                    Zero automated mass-sending. You review, approve, and send thoughtful emails directly to decision-makers.
+                  </p>
+                </div>
+                <button
+                  onClick={() => onNavigateToTab('campaigns')}
+                  className="btn-tactile-coral px-3.5 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shrink-0"
+                >
+                  <span>View Sequences</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Real UI Preview of Draft */}
+              <div className="bg-white p-4 rounded-xl border border-[#17271F] space-y-2 text-xs">
+                <div className="flex items-center justify-between pb-2 border-b border-[#E2D9C8]">
+                  <span className="font-mono text-[11px] font-bold text-[#17271F]">
+                    Subject: Your post on Kafka trace overhead & KiteMetrics' p99 latency
+                  </span>
+                  <span className="sticker-badge bg-[#9DE3D0] text-[#17271F] border-[#17271F] text-[9px]">
+                    100% Personal Review
+                  </span>
+                </div>
+                <p className="text-[11px] font-mono text-[#4A5E52] leading-relaxed line-clamp-3">
+                  "Hi Elena, Read your candid postmortem on KiteMetrics' Kafka buffer saturation during last month's enterprise ingest surge. Loved the transparency on where your team spent 36 hours diagnosing span drops..."
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* =========================================================================
+          BEFORE VS. AFTER: WHY FOUNDERS SWITCH TO SCOUTSPARK
+         ========================================================================= */}
+      <div className="bg-white border-2 border-[#17271F] rounded-3xl p-6 sm:p-8 shadow-[4px_4px_0px_#17271F] space-y-6">
+        <div>
+          <span className="text-[10px] font-mono font-bold tracking-wider uppercase text-[#FF7054]">
+            THE FOUNDER-LED SALES DIFFERENCE
+          </span>
+          <h2 className="text-2xl font-editorial font-bold text-[#17271F] mt-0.5">
+            Traditional Cold Outreach vs. ScoutSpark Intelligent Scouting
+          </h2>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+          {/* Legacy Cold Scraping */}
+          <div className="p-5 bg-[#FAF7F0] rounded-2xl border-1.5 border-[#17271F]/30 space-y-3">
+            <div className="flex items-center gap-2 text-[#FF7054] font-bold text-sm">
+              <X className="w-4 h-4 text-[#FF7054]" />
+              <span>Legacy Stale Databases & Mass Bots</span>
+            </div>
+            <ul className="space-y-2 text-[#4A5E52] text-[11px]">
+              <li className="flex items-start gap-2">
+                <span className="text-[#FF7054] font-bold">✕</span>
+                <span>Stale, purchased CSV lists of people who changed jobs 8 months ago</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[#FF7054] font-bold">✕</span>
+                <span>Generic "Quick question" cold spam that gets your email domain blacklisted</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[#FF7054] font-bold">✕</span>
+                <span>AI tools hallucinating company metrics with zero citations</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-[#FF7054] font-bold">✕</span>
+                <span>Automated mail merge software sending embarrassing mistakes without you</span>
+              </li>
+            </ul>
           </div>
 
-          <div 
-            onClick={onOpenDiscovery}
-            className="p-3.5 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] hover:border-[#17271F] cursor-pointer transition-all space-y-1 group"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">2</span>
-                <span className="text-xs font-bold text-[#17271F] group-hover:text-[#FF7054] transition-colors">Find My Next…</span>
-              </div>
-              <Sparkles className="w-3.5 h-3.5 text-[#FF7054]" />
+          {/* ScoutSpark Method */}
+          <div className="p-5 bg-[#D8FF65]/20 rounded-2xl border-2 border-[#17271F] space-y-3 shadow-[3px_3px_0px_#17271F]">
+            <div className="flex items-center gap-2 text-[#17271F] font-bold text-sm font-editorial">
+              <Check className="w-4 h-4 text-green-700 stroke-[3]" />
+              <span>ScoutSpark Verified Research</span>
             </div>
-            <p className="text-[11px] text-[#4A5E52]">Spot hiring surges, tech migrations, and public news from real web sources.</p>
-          </div>
-
-          <div 
-            onClick={() => onNavigateToTab('prospects')}
-            className="p-3.5 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] hover:border-[#17271F] cursor-pointer transition-all space-y-1 group"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">3</span>
-                <span className="text-xs font-bold text-[#17271F] group-hover:text-[#FF7054] transition-colors">Find Leads</span>
-              </div>
-              <ArrowRight className="w-3.5 h-3.5 text-[#4A5E52] group-hover:translate-x-0.5 transition-transform" />
-            </div>
-            <p className="text-[11px] text-[#4A5E52]">Separate source details from guesses. Review scores and personalized angles.</p>
-          </div>
-
-          <div 
-            onClick={() => onNavigateToTab('pipeline')}
-            className="p-3.5 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] hover:border-[#17271F] cursor-pointer transition-all space-y-1 group"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">4</span>
-                <span className="text-xs font-bold text-[#17271F] group-hover:text-[#FF7054] transition-colors">Pipeline & Outreach</span>
-              </div>
-              <ArrowRight className="w-3.5 h-3.5 text-[#4A5E52] group-hover:translate-x-0.5 transition-transform" />
-            </div>
-            <p className="text-[11px] text-[#4A5E52]">Track stages, review drafts, and copy multi-touch follow-ups with human approval.</p>
+            <ul className="space-y-2 text-[#17271F] text-[11px]">
+              <li className="flex items-start gap-2">
+                <span className="text-green-700 font-bold">✓</span>
+                <span><strong>Live web search: </strong>Identifies recent postmortems, job surges, and stack updates</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-700 font-bold">✓</span>
+                <span><strong>Grounded citations: </strong>Every observed fact cites its live public web source URL</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-700 font-bold">✓</span>
+                <span><strong>Calibrated fit scoring: </strong>0-100 scores tuned to your target buyer and exclusions</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-green-700 font-bold">✓</span>
+                <span><strong>100% Human approval: </strong>You review, edit, and send from your personal inbox</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
 
-      {/* Pipeline Snapshot Cards */}
+      {/* =========================================================================
+          LIVE PIPELINE BOARD SNAPSHOT: CURRENT WORKSPACE STATUS
+         ========================================================================= */}
       <div>
         <div className="flex items-center justify-between mb-3">
           <div>
             <h2 className="text-lg font-editorial font-bold text-[#17271F]">
-              Your outreach pipeline
+              Your Outreach Pipeline Snapshot
             </h2>
             <p className="text-xs text-[#4A5E52]">Click any column to jump directly to that stage on your board</p>
           </div>
@@ -332,16 +692,18 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         </div>
       </div>
 
-      {/* Two Column Grid: High Fit Shortlist & Today's Research Signals */}
+      {/* =========================================================================
+          TWO COLUMN GRID: HIGH FIT SHORTLIST & TODAY'S RESEARCH SIGNALS
+         ========================================================================= */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Priority Shortlist (7 cols) */}
         <div className="lg:col-span-7 space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-editorial font-bold text-[#17271F]">
-                Best matches right now
+                Priority Matches ({shortlist.length})
               </h2>
-              <p className="text-xs text-[#4A5E52]">Businesses that match your criteria with fresh public news</p>
+              <p className="text-xs text-[#4A5E52]">Businesses with strong fit scores and verified public clues</p>
             </div>
             <button
               onClick={() => onNavigateToTab('prospects')}
@@ -416,14 +778,14 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 <ScoutMascot expression="thinking" size="md" animate={true} />
                 <h3 className="text-base font-bold text-[#17271F]">No leads yet</h3>
                 <p className="text-xs text-[#4A5E52] max-w-sm mx-auto">
-                  Click 'Find my next customers' to search the public web or load sample companies.
+                  Click 'Start Scouting Leads' to search the public web or load sample companies.
                 </p>
                 <button
                   onClick={onOpenDiscovery}
                   className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Find Leads Now</span>
+                  <span>Start Scouting Leads</span>
                 </button>
               </div>
             )}
@@ -438,10 +800,10 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
               <div className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-[#FF7054]" />
                 <h2 className="text-sm font-editorial font-bold text-[#17271F]">
-                  Fresh company clues
+                  Fresh Company Clues
                 </h2>
               </div>
-              <span className="text-[10px] font-mono text-[#4A5E52]">Public updates</span>
+              <span className="text-[10px] font-mono text-[#4A5E52]">Live web citations</span>
             </div>
 
             <div className="space-y-3 mt-3">

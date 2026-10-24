@@ -194,6 +194,36 @@
   animation: scout-shimmer 2.5s ease-in-out infinite;
 }
 
+@keyframes scout-wave {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-14deg);
+  }
+  75% {
+    transform: rotate(14deg);
+  }
+}
+
+@keyframes scout-bounce-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.animate-scout-wave {
+  transform-origin: bottom center;
+  animation: scout-wave 1.6s ease-in-out infinite;
+}
+
+.animate-scout-bounce {
+  animation: scout-bounce-gentle 2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;

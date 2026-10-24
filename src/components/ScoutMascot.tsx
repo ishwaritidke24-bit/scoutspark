@@ -1,6 +1,6 @@
 import React from 'react';
 
-export type ScoutExpression = 'idle' | 'curious' | 'thinking' | 'celebratory' | 'focused';
+export type ScoutExpression = 'idle' | 'curious' | 'thinking' | 'celebratory' | 'focused' | 'waving' | 'pointing';
 
 interface ScoutMascotProps {
   expression?: ScoutExpression;
@@ -30,6 +30,63 @@ export const ScoutMascot: React.FC<ScoutMascotProps> = ({
   // Helper to render eyes & mouth based on expression
   const renderFace = () => {
     switch (expression) {
+      case 'waving':
+        return (
+          <>
+            {/* Friendly wide joyful eyes */}
+            <circle cx="26" cy="30" r="3.2" fill="#17271F" />
+            <circle cx="42" cy="30" r="3.2" fill="#17271F" />
+            <circle cx="27.5" cy="28.8" r="1.1" fill="#FFFFFF" />
+            <circle cx="43.5" cy="28.8" r="1.1" fill="#FFFFFF" />
+            {/* Rosy blush */}
+            <circle cx="21" cy="33" r="2.2" fill="#FF7054" opacity="0.65" />
+            <circle cx="47" cy="33" r="2.2" fill="#FF7054" opacity="0.65" />
+            {/* Warm open smile */}
+            <path
+              d="M 28 34 Q 34 40 40 34"
+              stroke="#17271F"
+              strokeWidth="2"
+              fill="#17271F"
+              strokeLinecap="round"
+            />
+            {/* Waving star arm / hand accent on top right */}
+            <g className={animate ? 'animate-scout-wave' : ''}>
+              <circle cx="58" cy="22" r="3.5" fill="#D8FF65" stroke="#17271F" strokeWidth="1.5" />
+              <circle cx="58" cy="22" r="1" fill="#FF7054" />
+            </g>
+          </>
+        );
+
+      case 'pointing':
+        return (
+          <>
+            {/* Playful wink: left eye wink curve, right eye alert & focused */}
+            <path
+              d="M 22 30 Q 26 26 30 30"
+              stroke="#17271F"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              fill="none"
+            />
+            <circle cx="42" cy="30" r="3.2" fill="#17271F" />
+            <circle cx="43.5" cy="28.8" r="1" fill="#FFFFFF" />
+            {/* Rosy blush */}
+            <circle cx="21" cy="33" r="2" fill="#FF7054" opacity="0.6" />
+            <circle cx="47" cy="33" r="2" fill="#FF7054" opacity="0.6" />
+            {/* Encouraging grin */}
+            <path
+              d="M 29 35 Q 34 38 39 34"
+              stroke="#17271F"
+              strokeWidth="2"
+              strokeLinecap="round"
+              fill="none"
+            />
+            {/* Pointing cue arrow / indicator dot */}
+            <circle cx="62" cy="34" r="3" fill="#FF7054" className={animate ? 'animate-ping' : ''} />
+            <path d="M 58 34 L 65 34 M 62 31 L 65 34 L 62 37" stroke="#17271F" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+          </>
+        );
+
       case 'celebratory':
         return (
           <>
