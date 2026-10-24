@@ -39,11 +39,13 @@ Windows PowerShell:
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
 Copy-Item backend/.env.example backend/.env
+
 Open backend/.env and add your own provider keys for live research:
 GEMINI_API_KEY=
 GEMINI_MODEL=gemini-3.1-flash-lite
 TAVILY_API_KEY=
 SCOUTSPARK_RESEARCH_MODE=demo
+
 Use demo for the sample workflow or live for real public-web searches. Check that the selected Gemini model is available to your account. Never put secret API keys in frontend environment variables or commit them to GitHub.
 3. Start the app
 Open two terminals in the project folder.
