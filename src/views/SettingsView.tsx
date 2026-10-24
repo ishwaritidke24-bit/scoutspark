@@ -16,16 +16,25 @@ import {
   Layers
 } from 'lucide-react';
 
+import { ScoutPageBanner } from '../components/ScoutPageBanner';
+import { ViewTab } from '../types';
+
 interface SettingsViewProps {
   icp: IdealCustomerProfile;
   onSaveICP: (updated: IdealCustomerProfile) => void;
   onResetICP: () => void;
+  onNavigateToTab?: (tab: ViewTab) => void;
+  onOpenDiscovery?: () => void;
+  onOpenGuide?: () => void;
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
   icp,
   onSaveICP,
   onResetICP,
+  onNavigateToTab,
+  onOpenDiscovery,
+  onOpenGuide,
 }) => {
   const [formData, setFormData] = useState<IdealCustomerProfile>(icp);
   const [savedToast, setSavedToast] = useState<boolean>(false);
@@ -73,6 +82,20 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
   return (
     <div className="space-y-8 pb-12 max-w-4xl mx-auto">
+      {/* ScoutStar Contextual Guidance Banner */}
+      <ScoutPageBanner
+        expression="focused"
+        title="Target Customer (ICP)"
+        subtitle="Define what you sell, who your ideal customer is, and what dealbreakers to avoid. All future web searches and fit scores match against this profile."
+        whatItDoes="Configures target industries, job roles, company sizes, geography, and disqualification exclusions."
+        whenToUse="Set this up first! Also update it whenever you pivot your product focus or explore a new market."
+        nextActionText="Find Matching Leads"
+        onNextAction={onOpenDiscovery || (() => onNavigateToTab && onNavigateToTab('prospects'))}
+        onOpenTour={onOpenGuide}
+        badge="STEP 1"
+        highlightText="Profile active: ScoutStar scores candidate businesses against your value proposition."
+      />
+
       {/* Header */}
       <div className="bg-white border-2 border-[#17271F] rounded-2xl p-6 shadow-[4px_4px_0px_#17271F] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -396,6 +419,38 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </button>
         </div>
       </form>
+
+      {/* Contextual Journey Next Step Banner */}
+      {onNavigateToTab && (
+        <div className="p-4 bg-white border-2 border-[#17271F] rounded-xl shadow-[3px_3px_0px_#17271F] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="space-y-0.5">
+            <div className="text-xs font-editorial font-bold text-[#17271F] flex items-center gap-1.5">
+              <span>Logical Next Step:</span>
+              <span className="text-[#FF7054]">Search for Leads Matching This Customer Profile</span>
+            </div>
+            <p className="text-[11px] text-[#4A5E52]">
+              Once your profile is saved, run Discovery or browse your lead directory.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {onOpenDiscovery && (
+              <button
+                onClick={onOpenDiscovery}
+                className="btn-tactile-coral px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Find My Next…</span>
+              </button>
+            )}
+            <button
+              onClick={() => onNavigateToTab('prospects')}
+              className="btn-tactile-secondary px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
+            >
+              Browse Leads
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

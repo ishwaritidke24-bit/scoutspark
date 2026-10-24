@@ -26,11 +26,17 @@ import {
   Download
 } from 'lucide-react';
 
+import { ScoutPageBanner } from '../components/ScoutPageBanner';
+import { ViewTab } from '../types';
+
 interface ProspectsViewProps {
   prospects: Prospect[];
   onSelectProspect: (prospect: Prospect) => void;
   onUpdateStage: (id: string, stage: PipelineStage) => void;
   onRefresh?: () => void;
+  onOpenDiscovery?: () => void;
+  onNavigateToTab?: (tab: ViewTab) => void;
+  onOpenGuide?: () => void;
 }
 
 export const ProspectsView: React.FC<ProspectsViewProps> = ({
@@ -38,6 +44,9 @@ export const ProspectsView: React.FC<ProspectsViewProps> = ({
   onSelectProspect,
   onUpdateStage,
   onRefresh,
+  onOpenDiscovery,
+  onNavigateToTab,
+  onOpenGuide,
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [selectedIndustry, setSelectedIndustry] = useState<string>('all');
@@ -172,6 +181,20 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
 
   return (
     <div className="space-y-6 pb-12">
+      {/* ScoutStar Contextual Guidance Banner */}
+      <ScoutPageBanner
+        expression="thinking"
+        title="Find Leads"
+        subtitle="Browse and evaluate candidate companies matched against your Target Customer Profile. Every claim is verified with public web citations."
+        whatItDoes="Displays candidate match scores (0-100), verified company facts, AI hypotheses, and personalized email drafts."
+        whenToUse="Review discovered companies, inspect evidence links, or upload existing lead lists via CSV."
+        nextActionText={onOpenDiscovery ? "Find My Next Leads" : "Reset Filters"}
+        onNextAction={onOpenDiscovery || handleResetFilters}
+        onOpenTour={onOpenGuide}
+        badge="STEP 3"
+        highlightText={`${prospects.length} total leads in workspace • ${prospects.filter(p => p.pipelineStage === 'ready_to_review').length} ready for review`}
+      />
+
       {/* Header & Filter Controls */}
       <div className="bg-white border-2 border-[#17271F] rounded-2xl p-5 shadow-[4px_4px_0px_#17271F] space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -191,6 +214,16 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
 
           {/* View toggle, CSV Import & Sort */}
           <div className="flex items-center gap-2.5 flex-wrap">
+            {onOpenDiscovery && (
+              <button
+                onClick={onOpenDiscovery}
+                className="btn-tactile-coral px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>Find My Next…</span>
+              </button>
+            )}
+
             <button
               onClick={() => {
                 setIsImportModalOpen(true);
@@ -201,7 +234,7 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
               className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
             >
               <Upload className="w-3.5 h-3.5 text-[#FF7054]" />
-              <span>Import CSV file</span>
+              <span>Import CSV</span>
             </button>
 
             <div className="flex items-center bg-[#FAF7F0] border border-[#17271F] rounded-lg p-0.5">
@@ -303,24 +336,62 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
 
       {/* Main Results View */}
       {filteredProspects.length === 0 ? (
-        /* Empty State with Scout Mascot */
-        <div className="bg-white border-2 border-[#17271F] rounded-2xl p-12 text-center shadow-[4px_4px_0px_#17271F] space-y-4 max-w-lg mx-auto my-8">
-          <ScoutMascot expression="thinking" size="xl" animate={true} />
-          <div className="space-y-1">
-            <h3 className="text-xl font-editorial font-bold text-[#17271F]">
-              No businesses match your search
-            </h3>
-            <p className="text-xs text-[#4A5E52]">
-              Scout couldn't find any businesses matching "{searchQuery}" with a score of at least {minScore}%. Try clearing some filters!
-            </p>
+        prospects.length === 0 ? (
+          /* Empty Workspace State (No prospects yet) */
+          <div className="bg-white border-2 border-[#17271F] rounded-2xl p-10 text-center shadow-[4px_4px_0px_#17271F] space-y-4 max-w-lg mx-auto my-8">
+            <ScoutMascot expression="curious" size="xl" animate={true} />
+            <div className="space-y-1">
+              <h3 className="text-xl font-editorial font-bold text-[#17271F]">
+                Your lead directory is empty
+              </h3>
+              <p className="text-xs text-[#4A5E52] leading-relaxed">
+                You haven't added any leads yet! You can run ScoutStar's AI discovery engine to search the live web, or upload an existing CSV spreadsheet of companies.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2">
+              {onOpenDiscovery && (
+                <button
+                  onClick={onOpenDiscovery}
+                  className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Find My Next Customers</span>
+                </button>
+              )}
+              <button
+                onClick={() => {
+                  setIsImportModalOpen(true);
+                  setImportResult(null);
+                  setImportError(null);
+                  setSelectedFile(null);
+                }}
+                className="btn-tactile-secondary px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+              >
+                <Upload className="w-3.5 h-3.5 text-[#FF7054]" />
+                <span>Import CSV File</span>
+              </button>
+            </div>
           </div>
-          <button
-            onClick={handleResetFilters}
-            className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
-          >
-            <RotateCcw className="w-3.5 h-3.5" /> Reset filters
-          </button>
-        </div>
+        ) : (
+          /* Filter Mismatch Empty State */
+          <div className="bg-white border-2 border-[#17271F] rounded-2xl p-10 text-center shadow-[4px_4px_0px_#17271F] space-y-4 max-w-lg mx-auto my-8">
+            <ScoutMascot expression="thinking" size="xl" animate={true} />
+            <div className="space-y-1">
+              <h3 className="text-xl font-editorial font-bold text-[#17271F]">
+                No businesses match your filters
+              </h3>
+              <p className="text-xs text-[#4A5E52]">
+                None of your {prospects.length} leads match "{searchQuery || selectedIndustry}" with a minimum score of {minScore}%.
+              </p>
+            </div>
+            <button
+              onClick={handleResetFilters}
+              className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5" /> Reset all filters
+            </button>
+          </div>
+        )
       ) : viewMode === 'cards' ? (
         /* Grid Cards View */
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -512,6 +583,36 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
                 ))}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* Contextual Journey Next Step Banner */}
+      {onNavigateToTab && filteredProspects.length > 0 && (
+        <div className="p-4 bg-white border-2 border-[#17271F] rounded-xl shadow-[3px_3px_0px_#17271F] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="space-y-0.5">
+            <div className="text-xs font-editorial font-bold text-[#17271F] flex items-center gap-1.5">
+              <span>Logical Next Step:</span>
+              <span className="text-[#FF7054]">Move Approved Leads to Your Pipeline</span>
+            </div>
+            <p className="text-[11px] text-[#4A5E52]">
+              Once you've inspected a lead's facts and approved their draft, track conversations on the Pipeline board.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => onNavigateToTab('pipeline')}
+              className="btn-tactile-coral px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
+            >
+              <span>Go to Pipeline</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => onNavigateToTab('campaigns')}
+              className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
+            >
+              View Sequences
+            </button>
           </div>
         </div>
       )}

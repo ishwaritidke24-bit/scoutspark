@@ -13,6 +13,7 @@ import { prospectService } from './services/prospectService';
 import { Navbar } from './components/Navbar';
 import { ScoutMascot } from './components/ScoutMascot';
 import { GuidedDiscoveryModal } from './components/GuidedDiscoveryModal';
+import { ScoutGuideModal } from './components/ScoutGuideModal';
 import { ProspectDetailDrawer } from './components/ProspectDetailDrawer';
 import { OverviewView } from './views/OverviewView';
 import { ProspectsView } from './views/ProspectsView';
@@ -20,7 +21,7 @@ import { PipelineView } from './views/PipelineView';
 import { CampaignStudioView } from './views/CampaignStudioView';
 import { EvaluationLabView } from './views/EvaluationLabView';
 import { SettingsView } from './views/SettingsView';
-import { ShieldCheck, AlertCircle, RefreshCw, Database, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, AlertCircle, RefreshCw, Database, Sparkles, CheckCircle2, HelpCircle } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<ViewTab>('dashboard');
@@ -31,13 +32,24 @@ export const App: React.FC = () => {
   const [activities, setActivities] = useState<ActivityItem[]>([]);
   const [selectedProspect, setSelectedProspect] = useState<Prospect | null>(null);
   const [isDiscoveryOpen, setIsDiscoveryOpen] = useState<boolean>(false);
+  const [isGuideOpen, setIsGuideOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const [backendStatus, setBackendStatus] = useState<string>('connecting');
 
-  // Load data on mount
+  // Load data on mount & check for first-time tour
   useEffect(() => {
     loadAllData();
+
+    // Check if new user has completed tour
+    const hasSeenTour = localStorage.getItem('scoutspark_onboarding_completed');
+    const hideAuto = localStorage.getItem('scoutspark_hide_auto_tour');
+    if (!hasSeenTour && hideAuto !== 'true') {
+      const timer = setTimeout(() => {
+        setIsGuideOpen(true);
+      }, 700);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const loadAllData = async () => {
@@ -199,7 +211,9 @@ export const App: React.FC = () => {
         currentTab={currentTab}
         onSelectTab={setCurrentTab}
         onOpenDiscovery={() => setIsDiscoveryOpen(true)}
+        onOpenGuide={() => setIsGuideOpen(true)}
         onResetData={handleResetData}
+        prospectsCount={prospects.length}
         activeProvenance={
           selectedProspect 
             ? selectedProspect.provenance 
@@ -219,6 +233,7 @@ export const App: React.FC = () => {
             signals={signals}
             activities={activities}
             onOpenDiscovery={() => setIsDiscoveryOpen(true)}
+            onOpenGuide={() => setIsGuideOpen(true)}
             onSelectProspect={setSelectedProspect}
             onNavigateToTab={setCurrentTab}
           />
@@ -230,6 +245,9 @@ export const App: React.FC = () => {
             onSelectProspect={setSelectedProspect}
             onUpdateStage={(id, stage) => handleUpdateStage(id, stage)}
             onRefresh={loadAllData}
+            onOpenDiscovery={() => setIsDiscoveryOpen(true)}
+            onNavigateToTab={setCurrentTab}
+            onOpenGuide={() => setIsGuideOpen(true)}
           />
         )}
 
@@ -238,15 +256,25 @@ export const App: React.FC = () => {
             prospects={prospects}
             onSelectProspect={setSelectedProspect}
             onUpdateStage={handleUpdateStage}
+            onOpenDiscovery={() => setIsDiscoveryOpen(true)}
+            onNavigateToTab={setCurrentTab}
+            onOpenGuide={() => setIsGuideOpen(true)}
           />
         )}
 
         {currentTab === 'campaigns' && (
-          <CampaignStudioView />
+          <CampaignStudioView 
+            onNavigateToTab={setCurrentTab}
+            onOpenGuide={() => setIsGuideOpen(true)}
+          />
         )}
 
         {currentTab === 'eval-lab' && (
-          <EvaluationLabView metrics={metrics} />
+          <EvaluationLabView 
+            metrics={metrics} 
+            onNavigateToTab={setCurrentTab}
+            onOpenGuide={() => setIsGuideOpen(true)}
+          />
         )}
 
         {currentTab === 'settings' && icp && (
@@ -257,6 +285,9 @@ export const App: React.FC = () => {
               prospectService.resetDemoData();
               loadAllData();
             }}
+            onNavigateToTab={setCurrentTab}
+            onOpenDiscovery={() => setIsDiscoveryOpen(true)}
+            onOpenGuide={() => setIsGuideOpen(true)}
           />
         )}
       </main>
@@ -281,6 +312,20 @@ export const App: React.FC = () => {
         }}
         prospects={prospects}
         onDiscoveryComplete={loadAllData}
+      />
+
+      {/* ScoutStar Interactive Onboarding & Workflow Guide Modal */}
+      <ScoutGuideModal
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+        onNavigateToTab={(tab) => {
+          setCurrentTab(tab);
+          setIsGuideOpen(false);
+        }}
+        onOpenDiscovery={() => {
+          setIsGuideOpen(false);
+          setIsDiscoveryOpen(true);
+        }}
       />
 
       {/* Footer */}
@@ -314,6 +359,14 @@ export const App: React.FC = () => {
               You approve every message before it sends
             </span>
             <span>•</span>
+            <button
+              onClick={() => setIsGuideOpen(true)}
+              className="text-[#17271F] hover:text-[#FF7054] font-semibold flex items-center gap-1 cursor-pointer"
+            >
+              <HelpCircle className="w-3 h-3 text-[#FF7054]" />
+              <span>ScoutStar Guide & Tour</span>
+            </button>
+            <span>•</span>
             <span className="font-mono text-[#17271F]">
               PRACTICE WORKSPACE — SAMPLE DATA
             </span>
@@ -322,7 +375,7 @@ export const App: React.FC = () => {
               onClick={() => setCurrentTab('eval-lab')}
               className="text-[#FF7054] hover:underline font-medium"
             >
-              Accuracy Lab
+              Accuracy Lab & Tests
             </button>
           </div>
         </div>

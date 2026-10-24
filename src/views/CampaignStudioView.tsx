@@ -15,7 +15,18 @@ import {
   ArrowRight
 } from 'lucide-react';
 
-export const CampaignStudioView: React.FC = () => {
+import { ScoutPageBanner } from '../components/ScoutPageBanner';
+import { ViewTab } from '../types';
+
+interface CampaignStudioViewProps {
+  onNavigateToTab?: (tab: ViewTab) => void;
+  onOpenGuide?: () => void;
+}
+
+export const CampaignStudioView: React.FC<CampaignStudioViewProps> = ({
+  onNavigateToTab,
+  onOpenGuide,
+}) => {
   const [activeTouch, setActiveTouch] = useState<number>(1);
   const [copiedTouch, setCopiedTouch] = useState<number | null>(null);
 
@@ -95,6 +106,20 @@ Alex`,
 
   return (
     <div className="space-y-8 pb-12">
+      {/* ScoutStar Contextual Guidance Banner */}
+      <ScoutPageBanner
+        expression="focused"
+        title="Message Sequences"
+        subtitle="Multi-touch, value-first follow-up sequences. Every email is grounded in verified public evidence without aggressive sales badgering."
+        whatItDoes="Provides a 3-touch cadence (Hook, Benchmark, Frictionless Sandbox) with grounding evidence, customizable variables, and 1-click clipboard copy."
+        whenToUse="When you're ready to reach out to leads in your Pipeline, or want to customize your follow-up templates."
+        nextActionText="Apply to Pipeline Lead"
+        onNextAction={() => onNavigateToTab && onNavigateToTab('pipeline')}
+        onOpenTour={onOpenGuide}
+        badge="OUTREACH"
+        highlightText="100% Human Approval: You copy and send every email directly from your own personal inbox."
+      />
+
       {/* Header */}
       <div className="bg-white border-2 border-[#17271F] rounded-2xl p-6 shadow-[4px_4px_0px_#17271F] space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -293,6 +318,36 @@ Alex`,
           })()}
         </div>
       </div>
+
+      {/* Contextual Journey Next Step Banner */}
+      {onNavigateToTab && (
+        <div className="p-4 bg-white border-2 border-[#17271F] rounded-xl shadow-[3px_3px_0px_#17271F] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="space-y-0.5">
+            <div className="text-xs font-editorial font-bold text-[#17271F] flex items-center gap-1.5">
+              <span>Logical Next Step:</span>
+              <span className="text-[#FF7054]">Send Messages & Track Conversations in Pipeline</span>
+            </div>
+            <p className="text-[11px] text-[#4A5E52]">
+              Copy the hook for Touch 1, send it from your inbox, and update the lead stage to 'Reached out'.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => onNavigateToTab('pipeline')}
+              className="btn-tactile-coral px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
+            >
+              <span>Go to Pipeline</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => onNavigateToTab('eval-lab')}
+              className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
+            >
+              Accuracy Lab
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

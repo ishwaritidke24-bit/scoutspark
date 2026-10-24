@@ -15,12 +15,23 @@ import {
   HelpCircle
 } from 'lucide-react';
 
+import { ScoutPageBanner } from '../components/ScoutPageBanner';
+import { ViewTab } from '../types';
+import { ArrowRight } from 'lucide-react';
+
 interface EvaluationLabViewProps {
   metrics: EvaluationMetric[];
+  onNavigateToTab?: (tab: ViewTab) => void;
+  onOpenGuide?: () => void;
 }
 
-export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics }) => {
+export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ 
+  metrics,
+  onNavigateToTab,
+  onOpenGuide,
+}) => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [activeTabSection, setActiveTabSection] = useState<'all' | 'metrics' | 'tests'>('all');
 
   // 12 Deterministic Evaluation Cases matching backend/tests/test_evaluation_fixture.py
   const evaluationTestCases = [
@@ -124,22 +135,72 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
 
   return (
     <div className="space-y-8 pb-12">
-      {/* Header with Mandatory Offline Benchmark Notice */}
+      {/* ScoutStar Contextual Guidance Banner */}
+      <ScoutPageBanner
+        expression="focused"
+        title="Accuracy Lab & Grounding Test Suite"
+        subtitle="How ScoutSpark guarantees trustworthy research: live accuracy benchmarks and 12 deterministic test fixtures verifying source citations, deduplication, and zero AI hallucinations."
+        whatItDoes="Evaluates grounding precision, hallucination prevention, and test suite pass rates from backend/tests/test_evaluation_fixture.py."
+        whenToUse="Check whenever you want to inspect ScoutSpark's verification rigor or test grounding safety."
+        nextActionText="Inspect Leads"
+        onNextAction={() => onNavigateToTab && onNavigateToTab('prospects')}
+        onOpenTour={onOpenGuide}
+        badge="QUALITY"
+        highlightText="12 Test Cases Passing: Made-up claims and fake links are automatically rejected."
+      />
+
+      {/* Header with Sub-Section View Selector */}
       <div className="bg-white border-2 border-[#17271F] rounded-2xl p-6 shadow-[4px_4px_0px_#17271F] space-y-4">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-2xl font-editorial font-bold text-[#17271F]">
-                Accuracy Lab & Quality Checks
+                Accuracy Lab & Grounding Tests
               </h1>
               <span className="sticker-badge bg-[#FAF7F0] text-[#17271F] border-[#17271F] font-mono text-[10px]">
-                Automated Quality Tests (12 Test Cases)
+                12 Automated Fixtures
               </span>
             </div>
             <p className="text-xs text-[#4A5E52] mt-0.5">
-              We run automated tests to make sure ScoutSpark only finds relevant businesses, skips duplicates, and backs up every claim with real evidence.
+              Automated tests verifying that ScoutSpark only saves relevant companies, avoids fake claims, and cites real web sources.
             </p>
           </div>
+
+          {/* Sub-Section Switcher Tabs */}
+          <div className="flex items-center bg-[#FAF7F0] border-1.5 border-[#17271F] rounded-xl p-1 shrink-0">
+            <button
+              onClick={() => setActiveTabSection('all')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                activeTabSection === 'all'
+                  ? 'bg-[#17271F] text-white shadow-xs'
+                  : 'text-[#4A5E52] hover:text-[#17271F]'
+              }`}
+            >
+              All Quality Data
+            </button>
+            <button
+              onClick={() => setActiveTabSection('metrics')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                activeTabSection === 'metrics'
+                  ? 'bg-[#17271F] text-white shadow-xs'
+                  : 'text-[#4A5E52] hover:text-[#17271F]'
+              }`}
+            >
+              Grounding Metrics (4)
+            </button>
+            <button
+              onClick={() => setActiveTabSection('tests')}
+              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all flex items-center gap-1.5 ${
+                activeTabSection === 'tests'
+                  ? 'bg-[#17271F] text-white shadow-xs'
+                  : 'text-[#4A5E52] hover:text-[#17271F]'
+              }`}
+            >
+              <span>Test Suite (12)</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-[#D8FF65]" />
+            </button>
+          </div>
+        </div>
 
           <div className="flex items-center gap-2 bg-[#FAF7F0] p-3 rounded-xl border border-[#17271F] text-xs">
             <Info className="w-4 h-4 text-[#FF7054] shrink-0" />
@@ -148,7 +209,6 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
               <span className="text-[#4A5E52]">These scores show pass rates across our 12 automated test cases in <code className="font-mono text-[11px]">backend/tests/test_evaluation_fixture.py</code>, checking for accuracy and honesty.</span>
             </div>
           </div>
-        </div>
 
         {/* Evaluation Disclaimer Banner */}
         <div className="p-3.5 bg-[#FAF7F0] border-1.5 border-[#17271F] rounded-xl flex items-start gap-3 text-xs text-[#17271F]">
@@ -161,46 +221,49 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
       </div>
 
       {/* 4 Core Metric Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {metrics.map(metric => (
-          <div
-            key={metric.id}
-            className="card-tactile p-5 rounded-2xl bg-white border-2 border-[#17271F] flex flex-col justify-between space-y-3"
-          >
-            <div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-mono text-[10px] uppercase font-bold text-[#4A5E52]">
-                  {metric.category}
-                </span>
-                <span className="sticker-badge bg-[#9DE3D0] text-[#17271F] border-[#17271F] text-[9px]">
-                  {metric.status}
-                </span>
+      {(activeTabSection === 'all' || activeTabSection === 'metrics') && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {metrics.map(metric => (
+            <div
+              key={metric.id}
+              className="card-tactile p-5 rounded-2xl bg-white border-2 border-[#17271F] flex flex-col justify-between space-y-3"
+            >
+              <div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="font-mono text-[10px] uppercase font-bold text-[#4A5E52]">
+                    {metric.category}
+                  </span>
+                  <span className="sticker-badge bg-[#9DE3D0] text-[#17271F] border-[#17271F] text-[9px]">
+                    {metric.status}
+                  </span>
+                </div>
+
+                <h2 className="text-sm font-editorial font-bold text-[#17271F] mt-1.5 leading-snug">
+                  {metric.name}
+                </h2>
+
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-3xl font-mono font-bold text-[#17271F]">{metric.score}</span>
+                  <span className="text-xs text-[#4A5E52]">Target: {metric.target}</span>
+                </div>
+
+                <p className="text-[11px] text-[#4A5E52] mt-2 leading-relaxed">
+                  {metric.description}
+                </p>
               </div>
 
-              <h2 className="text-sm font-editorial font-bold text-[#17271F] mt-1.5 leading-snug">
-                {metric.name}
-              </h2>
-
-              <div className="mt-3 flex items-baseline gap-2">
-                <span className="text-3xl font-mono font-bold text-[#17271F]">{metric.score}</span>
-                <span className="text-xs text-[#4A5E52]">Target: {metric.target}</span>
+              <div className="pt-2 border-t border-[#E2D9C8] flex items-center justify-between text-[10px] text-[#17271F]">
+                <span className="text-[#FF7054] font-semibold">{metric.trend}</span>
+                <span className="italic text-[#4A5E52]">12 Test Cases</span>
               </div>
-
-              <p className="text-[11px] text-[#4A5E52] mt-2 leading-relaxed">
-                {metric.description}
-              </p>
             </div>
-
-            <div className="pt-2 border-t border-[#E2D9C8] flex items-center justify-between text-[10px] text-[#17271F]">
-              <span className="text-[#FF7054] font-semibold">{metric.trend}</span>
-              <span className="italic text-[#4A5E52]">12 Test Cases</span>
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {/* 12-Case Grounding & Precision Test Matrix */}
-      <div className="bg-white border-2 border-[#17271F] rounded-2xl p-6 shadow-[4px_4px_0px_#17271F] space-y-4">
+      {(activeTabSection === 'all' || activeTabSection === 'tests') && (
+        <div className="bg-white border-2 border-[#17271F] rounded-2xl p-6 shadow-[4px_4px_0px_#17271F] space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#E2D9C8]">
           <div>
             <div className="flex items-center gap-2">
@@ -254,6 +317,7 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
           </table>
         </div>
       </div>
+      )}
 
       {/* Scout's Evaluation Philosophy Note */}
       <div className="card-tactile p-6 rounded-2xl bg-[#FAF7F0] border-2 border-[#17271F] flex flex-col md:flex-row items-center gap-6">
@@ -270,6 +334,36 @@ export const EvaluationLabView: React.FC<EvaluationLabViewProps> = ({ metrics })
           </p>
         </div>
       </div>
+
+      {/* Contextual Journey Next Step Banner */}
+      {onNavigateToTab && (
+        <div className="p-4 bg-white border-2 border-[#17271F] rounded-xl shadow-[3px_3px_0px_#17271F] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="space-y-0.5">
+            <div className="text-xs font-editorial font-bold text-[#17271F] flex items-center gap-1.5">
+              <span>Logical Next Step:</span>
+              <span className="text-[#FF7054]">Return to Workspace & Evaluate Real Leads</span>
+            </div>
+            <p className="text-[11px] text-[#4A5E52]">
+              Now that you've reviewed the test suite and grounding defense, head back to your workspace to find or review leads.
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={() => onNavigateToTab('dashboard')}
+              className="btn-tactile-coral px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
+            >
+              <span>Overview</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+            <button
+              onClick={() => onNavigateToTab('prospects')}
+              className="btn-tactile-secondary px-3.5 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
+            >
+              Find Leads
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

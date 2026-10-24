@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ViewTab } from '../types';
 import { ScoutMascot } from './ScoutMascot';
 import { 
@@ -10,33 +10,105 @@ import {
   Settings, 
   Sparkles, 
   RotateCcw,
-  ShieldCheck
+  ShieldCheck,
+  HelpCircle,
+  Menu,
+  X,
+  ChevronRight,
+  Info
 } from 'lucide-react';
 
 interface NavbarProps {
   currentTab: ViewTab;
   onSelectTab: (tab: ViewTab) => void;
   onOpenDiscovery: () => void;
+  onOpenGuide: () => void;
   onResetData: () => void;
+  prospectsCount?: number;
   unreadSignalsCount?: number;
   activeProvenance?: string;
+}
+
+interface NavGroupItem {
+  id: ViewTab;
+  label: string;
+  shortDesc: string;
+  icon: React.ReactNode;
+  badge?: string;
+}
+
+interface NavGroup {
+  groupName: string;
+  items: NavGroupItem[];
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   currentTab,
   onSelectTab,
   onOpenDiscovery,
+  onOpenGuide,
   onResetData,
+  prospectsCount = 8,
   unreadSignalsCount = 3,
   activeProvenance = 'demo',
 }) => {
-  const navItems: { id: ViewTab; label: string; icon: React.ReactNode; badge?: string }[] = [
-    { id: 'dashboard', label: 'Overview', icon: <Compass className="w-4 h-4" /> },
-    { id: 'prospects', label: 'Find Leads', icon: <Users className="w-4 h-4" />, badge: '8' },
-    { id: 'pipeline', label: 'Pipeline', icon: <Kanban className="w-4 h-4" /> },
-    { id: 'campaigns', label: 'Message Sequences', icon: <Send className="w-4 h-4" /> },
-    { id: 'eval-lab', label: 'Accuracy Lab', icon: <FlaskConical className="w-4 h-4" />, badge: 'Tests' },
-    { id: 'settings', label: 'Target Customer', icon: <Settings className="w-4 h-4" /> },
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+  const [hoveredTab, setHoveredTab] = useState<ViewTab | null>(null);
+
+  const navGroups: NavGroup[] = [
+    {
+      groupName: "WORKSPACE",
+      items: [
+        {
+          id: 'dashboard',
+          label: 'Overview',
+          shortDesc: 'Overall progress, activity log & recommended next actions',
+          icon: <Compass className="w-4 h-4" />
+        },
+        {
+          id: 'prospects',
+          label: 'Find Leads',
+          shortDesc: 'Search, filter, inspect source facts & import CSVs',
+          icon: <Users className="w-4 h-4" />,
+          badge: `${prospectsCount}`
+        },
+        {
+          id: 'pipeline',
+          label: 'Pipeline',
+          shortDesc: 'Kanban stages from review to outreach and closed deals',
+          icon: <Kanban className="w-4 h-4" />
+        }
+      ]
+    },
+    {
+      groupName: "OUTREACH",
+      items: [
+        {
+          id: 'campaigns',
+          label: 'Message Sequences',
+          shortDesc: 'Multi-touch follow-up email templates & evidence hooks',
+          icon: <Send className="w-4 h-4" />
+        }
+      ]
+    },
+    {
+      groupName: "INTELLIGENCE & QUALITY",
+      items: [
+        {
+          id: 'settings',
+          label: 'Target Customer',
+          shortDesc: 'Define your ICP: target roles, company size & exclusions',
+          icon: <Settings className="w-4 h-4" />
+        },
+        {
+          id: 'eval-lab',
+          label: 'Accuracy Lab',
+          shortDesc: 'Hallucination defense metrics & 12 automated test cases',
+          icon: <FlaskConical className="w-4 h-4" />,
+          badge: '12 Tests'
+        }
+      ]
+    }
   ];
 
   const isLive = activeProvenance === 'researched';
@@ -51,6 +123,11 @@ export const Navbar: React.FC<NavbarProps> = ({
     ? "IMPORTED LIST · Uploaded records · No messages are sent"
     : "DEMO MODE · Sample companies and practice data · No messages are sent";
 
+  const handleTabClick = (tab: ViewTab) => {
+    onSelectTab(tab);
+    setMobileMenuOpen(false);
+  };
+
   return (
     <header className="sticky top-0 z-40 bg-[#FAF7F0] border-b-2 border-[#17271F]">
       {/* Top Banner */}
@@ -60,13 +137,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           <span className="font-bold tracking-wider">{bannerText}</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-[#9DE3D0] hidden sm:inline text-[10px]">
+          <span className="text-[#9DE3D0] hidden md:inline text-[10px]">
             You're in control of every message
           </span>
           <button
             onClick={onResetData}
             title="Reset sample data back to beginning"
-            className="flex items-center gap-1 text-[10px] text-[#F7F2E8]/70 hover:text-[#D8FF65] transition-colors"
+            className="flex items-center gap-1 text-[10px] text-[#F7F2E8]/70 hover:text-[#D8FF65] transition-colors cursor-pointer"
           >
             <RotateCcw className="w-3 h-3" /> Reset sample data
           </button>
@@ -75,9 +152,12 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Main Bar */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between h-16 gap-2">
           {/* Logo & Brand */}
-          <div className="flex items-center gap-3 cursor-pointer select-none" onClick={() => onSelectTab('dashboard')}>
+          <div 
+            className="flex items-center gap-3 cursor-pointer select-none shrink-0" 
+            onClick={() => handleTabClick('dashboard')}
+          >
             <ScoutMascot expression="idle" size="sm" animate={true} />
             <div>
               <div className="flex items-center gap-1.5">
@@ -94,24 +174,78 @@ export const Navbar: React.FC<NavbarProps> = ({
             </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-1">
-            {navItems.map(item => {
+          {/* Grouped Desktop Navigation */}
+          <nav className="hidden xl:flex items-center gap-4">
+            {navGroups.map((group, groupIdx) => (
+              <div key={group.groupName} className="flex items-center gap-1">
+                {groupIdx > 0 && (
+                  <div className="h-5 w-[1.5px] bg-[#E2D9C8] mx-1" aria-hidden="true" />
+                )}
+                
+                <div className="flex items-center gap-1">
+                  {group.items.map(item => {
+                    const isActive = currentTab === item.id;
+                    return (
+                      <div key={item.id} className="relative group">
+                        <button
+                          onClick={() => handleTabClick(item.id)}
+                          onMouseEnter={() => setHoveredTab(item.id)}
+                          onMouseLeave={() => setHoveredTab(null)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                            isActive
+                              ? 'bg-[#17271F] text-[#F7F2E8] shadow-[2px_2px_0px_#FF7054]'
+                              : 'text-[#17271F] hover:bg-white hover:text-[#17271F]'
+                          }`}
+                        >
+                          {item.icon}
+                          <span>{item.label}</span>
+                          {item.badge && (
+                            <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+                              isActive ? 'bg-[#D8FF65] text-[#17271F]' : 'bg-[#E2D9C8] text-[#17271F]'
+                            }`}>
+                              {item.badge}
+                            </span>
+                          )}
+                        </button>
+
+                        {/* Hover Tooltip explaining purpose */}
+                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1.5 hidden group-hover:block z-50 pointer-events-none min-w-[200px] max-w-xs animate-in fade-in duration-150">
+                          <div className="bg-[#17271F] text-[#F7F2E8] text-[11px] rounded-lg px-2.5 py-1.5 shadow-lg border border-[#2A4034]">
+                            <div className="text-[9px] font-mono text-[#D8FF65] uppercase font-bold tracking-wider mb-0.5">
+                              {group.groupName}
+                            </div>
+                            <p className="leading-snug text-[#F7F2E8]/90 font-normal">
+                              {item.shortDesc}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </nav>
+
+          {/* Medium Desktop Compact Nav (for screens between lg and xl) */}
+          <nav className="hidden lg:flex xl:hidden items-center gap-1">
+            {navGroups.flatMap(g => g.items).map(item => {
               const isActive = currentTab === item.id;
               return (
                 <button
                   key={item.id}
-                  onClick={() => onSelectTab(item.id)}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all relative ${
+                  onClick={() => handleTabClick(item.id)}
+                  title={item.shortDesc}
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                     isActive
                       ? 'bg-[#17271F] text-[#F7F2E8] shadow-[2px_2px_0px_#FF7054]'
-                      : 'text-[#17271F] hover:bg-[#F7F2E8] hover:text-[#17271F]'
+                      : 'text-[#17271F] hover:bg-white'
                   }`}
                 >
                   {item.icon}
                   <span>{item.label}</span>
                   {item.badge && (
-                    <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                    <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
                       isActive ? 'bg-[#D8FF65] text-[#17271F]' : 'bg-[#E2D9C8] text-[#17271F]'
                     }`}>
                       {item.badge}
@@ -122,39 +256,107 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          {/* Primary CTA */}
-          <div className="flex items-center gap-2.5">
+          {/* Primary Action Buttons (Guide & Find My Next) */}
+          <div className="flex items-center gap-2">
+            {/* ScoutStar Interactive Guide Button */}
+            <button
+              onClick={onOpenGuide}
+              className="btn-tactile-secondary px-3 py-1.5 sm:py-2 rounded-xl text-xs flex items-center gap-1.5 font-semibold text-[#17271F] cursor-pointer"
+              title="Open interactive guide, tour and workflow map"
+            >
+              <HelpCircle className="w-3.5 h-3.5 text-[#FF7054]" />
+              <span className="hidden sm:inline">Guide</span>
+            </button>
+
+            {/* Find My Next... Primary CTA */}
             <button
               onClick={onOpenDiscovery}
-              className="btn-tactile-coral px-4 py-2 rounded-xl text-xs flex items-center gap-2 font-bold cursor-pointer"
+              className="btn-tactile-coral px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs flex items-center gap-1.5 sm:gap-2 font-bold cursor-pointer"
+              title="Launch AI research to find your next customers"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Find my next customers</span>
+              <span>Find My Next…</span>
+            </button>
+
+            {/* Mobile menu hamburger button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="lg:hidden p-2 rounded-xl text-[#17271F] hover:bg-white border border-[#E2D9C8] transition-colors"
+              aria-label="Toggle menu"
+            >
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
         </div>
       </div>
 
-      {/* Mobile Nav Bar */}
-      <div className="lg:hidden flex overflow-x-auto px-4 py-2 gap-1.5 bg-[#F7F2E8] border-t border-[#17271F]/10">
-        {navItems.map(item => {
-          const isActive = currentTab === item.id;
-          return (
+      {/* Mobile Grouped Drawer / Menu */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden bg-[#FAF7F0] border-t border-[#17271F] p-4 space-y-4 max-h-[80vh] overflow-y-auto animate-in slide-in-from-top duration-200">
+          <div className="p-3 bg-white border border-[#17271F] rounded-xl flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ScoutMascot expression="curious" size="xs" animate={true} />
+              <div>
+                <div className="text-xs font-bold text-[#17271F]">New to ScoutSpark?</div>
+                <div className="text-[11px] text-[#4A5E52]">Take a 60-second guided tour</div>
+              </div>
+            </div>
             <button
-              key={item.id}
-              onClick={() => onSelectTab(item.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap ${
-                isActive
-                  ? 'bg-[#17271F] text-[#F7F2E8]'
-                  : 'text-[#17271F] bg-white border border-[#E2D9C8]'
-              }`}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                onOpenGuide();
+              }}
+              className="btn-tactile-coral px-2.5 py-1 rounded text-xs font-bold"
             >
-              {item.icon}
-              <span>{item.label}</span>
+              Open Tour
             </button>
-          );
-        })}
-      </div>
+          </div>
+
+          {navGroups.map(group => (
+            <div key={group.groupName} className="space-y-1.5">
+              <div className="text-[10px] font-mono font-bold tracking-wider text-[#4A5E52] uppercase px-1">
+                {group.groupName}
+              </div>
+              <div className="grid grid-cols-1 gap-1">
+                {group.items.map(item => {
+                  const isActive = currentTab === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => handleTabClick(item.id)}
+                      className={`flex items-start justify-between p-2.5 rounded-xl text-left transition-colors border ${
+                        isActive
+                          ? 'bg-[#17271F] text-[#F7F2E8] border-[#17271F]'
+                          : 'bg-white text-[#17271F] border-[#E2D9C8] hover:border-[#17271F]'
+                      }`}
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <div className="mt-0.5">{item.icon}</div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold">{item.label}</span>
+                            {item.badge && (
+                              <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+                                isActive ? 'bg-[#D8FF65] text-[#17271F]' : 'bg-[#E2D9C8] text-[#17271F]'
+                              }`}>
+                                {item.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className={`text-[11px] mt-0.5 ${isActive ? 'text-[#F7F2E8]/80' : 'text-[#4A5E52]'}`}>
+                            {item.shortDesc}
+                          </p>
+                        </div>
+                      </div>
+                      <ChevronRight className={`w-4 h-4 shrink-0 mt-1 ${isActive ? 'text-[#D8FF65]' : 'text-[#4A5E52]'}`} />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </header>
   );
 };

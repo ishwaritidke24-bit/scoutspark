@@ -1,6 +1,7 @@
 import React from 'react';
-import { Prospect, ResearchSignal, ActivityItem, PipelineStage } from '../types';
+import { Prospect, ResearchSignal, ActivityItem, PipelineStage, ViewTab } from '../types';
 import { ScoutMascot } from '../components/ScoutMascot';
+import { ScoutPageBanner } from '../components/ScoutPageBanner';
 import { 
   Sparkles, 
   ArrowRight, 
@@ -14,7 +15,10 @@ import {
   ArrowUpRight,
   Target,
   FileCheck,
-  Zap
+  Zap,
+  Kanban,
+  Send,
+  HelpCircle
 } from 'lucide-react';
 
 interface OverviewViewProps {
@@ -22,8 +26,9 @@ interface OverviewViewProps {
   signals: ResearchSignal[];
   activities: ActivityItem[];
   onOpenDiscovery: () => void;
+  onOpenGuide?: () => void;
   onSelectProspect: (prospect: Prospect) => void;
-  onNavigateToTab: (tab: any) => void;
+  onNavigateToTab: (tab: ViewTab) => void;
 }
 
 export const OverviewView: React.FC<OverviewViewProps> = ({
@@ -31,6 +36,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   signals,
   activities,
   onOpenDiscovery,
+  onOpenGuide,
   onSelectProspect,
   onNavigateToTab,
 }) => {
@@ -48,6 +54,60 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
   // High fit shortlist sorted by score
   const shortlist = [...prospects].sort((a, b) => b.fitScore - a.fitScore).slice(0, 4);
+
+  // Dynamic next best action recommendation based on workspace state
+  const getNextBestAction = () => {
+    const readyToReview = prospects.find(p => p.pipelineStage === 'ready_to_review');
+    const approved = prospects.find(p => p.pipelineStage === 'approved');
+
+    if (prospects.length === 0) {
+      return {
+        title: "Define Target Customer & Search the Web",
+        desc: "You have no leads in your workspace yet. Start by defining your ideal customer criteria, then run ScoutStar's AI discovery engine.",
+        buttonText: "Set Target Customer",
+        action: () => onNavigateToTab('settings'),
+        secondaryText: "Launch Discovery",
+        secondaryAction: onOpenDiscovery,
+        badge: "STEP 1"
+      };
+    }
+
+    if (readyToReview) {
+      return {
+        title: `Review Lead Dossier: ${readyToReview.companyName}`,
+        desc: `ScoutStar found ${readyToReview.observedFacts.length} verified facts for ${readyToReview.companyName}. An email draft is prepared and waiting for your review.`,
+        buttonText: `Review ${readyToReview.companyName}`,
+        action: () => onSelectProspect(readyToReview),
+        secondaryText: "See All Ready Leads",
+        secondaryAction: () => onNavigateToTab('prospects'),
+        badge: "ACTION NEEDED"
+      };
+    }
+
+    if (approved) {
+      return {
+        title: `Ready to Send: ${approved.companyName}`,
+        desc: `You have approved the personalized outreach message for ${approved.companyName}. Copy the text and move them to 'Reached out' in your Pipeline.`,
+        buttonText: "Open Pipeline",
+        action: () => onNavigateToTab('pipeline'),
+        secondaryText: "Review Sequence",
+        secondaryAction: () => onNavigateToTab('campaigns'),
+        badge: "OUTREACH READY"
+      };
+    }
+
+    return {
+      title: "Find More High-Intent Customers",
+      desc: "All current leads have been processed. Run a fresh discovery search across the public web or explore additional market segments.",
+      buttonText: "Find My Next…",
+      action: onOpenDiscovery,
+      secondaryText: "View Leads",
+      secondaryAction: () => onNavigateToTab('prospects'),
+      badge: "DISCOVERY"
+    };
+  };
+
+  const nextAction = getNextBestAction();
 
   return (
     <div className="space-y-8 pb-12">
@@ -74,7 +134,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             <div className="pt-2 flex flex-wrap items-center gap-3">
               <button
                 onClick={onOpenDiscovery}
-                className="btn-tactile-coral px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2"
+                className="btn-tactile-coral px-5 py-3 rounded-xl text-sm font-bold flex items-center gap-2 cursor-pointer"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Find my next customers</span>
@@ -83,10 +143,20 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
 
               <button
                 onClick={() => onNavigateToTab('prospects')}
-                className="btn-tactile-secondary px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2"
+                className="btn-tactile-secondary px-4 py-3 rounded-xl text-sm font-semibold flex items-center gap-2 cursor-pointer"
               >
-                <span>See all 8 businesses</span>
+                <span>See all {prospects.length} businesses</span>
               </button>
+
+              {onOpenGuide && (
+                <button
+                  onClick={onOpenGuide}
+                  className="btn-tactile-secondary px-3.5 py-3 rounded-xl text-sm font-semibold flex items-center gap-1.5 cursor-pointer text-[#FF7054]"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  <span>How it works</span>
+                </button>
+              )}
 
               <span className="text-xs text-[#4A5E52] italic flex items-center gap-1.5">
                 <ShieldCheck className="w-4 h-4 text-[#FF7054]" />
@@ -100,58 +170,122 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             <ScoutMascot expression="curious" size="lg" animate={true} />
             <div className="mt-3">
               <div className="text-xs font-bold text-[#17271F] uppercase tracking-wider font-mono">
-                Meet Scout
+                Meet ScoutStar
               </div>
               <p className="text-xs text-[#4A5E52] mt-1 italic">
                 "I dig through real news and company updates so you never have to send boring copy-paste emails."
               </p>
               <div className="mt-3 pt-2.5 border-t border-[#E2D9C8] text-[11px] text-[#17271F] font-semibold flex items-center justify-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#9DE3D0]" />
-                <span>5 fresh updates found today</span>
+                <span>{signals.length} fresh updates found today</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* 4-Step Compact Workflow Strip */}
+      {/* ScoutStar Dynamic Next Best Action Card */}
+      <div className="p-5 sm:p-6 bg-white border-2 border-[#17271F] rounded-2xl shadow-[4px_4px_0px_#17271F] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div className="flex items-start gap-3.5 max-w-2xl">
+          <div className="p-2.5 rounded-xl bg-[#D8FF65] border-1.5 border-[#17271F] shrink-0 mt-0.5">
+            <Sparkles className="w-5 h-5 text-[#17271F]" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-[#17271F] text-[#D8FF65] font-bold">
+                {nextAction.badge}
+              </span>
+              <h2 className="text-sm sm:text-base font-editorial font-bold text-[#17271F]">
+                Recommended Next Step: {nextAction.title}
+              </h2>
+            </div>
+            <p className="text-xs text-[#4A5E52] leading-relaxed">
+              {nextAction.desc}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0 w-full md:w-auto justify-end">
+          {nextAction.secondaryText && (
+            <button
+              onClick={nextAction.secondaryAction}
+              className="btn-tactile-secondary px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer"
+            >
+              {nextAction.secondaryText}
+            </button>
+          )}
+          <button
+            onClick={nextAction.action}
+            className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+          >
+            <span>{nextAction.buttonText}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* 4-Step Interactive Workflow Journey Strip */}
       <div className="bg-white border-2 border-[#17271F] rounded-2xl p-5 shadow-[3px_3px_0px_#17271F]">
         <div className="text-xs font-bold uppercase tracking-wider text-[#4A5E52] mb-3 flex items-center justify-between">
-          <span>How Scout works with you</span>
-          <span className="text-[11px] font-mono text-[#FF7054]">SOURCE-BACKED DETAILS</span>
+          <span>The ScoutSpark Customer Journey</span>
+          <span className="text-[11px] font-mono text-[#FF7054]">4 CONNECTED STAGES</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">1</span>
-              <span className="text-xs font-bold text-[#17271F]">Pick your ideal customer</span>
+          <div 
+            onClick={() => onNavigateToTab('settings')}
+            className="p-3.5 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] hover:border-[#17271F] cursor-pointer transition-all space-y-1 group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">1</span>
+                <span className="text-xs font-bold text-[#17271F] group-hover:text-[#FF7054] transition-colors">Target Customer</span>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-[#4A5E52] group-hover:translate-x-0.5 transition-transform" />
             </div>
-            <p className="text-[11px] text-[#4A5E52]">Tell Scout the kind of business, team size, and role you want to reach.</p>
+            <p className="text-[11px] text-[#4A5E52]">Tell ScoutStar your target industry, company size, and role titles.</p>
           </div>
 
-          <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">2</span>
-              <span className="text-xs font-bold text-[#17271F]">Find real clues</span>
+          <div 
+            onClick={onOpenDiscovery}
+            className="p-3.5 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] hover:border-[#17271F] cursor-pointer transition-all space-y-1 group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">2</span>
+                <span className="text-xs font-bold text-[#17271F] group-hover:text-[#FF7054] transition-colors">Find My Next…</span>
+              </div>
+              <Sparkles className="w-3.5 h-3.5 text-[#FF7054]" />
             </div>
-            <p className="text-[11px] text-[#4A5E52]">Spot new hires, tech updates, and public news from real web sources.</p>
+            <p className="text-[11px] text-[#4A5E52]">Spot hiring surges, tech migrations, and public news from real web sources.</p>
           </div>
 
-          <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">3</span>
-              <span className="text-xs font-bold text-[#17271F]">Separate source details from guesses</span>
+          <div 
+            onClick={() => onNavigateToTab('prospects')}
+            className="p-3.5 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] hover:border-[#17271F] cursor-pointer transition-all space-y-1 group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">3</span>
+                <span className="text-xs font-bold text-[#17271F] group-hover:text-[#FF7054] transition-colors">Find Leads</span>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-[#4A5E52] group-hover:translate-x-0.5 transition-transform" />
             </div>
-            <p className="text-[11px] text-[#4A5E52]">Keep source-backed details separate from what might be true.</p>
+            <p className="text-[11px] text-[#4A5E52]">Separate source details from guesses. Review scores and personalized angles.</p>
           </div>
 
-          <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">4</span>
-              <span className="text-xs font-bold text-[#17271F]">You stay in charge</span>
+          <div 
+            onClick={() => onNavigateToTab('pipeline')}
+            className="p-3.5 bg-[#FAF7F0] rounded-xl border border-[#E2D9C8] hover:border-[#17271F] cursor-pointer transition-all space-y-1 group"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-[#17271F] text-[#D8FF65] font-mono text-xs font-bold flex items-center justify-center">4</span>
+                <span className="text-xs font-bold text-[#17271F] group-hover:text-[#FF7054] transition-colors">Pipeline & Outreach</span>
+              </div>
+              <ArrowRight className="w-3.5 h-3.5 text-[#4A5E52] group-hover:translate-x-0.5 transition-transform" />
             </div>
-            <p className="text-[11px] text-[#4A5E52]">Review and tweak your email draft before copying it. Nothing sends on its own.</p>
+            <p className="text-[11px] text-[#4A5E52]">Track stages, review drafts, and copy multi-touch follow-ups with human approval.</p>
           </div>
         </div>
       </div>
@@ -159,12 +293,15 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
       {/* Pipeline Snapshot Cards */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-editorial font-bold text-[#17271F]">
-            Your lead pipeline
-          </h2>
+          <div>
+            <h2 className="text-lg font-editorial font-bold text-[#17271F]">
+              Your outreach pipeline
+            </h2>
+            <p className="text-xs text-[#4A5E52]">Click any column to jump directly to that stage on your board</p>
+          </div>
           <button
             onClick={() => onNavigateToTab('pipeline')}
-            className="text-xs font-semibold text-[#17271F] hover:text-[#FF7054] flex items-center gap-1"
+            className="text-xs font-semibold text-[#17271F] hover:text-[#FF7054] flex items-center gap-1 cursor-pointer"
           >
             See full board <ArrowRight className="w-3.5 h-3.5" />
           </button>
@@ -208,71 +345,88 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             </div>
             <button
               onClick={() => onNavigateToTab('prospects')}
-              className="text-xs font-semibold text-[#FF7054] hover:underline"
+              className="text-xs font-semibold text-[#FF7054] hover:underline cursor-pointer"
             >
-              See all 8
+              See all {prospects.length}
             </button>
           </div>
 
           <div className="space-y-3">
-            {shortlist.map(prospect => (
-              <div
-                key={prospect.id}
-                onClick={() => onSelectProspect(prospect)}
-                className="card-tactile p-4 rounded-xl cursor-pointer hover:border-[#17271F] group"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-[#D8FF65] border-1.5 border-[#17271F] flex flex-col items-center justify-center font-mono font-bold text-[#17271F] shadow-[2px_2px_0px_#17271F] shrink-0">
-                      <span className="text-lg leading-none">{prospect.fitScore}</span>
-                      <span className="text-[8px] uppercase tracking-tight">MATCH</span>
+            {shortlist.length > 0 ? (
+              shortlist.map(prospect => (
+                <div
+                  key={prospect.id}
+                  onClick={() => onSelectProspect(prospect)}
+                  className="card-tactile p-4 rounded-xl cursor-pointer hover:border-[#17271F] group"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-xl bg-[#D8FF65] border-1.5 border-[#17271F] flex flex-col items-center justify-center font-mono font-bold text-[#17271F] shadow-[2px_2px_0px_#17271F] shrink-0">
+                        <span className="text-lg leading-none">{prospect.fitScore}</span>
+                        <span className="text-[8px] uppercase tracking-tight">MATCH</span>
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-base font-editorial font-bold text-[#17271F] group-hover:text-[#FF7054] transition-colors">
+                            {prospect.companyName}
+                          </h3>
+                          <span className="text-[10px] font-mono text-[#4A5E52]">
+                            {prospect.stage.split(' •')[0]}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[#4A5E52] mt-0.5 line-clamp-1">
+                          {prospect.summary}
+                        </p>
+                        <div className="flex items-center gap-3 text-[11px] text-[#17271F] mt-2">
+                          <span className="font-semibold text-[#FF7054]">
+                            {prospect.targetBuyer.name} ({prospect.targetBuyer.title})
+                          </span>
+                          <span>•</span>
+                          <span className="text-[#4A5E52]">
+                            {prospect.observedFacts.length} source details
+                          </span>
+                        </div>
+                      </div>
                     </div>
 
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-base font-editorial font-bold text-[#17271F] group-hover:text-[#FF7054] transition-colors">
-                          {prospect.companyName}
-                        </h3>
-                        <span className="text-[10px] font-mono text-[#4A5E52]">
-                          {prospect.stage.split(' •')[0]}
-                        </span>
-                      </div>
-                      <p className="text-xs text-[#4A5E52] mt-0.5 line-clamp-1">
-                        {prospect.summary}
-                      </p>
-                      <div className="flex items-center gap-3 text-[11px] text-[#17271F] mt-2">
-                        <span className="font-semibold text-[#FF7054]">
-                          {prospect.targetBuyer.name} ({prospect.targetBuyer.title})
-                        </span>
-                        <span>•</span>
-                        <span className="text-[#4A5E52]">
-                          {prospect.observedFacts.length} source details
-                        </span>
-                      </div>
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${
+                        prospect.pipelineStage === 'approved' 
+                          ? 'bg-[#9DE3D0] text-[#17271F] border-[#17271F]' 
+                          : prospect.pipelineStage === 'ready_to_review'
+                          ? 'bg-[#FFEAE5] text-[#FF7054] border-[#FF7054]'
+                          : 'bg-[#FAF7F0] text-[#4A5E52] border-[#E2D9C8]'
+                      }`}>
+                        {prospect.pipelineStage === 'approved'
+                          ? 'ready to send'
+                          : prospect.pipelineStage === 'ready_to_review'
+                          ? 'ready to check'
+                          : prospect.pipelineStage.replace('_', ' ')}
+                      </span>
+                      <span className="text-[11px] text-[#4A5E52] flex items-center gap-0.5 mt-1">
+                        Check details <ArrowUpRight className="w-3.5 h-3.5" />
+                      </span>
                     </div>
-                  </div>
-
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded border ${
-                      prospect.pipelineStage === 'approved' 
-                        ? 'bg-[#9DE3D0] text-[#17271F] border-[#17271F]' 
-                        : prospect.pipelineStage === 'ready_to_review'
-                        ? 'bg-[#FFEAE5] text-[#FF7054] border-[#FF7054]'
-                        : 'bg-[#FAF7F0] text-[#4A5E52] border-[#E2D9C8]'
-                    }`}>
-                      {prospect.pipelineStage === 'approved'
-                        ? 'ready to send'
-                        : prospect.pipelineStage === 'ready_to_review'
-                        ? 'ready to check'
-                        : prospect.pipelineStage.replace('_', ' ')}
-                    </span>
-                    <span className="text-[11px] text-[#4A5E52] flex items-center gap-0.5 mt-1">
-                      Check details <ArrowUpRight className="w-3.5 h-3.5" />
-                    </span>
                   </div>
                 </div>
+              ))
+            ) : (
+              <div className="bg-white border-2 border-dashed border-[#17271F]/30 rounded-xl p-8 text-center space-y-3">
+                <ScoutMascot expression="thinking" size="md" animate={true} />
+                <h3 className="text-base font-bold text-[#17271F]">No leads yet</h3>
+                <p className="text-xs text-[#4A5E52] max-w-sm mx-auto">
+                  Click 'Find my next customers' to search the public web or load sample companies.
+                </p>
+                <button
+                  onClick={onOpenDiscovery}
+                  className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5"
+                >
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Find Leads Now</span>
+                </button>
               </div>
-            ))}
+            )}
           </div>
         </div>
 
