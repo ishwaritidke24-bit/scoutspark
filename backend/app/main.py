@@ -30,11 +30,14 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# CORS configuration strictly bound to expected frontend origin(s)
+# CORS configuration supporting deployed origins and Vercel preview environments
+allow_credentials = False if ("*" in settings.cors_origins) else True
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
-    allow_credentials=True,
+    allow_origin_regex=settings.cors_origin_regex,
+    allow_credentials=allow_credentials,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["*"],
 )
@@ -58,3 +61,12 @@ def root():
         "health_url": "/health",
         "demo_workspace": True,
     }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    port = int(os.environ.get("PORT", 8000))
+    app_module = "backend.app.main:app" if os.path.exists("backend") else "app.main:app"
+    uvicorn.run(app_module, host="0.0.0.0", port=port)
+

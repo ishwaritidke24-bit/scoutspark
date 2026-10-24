@@ -72,7 +72,7 @@ def run_prospect_research(
                 missing.append("TAVILY_API_KEY")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Live research credentials are not configured. Missing: {', '.join(missing)} in backend/.env.",
+                detail=f"Live research credentials are not configured. Missing: {', '.join(missing)} in environment variables or backend/.env.",
             )
         search_provider = TavilySearchProvider()
         llm_provider = GeminiLLMProvider()

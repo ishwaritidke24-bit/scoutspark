@@ -10,6 +10,7 @@ import {
   EmailDraft
 } from './types';
 import { prospectService } from './services/prospectService';
+import { API_BASE_URL } from './services/apiClient';
 import { Navbar } from './components/Navbar';
 import { ScoutMascot } from './components/ScoutMascot';
 import { GuidedDiscoveryModal } from './components/GuidedDiscoveryModal';
@@ -80,7 +81,7 @@ export const App: React.FC = () => {
     } catch (err: any) {
       console.error('Failed to load data from backend:', err);
       setConnectionError(
-        err.detail || err.message || 'Cannot connect to ScoutSpark backend at http://localhost:8000.'
+        err.detail || err.message || `Cannot connect to ScoutSpark backend at ${API_BASE_URL}.`
       );
       setBackendStatus('disconnected');
     } finally {

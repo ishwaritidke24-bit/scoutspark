@@ -6,8 +6,8 @@ import {
   EmailDraft 
 } from '../types';
 
-export const API_BASE_URL = 
-  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const rawBaseUrl = (import.meta.env.VITE_API_BASE_URL as string) || 'http://localhost:8000';
+export const API_BASE_URL = rawBaseUrl.replace(/\/+$/, '');
 
 export const IS_EXPLICIT_DEMO_MODE = 
   import.meta.env.VITE_DEMO_MODE === 'true';
@@ -59,7 +59,7 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     }
     throw new ApiError(
       0,
-      `Cannot connect to ScoutSpark backend at ${API_BASE_URL}. Ensure uvicorn is running.`
+      `Cannot connect to ScoutSpark backend at ${API_BASE_URL}. Ensure the backend service is running and CORS allows this origin.`
     );
   }
 }
