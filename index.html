@@ -10,6 +10,26 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Immediate theme hydration: default is light mode (daybreak) -->
+    <script>
+      (function() {
+        try {
+          var pref = localStorage.getItem('scoutspark_theme_preference') || localStorage.getItem('scoutspark_theme');
+          // Default to light mode (daybreak). Only turn dark if user explicitly chose nightops or explicitly chose system sync with dark OS.
+          var isDark = pref === 'nightops' || (pref === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+          if (isDark) {
+            document.documentElement.classList.add('nightops', 'dark');
+            document.documentElement.setAttribute('data-theme', 'nightops');
+            document.documentElement.style.colorScheme = 'dark';
+          } else {
+            document.documentElement.classList.remove('nightops', 'dark');
+            document.documentElement.classList.add('daybreak');
+            document.documentElement.setAttribute('data-theme', 'daybreak');
+            document.documentElement.style.colorScheme = 'light';
+          }
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body class="bg-[#F7F2E8] text-[#17271F] font-sans antialiased selection:bg-[#D8FF65] selection:text-[#17271F]">
     <div id="root"></div>

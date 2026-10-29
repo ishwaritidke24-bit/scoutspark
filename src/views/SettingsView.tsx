@@ -21,8 +21,13 @@ import {
   CreditCard,
   Shield,
   Zap,
-  Trash2
+  Trash2,
+  Sun,
+  Moon,
+  Monitor
 } from 'lucide-react';
+import { useTheme } from '../context/ThemeContext';
+import { ScoutSignalControl } from '../components/ScoutSignalControl';
 
 import { ScoutPageBanner } from '../components/ScoutPageBanner';
 import { ViewTab } from '../types';
@@ -141,6 +146,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 }) => {
   const [formData, setFormData] = useState<IdealCustomerProfile>(icp);
   const [savedToast, setSavedToast] = useState<boolean>(false);
+  const { theme, isNightOps, preference, setTheme, resetToSystemPreference, resetToDefault } = useTheme();
 
   // New tag input states
   const [newIndustry, setNewIndustry] = useState<string>('');
@@ -246,6 +252,103 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             title="Reset to default example settings"
           >
             <RotateCcw className="w-3.5 h-3.5" /> Reset to defaults
+          </button>
+        </div>
+      </div>
+
+      {/* Theme & Workspace Atmosphere */}
+      <div className="bg-white border-2 border-[#17271F] rounded-2xl p-6 shadow-[4px_4px_0px_#17271F] space-y-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base font-editorial font-bold text-[#17271F] flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[#C6FF3D]" />
+                <span>Theme & Workspace Atmosphere</span>
+              </h2>
+              <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded border ${
+                isNightOps 
+                  ? 'bg-[#C6FF3D]/15 text-[#C6FF3D] border-[#C6FF3D]/40' 
+                  : 'bg-[#17271F] text-[#D8FF65] border-[#17271F]'
+              }`}>
+                {isNightOps ? '🌙 NIGHT OPS ACTIVE' : '☀️ DAYBREAK ACTIVE (DEFAULT)'}
+              </span>
+            </div>
+            <p className="text-xs text-[#4A5E52] mt-0.5">
+              Choose your visual world or use Scout Signal in the top bar. Keyboard shortcut: <kbd className="font-mono bg-[#FAF7F0] px-1 py-0.2 rounded border border-[#17271F]/20 text-[10px]">Alt+T</kbd>
+            </p>
+          </div>
+          <ScoutSignalControl showLabel={true} />
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 border-t border-[#E2D9C8]">
+          <button
+            type="button"
+            onClick={() => setTheme('daybreak')}
+            className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
+              preference === 'daybreak' || (theme === 'daybreak' && preference !== 'system')
+                ? 'border-[#17271F] bg-[#FAF7F0] shadow-[2px_2px_0px_#17271F]'
+                : 'border-[#E2D9C8] hover:border-[#17271F] bg-white'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-[#17271F] flex items-center gap-1.5">
+                <Sun className="w-4 h-4 text-[#FF7054]" />
+                <span>Daybreak Mode</span>
+                <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 bg-[#D8FF65] text-[#17271F] rounded border border-[#17271F]">Default</span>
+              </span>
+              {(preference === 'daybreak' || (theme === 'daybreak' && preference !== 'system')) && (
+                <span className="w-2 h-2 rounded-full bg-[#FF7054]" />
+              )}
+            </div>
+            <p className="text-[11px] text-[#4A5E52] mt-1.5 leading-snug">
+              Warm paper-white surfaces, fresh leads, discovery, and crisp editorial typography.
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setTheme('nightops')}
+            className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
+              preference === 'nightops'
+                ? 'border-[#C6FF3D] bg-[#121A15] shadow-[2px_2px_0px_#000000]'
+                : 'border-[#E2D9C8] hover:border-[#17271F] bg-white'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-[#17271F] flex items-center gap-1.5">
+                <Moon className="w-4 h-4 text-[#C6FF3D]" />
+                <span>Night Ops Mode</span>
+              </span>
+              {preference === 'nightops' && (
+                <span className="w-2 h-2 rounded-full bg-[#C6FF3D]" />
+              )}
+            </div>
+            <p className="text-[11px] text-[#4A5E52] mt-1.5 leading-snug">
+              Stealth intelligence lab, charcoal surfaces, green undertones, and sharp chartreuse highlights.
+            </p>
+          </button>
+
+          <button
+            type="button"
+            onClick={resetToSystemPreference}
+            className={`p-3.5 rounded-xl border-2 text-left transition-all cursor-pointer ${
+              preference === 'system'
+                ? 'border-[#17271F] bg-[#FAF7F0] shadow-[2px_2px_0px_#17271F]'
+                : 'border-[#E2D9C8] hover:border-[#17271F] bg-white'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-[#17271F] flex items-center gap-1.5">
+                <Monitor className="w-4 h-4 text-[#9DE3D0]" />
+                <span>System Preference</span>
+              </span>
+              {preference === 'system' && (
+                <span className="w-2 h-2 rounded-full bg-[#9DE3D0]" />
+              )}
+            </div>
+            <p className="text-[11px] text-[#4A5E52] mt-1.5 leading-snug">
+              Automatically syncs with your operating system color scheme preference.
+            </p>
           </button>
         </div>
       </div>

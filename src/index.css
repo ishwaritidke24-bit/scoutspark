@@ -8,6 +8,7 @@
     --color-paper-light: #FAF7F0;
     --color-paper-dark: #ECE4D4;
     --color-border: #E2D9C8;
+    --color-border-dark: #17271F;
     --color-coral: #FF7054;
     --color-coral-light: #FFEAE5;
     --color-coral-dark: #E0583E;
@@ -21,11 +22,31 @@
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
   }
 
+  html.nightops,
+  html.dark,
+  [data-theme="nightops"] {
+    --color-ink: #EDF7F1;
+    --color-ink-muted: #92AA9D;
+    --color-paper: #0B130E;
+    --color-paper-light: #121E17;
+    --color-paper-dark: #18271F;
+    --color-border: #23362B;
+    --color-border-dark: #2E4437;
+    --color-coral: #FF7054;
+    --color-coral-light: #2D1612;
+    --color-coral-dark: #FF8870;
+    --color-lime: #D8FF65;
+    --color-lime-light: #1F2B14;
+    --color-mint: #9DE3D0;
+    --color-mint-light: #122822;
+  }
+
   body {
     background-color: var(--color-paper);
     color: var(--color-ink);
     font-family: var(--font-sans);
     overflow-x: hidden;
+    transition: background-color 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   }
 }
 
@@ -47,7 +68,7 @@
   background-color: #ffffff;
   border: 1.5px solid var(--color-border);
   box-shadow: 3px 3px 0px rgba(23, 39, 31, 0.08);
-  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s ease;
+  transition: transform 0.15s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.15s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.15s ease, background-color 0.2s ease;
 }
 
 .card-tactile:hover {
@@ -58,60 +79,60 @@
 .btn-tactile-coral {
   background-color: var(--color-coral);
   color: #ffffff;
-  border: 1.5px solid var(--color-ink);
-  box-shadow: 2px 2px 0px var(--color-ink);
+  border: 1.5px solid var(--color-border-dark);
+  box-shadow: 2px 2px 0px var(--color-border-dark);
   font-weight: 600;
   transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-tactile-coral:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--color-ink);
+  box-shadow: 3px 3px 0px var(--color-border-dark);
   background-color: #f76245;
 }
 
 .btn-tactile-coral:active {
   transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0px var(--color-ink);
+  box-shadow: 1px 1px 0px var(--color-border-dark);
 }
 
 .btn-tactile-lime {
   background-color: var(--color-lime);
-  color: var(--color-ink);
-  border: 1.5px solid var(--color-ink);
-  box-shadow: 2px 2px 0px var(--color-ink);
+  color: #17271F;
+  border: 1.5px solid var(--color-border-dark);
+  box-shadow: 2px 2px 0px var(--color-border-dark);
   font-weight: 600;
   transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-tactile-lime:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--color-ink);
+  box-shadow: 3px 3px 0px var(--color-border-dark);
 }
 
 .btn-tactile-lime:active {
   transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0px var(--color-ink);
+  box-shadow: 1px 1px 0px var(--color-border-dark);
 }
 
 .btn-tactile-secondary {
   background-color: #ffffff;
   color: var(--color-ink);
-  border: 1.5px solid var(--color-ink);
-  box-shadow: 2px 2px 0px var(--color-ink);
+  border: 1.5px solid var(--color-border-dark);
+  box-shadow: 2px 2px 0px var(--color-border-dark);
   font-weight: 500;
   transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-tactile-secondary:hover {
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0px var(--color-ink);
+  box-shadow: 3px 3px 0px var(--color-border-dark);
   background-color: var(--color-paper-light);
 }
 
 .btn-tactile-secondary:active {
   transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0px var(--color-ink);
+  box-shadow: 1px 1px 0px var(--color-border-dark);
 }
 
 /* Sticker badge styling */
@@ -121,7 +142,7 @@
   gap: 0.375rem;
   padding: 0.2rem 0.55rem;
   border-radius: 9999px;
-  border: 1px solid var(--color-ink);
+  border: 1px solid var(--color-border-dark);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -154,18 +175,218 @@
 
 /* Scout animations: Calm, steady body with natural eye blinking and subtle expressions */
 .animate-scout-float {
-  /* Disabled: mascot body remains steady and calm */
   transform: none;
 }
 
 .animate-scout-bounce {
-  /* Disabled: no bouncing */
   transform: none;
 }
 
 .animate-scout-roam {
-  /* Disabled: no full-body roaming drift */
   transform: none;
+}
+
+/* =========================================================================
+   NIGHT OPS MODE (DARK THEME) STYLING SYSTEM
+   ========================================================================= */
+
+html.nightops,
+html.dark {
+  color-scheme: dark;
+}
+
+html.nightops body,
+html.dark body {
+  background-color: #0B130E !important;
+  color: #EDF7F1 !important;
+}
+
+/* Surfaces and Backgrounds */
+html.nightops .bg-\[\#F7F2E8\],
+html.dark .bg-\[\#F7F2E8\] {
+  background-color: #0B130E !important;
+}
+
+html.nightops .bg-\[\#FAF7F0\],
+html.dark .bg-\[\#FAF7F0\] {
+  background-color: #121E17 !important;
+}
+
+html.nightops .bg-\[\#ECE4D4\],
+html.dark .bg-\[\#ECE4D4\] {
+  background-color: #18271F !important;
+}
+
+html.nightops .bg-white,
+html.dark .bg-white {
+  background-color: #14221A !important;
+}
+
+/* Tinted Card Overrides in Night Ops */
+html.nightops .bg-\[\#FFEAE5\],
+html.dark .bg-\[\#FFEAE5\] {
+  background-color: #2D1612 !important;
+}
+
+html.nightops .bg-\[\#F4FFCF\],
+html.dark .bg-\[\#F4FFCF\] {
+  background-color: #1F2B14 !important;
+}
+
+html.nightops .bg-\[\#E4F7F2\],
+html.dark .bg-\[\#E4F7F2\] {
+  background-color: #122822 !important;
+}
+
+html.nightops .bg-\[\#FFF8E7\],
+html.dark .bg-\[\#FFF8E7\] {
+  background-color: #282112 !important;
+}
+
+/* Hover background states */
+html.nightops .hover\:bg-white:hover,
+html.dark .hover\:bg-white:hover {
+  background-color: #1D2E24 !important;
+}
+
+html.nightops .hover\:bg-\[\#FAF7F0\]:hover,
+html.dark .hover\:bg-\[\#FAF7F0\]:hover {
+  background-color: #1A2A21 !important;
+}
+
+html.nightops .hover\:bg-\[\#F7F2E8\]:hover,
+html.dark .hover\:bg-\[\#F7F2E8\]:hover {
+  background-color: #14221A !important;
+}
+
+/* Borders */
+html.nightops .border-\[\#E2D9C8\],
+html.dark .border-\[\#E2D9C8\] {
+  border-color: #23362B !important;
+}
+
+html.nightops .border-\[\#17271F\],
+html.dark .border-\[\#17271F\] {
+  border-color: #2E4437 !important;
+}
+
+html.nightops .hover\:border-\[\#17271F\]:hover,
+html.dark .hover\:border-\[\#17271F\]:hover {
+  border-color: #486956 !important;
+}
+
+html.nightops .divide-\[\#E2D9C8\] > :not([hidden]) ~ :not([hidden]),
+html.dark .divide-\[\#E2D9C8\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: #23362B !important;
+}
+
+/* Typography */
+html.nightops .text-\[\#17271F\],
+html.dark .text-\[\#17271F\] {
+  color: #EDF7F1 !important;
+}
+
+html.nightops .text-\[\#4A5E52\],
+html.dark .text-\[\#4A5E52\] {
+  color: #92AA9D !important;
+}
+
+html.nightops .text-\[\#F7F2E8\],
+html.dark .text-\[\#F7F2E8\] {
+  color: #EDF7F1 !important;
+}
+
+/* Tactile Components in Night Ops */
+html.nightops .card-tactile,
+html.dark .card-tactile {
+  background-color: #14221A !important;
+  border-color: #283D31 !important;
+  box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.45) !important;
+}
+
+html.nightops .card-tactile:hover,
+html.dark .card-tactile:hover {
+  border-color: #3F5E4C !important;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.65) !important;
+}
+
+html.nightops .btn-tactile-secondary,
+html.dark .btn-tactile-secondary {
+  background-color: #16241D !important;
+  color: #EDF7F1 !important;
+  border-color: #2E4437 !important;
+  box-shadow: 2px 2px 0px #040806 !important;
+}
+
+html.nightops .btn-tactile-secondary:hover,
+html.dark .btn-tactile-secondary:hover {
+  background-color: #1D2E24 !important;
+  border-color: #456653 !important;
+  box-shadow: 3px 3px 0px #000000 !important;
+}
+
+html.nightops .btn-tactile-coral,
+html.dark .btn-tactile-coral {
+  border-color: #381A14 !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+}
+
+html.nightops .btn-tactile-coral:hover,
+html.dark .btn-tactile-coral:hover {
+  box-shadow: 3px 3px 0px #000000 !important;
+}
+
+html.nightops .btn-tactile-lime,
+html.dark .btn-tactile-lime {
+  color: #0B130E !important;
+  border-color: #2A3C16 !important;
+  box-shadow: 2px 2px 0px #000000 !important;
+}
+
+/* Shadows with #17271F converted to crisp stealth shadows */
+html.nightops [class*="shadow-\["][class*="\#17271F\]"],
+html.dark [class*="shadow-\["][class*="\#17271F\]"] {
+  box-shadow: 3px 3px 0px #040806 !important;
+}
+
+html.nightops [class*="hover\:shadow-\["][class*="\#17271F\]"]:hover,
+html.dark [class*="hover\:shadow-\["][class*="\#17271F\]"]:hover {
+  box-shadow: 4px 4px 0px #000000 !important;
+}
+
+/* Inputs, Textareas, Selects */
+html.nightops input:not([type="checkbox"]):not([type="radio"]),
+html.nightops textarea,
+html.nightops select,
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark textarea,
+html.dark select {
+  background-color: #0F1A14 !important;
+  color: #EDF7F1 !important;
+  border-color: #283D31 !important;
+}
+
+html.nightops input::placeholder,
+html.nightops textarea::placeholder,
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #5D786B !important;
+}
+
+/* Night Ops Scrollbars */
+html.nightops ::-webkit-scrollbar-track,
+html.dark ::-webkit-scrollbar-track {
+  background: #0B130E !important;
+}
+
+html.nightops ::-webkit-scrollbar-thumb,
+html.dark ::-webkit-scrollbar-thumb {
+  background: #23362B !important;
+}
+
+html.nightops ::-webkit-scrollbar-thumb:hover,
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: #385243 !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

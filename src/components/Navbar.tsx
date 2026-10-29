@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ViewTab, BackendStatus } from '../types';
 import { ScoutMascot } from './ScoutMascot';
+import { ScoutSignalControl } from './ScoutSignalControl';
 import { 
   Compass, 
   Users, 
@@ -176,6 +177,8 @@ export const Navbar: React.FC<NavbarProps> = ({
           >
             <RotateCcw className="w-3 h-3" /> Reset sample data
           </button>
+          <div className="h-3 w-[1px] bg-[#2A4034] hidden sm:block" aria-hidden="true" />
+          <ScoutSignalControl variant="banner" />
         </div>
       </div>
 
@@ -285,8 +288,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             })}
           </nav>
 
-          {/* Primary Action Buttons (Guide & Find My Next Customer) */}
+          {/* Primary Action Buttons (Signal Toggle, Guide & Find My Next Customer) */}
           <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 z-10">
+            {/* Dark / Light Mode Toggle */}
+            <ScoutSignalControl />
+
             {/* Scout Guide Button */}
             <button
               onClick={onOpenGuide}
@@ -340,6 +346,15 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               Open Tour
             </button>
+          </div>
+
+          {/* Mobile Dark/Light Mode Atmosphere Toggle */}
+          <div className="p-3 bg-white border border-[#17271F] rounded-xl flex items-center justify-between">
+            <div>
+              <div className="text-xs font-bold text-[#17271F]">Workspace Atmosphere</div>
+              <div className="text-[11px] text-[#4A5E52]">Toggle Daybreak or Night Ops</div>
+            </div>
+            <ScoutSignalControl showLabel={true} />
           </div>
 
           {navGroups.map(group => (
