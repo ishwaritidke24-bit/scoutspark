@@ -8,6 +8,7 @@ class ResearchRequest(CamelModel):
     user_instructions: Optional[str] = Field(None, description="Optional search instructions or focus keywords")
     max_prospects: int = Field(5, ge=1, le=10, description="Maximum prospect candidates to research (1-10)")
     mode: Optional[str] = Field(None, description="'live' for actual public search or 'demo'")
+    icp: Optional[Dict[str, Any]] = Field(None, description="Optional active target ICP parameters")
 
 
 class ResearchConfigResponse(CamelModel):

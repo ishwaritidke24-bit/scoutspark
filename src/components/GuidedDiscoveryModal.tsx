@@ -511,9 +511,10 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
     }
 
     // 1. Persist the Target Customer Profile (ICP)
+    let updatedICP: IdealCustomerProfile | undefined = undefined;
     try {
       if (icp) {
-        const updatedICP: IdealCustomerProfile = {
+        updatedICP = {
           ...icp,
           companyDescription: desc,
           targetIndustries: industry.trim() 
@@ -547,6 +548,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
         maxProspects,
         mode: runMode,
         userInstructions: enhancedInstructions,
+        icp: updatedICP,
       });
 
       const finalElapsed = searchStartTimeRef.current

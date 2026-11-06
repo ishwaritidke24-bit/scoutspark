@@ -276,6 +276,7 @@ export const apiClient = {
     maxProspects?: number;
     mode?: 'live' | 'demo';
     userInstructions?: string;
+    icp?: Partial<IdealCustomerProfile>;
   }): Promise<{
     runId: string;
     status: 'completed' | 'empty' | 'error';

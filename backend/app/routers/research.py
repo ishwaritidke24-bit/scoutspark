@@ -98,6 +98,14 @@ def run_prospect_research(
             "primary_pain_point": icp_record.primary_pain_point or "",
         }
 
+    # If active ICP was provided in the research request, merge & override
+    if request_in.icp:
+        for key, val in request_in.icp.items():
+            if val is not None:
+                # Support both camelCase and snake_case keys
+                snake_k = "".join(["_" + c.lower() if c.isupper() else c for c in key]).lstrip("_")
+                icp_dict[snake_k] = val
+
     import uuid
     run_id = f"run-{uuid.uuid4().hex[:8]}"
 

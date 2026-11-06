@@ -411,18 +411,24 @@ class ResearchGraphRunner:
                 )
                 continue
 
-            # 5. Check industry alignment
-            unrelated_keywords = [
+            # 5. Check industry alignment against target ICP & basic irrelevant local services
+            raw_unrelated = [
                 "bakery", "pet grooming", "hair salon", "plumbing", "coffee shop", "dry cleaner",
                 "hospital", "medical clinic", "dental", "retail apparel", "fast food",
                 "recruitment agency", "staffing firm", "consulting agency", "software outsourcing",
+            ]
+            # If the user explicitly targets any of these industries (e.g. healthcare, retail), do not exclude them
+            user_target_text = " ".join(target_industries).lower()
+            unrelated_keywords = [
+                kw for kw in raw_unrelated 
+                if kw not in user_target_text
             ]
             if any(unr in ind_lower or unr in summary_lower for unr in unrelated_keywords):
                 rejected.append(
                     CandidateRejection(
                         company_name=c.company_name,
                         domain=norm_domain,
-                        reason=f"Unrelated business model: '{c.industry}' does not fit B2B software ICP.",
+                        reason=f"Unrelated business model: '{c.industry}' does not fit target ICP criteria.",
                         relevance_decision="rejected",
                     )
                 )
@@ -771,12 +777,24 @@ class ResearchGraphRunner:
                 ]
 
                 target_buyer = {
-                    "name": c.target_buyer_name or "Unknown Decision Maker",
-                    "title": c.target_buyer_title or "Sales Leader / Founder (Unverified)",
-                    "emailPlaceholder": f"team@{c.domain}",
-                    "linkedinNote": f"{c.target_buyer_name or 'Decision Maker'} | {c.company_name}",
-                    "roleType": c.target_buyer_role or ("Sales / Growth Buyer" if c.target_buyer_title else "Unassigned / Needs Research"),
+                    "name": c.target_buyer_name or "Not verified",
+                    "title": c.target_buyer_title or "Not verified",
+                    "emailPlaceholder": "Not verified",
+                    "linkedinNote": f"{c.target_buyer_name or 'Team'} | {c.company_name}",
+                    "roleType": c.target_buyer_role or ("Target Buyer" if c.target_buyer_title else "Unassigned / Needs Research"),
                 }
+
+                emp_count = (c.employee_count or "").strip()
+                if not emp_count or emp_count.lower() in ["unknown", "n/a", "none"]:
+                    emp_count = "Not verified"
+
+                stage_val = (c.stage or "").strip()
+                if not stage_val or stage_val.lower() in ["unknown", "n/a", "none"]:
+                    stage_val = "Not verified"
+
+                hq_val = (c.headquarters or "").strip()
+                if not hq_val or hq_val.lower() in ["unknown", "n/a", "none"]:
+                    hq_val = "Not verified"
 
                 db_prospect = ProspectModel(
                     id=prospect_id,
@@ -784,9 +802,9 @@ class ResearchGraphRunner:
                     domain=c.domain,
                     industry=c.industry,
                     sub_industry=c.sub_industry,
-                    headquarters=c.headquarters,
-                    employee_count=c.employee_count,
-                    stage=c.stage,
+                    headquarters=hq_val,
+                    employee_count=emp_count,
+                    stage=stage_val,
                     fit_score=item["fit_score"],
                     fit_level=item["fit_level"],
                     fit_reasons=item["fit_reasons"],

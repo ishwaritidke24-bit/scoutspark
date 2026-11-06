@@ -386,43 +386,77 @@ class ProspectService {
     maxProspects?: number;
     mode?: 'live' | 'demo';
     userInstructions?: string;
+    icp?: Partial<IdealCustomerProfile>;
   }) {
-    if (this.isDemoMode) {
-      return {
-        runId: 'run-demo-sim',
-        status: 'completed' as const,
-        mode: 'demo' as const,
-        queriesExecuted: ['Local simulated prospect scan'],
-        totalSourcesFound: 2,
-        uniqueCandidatesConsidered: 1,
-        candidatesFound: 1,
-        candidatesAccepted: 1,
-        candidatesRejected: 0,
-        candidatesSaved: 1,
-        savedProspectIds: ['prospect-01'],
-        rejections: [],
-        evidenceValidations: [
-          {
-            sourceId: 'src-demo-01',
-            candidateName: 'KiteMetrics',
-            claim: 'Kafka buffer saturation noted in postmortem',
-            status: 'verified' as const,
-            reason: 'Grounded in public engineering archive snippet',
-          }
-        ],
-        prospects: this.getLocalProspects().slice(0, 1),
-        sources: [],
-        stepOutcomes: [
-          { step: 'validate_input', status: 'success' as const, summary: 'Input verified against ICP' },
-          { step: 'search_sources', status: 'success' as const, summary: 'Simulated source scan complete' },
-          { step: 'relevance_gate', status: 'success' as const, summary: 'Relevance gate passed 1 account' },
-          { step: 'ground_and_validate', status: 'success' as const, summary: 'Evidence grounded in sources' },
-          { step: 'qualify_and_score', status: 'success' as const, summary: 'ICP score calculated' },
-        ],
-        warnings: [],
-      };
+    // If live mode is requested (or default), ALWAYS execute real research via backend API.
+    // Never silently fall back to dummy/fake data on error.
+    const isExplicitDemo = payload.mode === 'demo';
+
+    if (!isExplicitDemo) {
+      try {
+        const result = await apiClient.runResearch({
+          ...payload,
+          mode: 'live',
+        });
+        // Cache the newly returned live prospects in local storage for immediate UI visibility
+        if (result.prospects && result.prospects.length > 0) {
+          const current = this.getLocalProspects();
+          const existingIds = new Set(current.map(p => p.id));
+          const fresh = result.prospects.filter(p => !existingIds.has(p.id));
+          this.saveLocalProspects([...fresh, ...current]);
+        }
+        return result;
+      } catch (err: any) {
+        // Honest error handling: DO NOT mask failure with fake search results!
+        console.error('Live research execution error:', err);
+        throw err;
+      }
     }
-    return await apiClient.runResearch(payload);
+
+    // Explicit educational demo walkthrough mode only
+    return {
+      runId: 'demo-walkthrough-sim',
+      status: 'completed' as const,
+      mode: 'demo' as const,
+      queriesExecuted: ['[Demo Walkthrough] Sample query scan'],
+      totalSourcesFound: 2,
+      uniqueCandidatesConsidered: 1,
+      candidatesFound: 1,
+      candidatesAccepted: 1,
+      candidatesRejected: 0,
+      candidatesSaved: 1,
+      savedProspectIds: ['prospect-01'],
+      rejections: [],
+      evidenceValidations: [
+        {
+          sourceId: 'src-demo-01',
+          candidateName: 'KiteMetrics (Sample)',
+          claim: 'Kafka buffer saturation noted in postmortem',
+          status: 'verified' as const,
+          reason: 'Sample educational walkthrough fixture',
+        }
+      ],
+      prospects: this.getLocalProspects().slice(0, 1),
+      sources: [
+        {
+          sourceId: 'src-demo-1',
+          url: 'https://demo.scoutspark.internal/signals/kitemetrics-postmortem',
+          title: 'KiteMetrics Engineering Retrospective (Demo Sample)',
+          snippet: 'Educational sample snippet demonstrating verified clue grounding.',
+          provider: 'demo_archive',
+          publishedDate: '2026-09-14',
+          retrievedAt: new Date().toISOString(),
+        }
+      ],
+      stepOutcomes: [
+        { step: 'validate_input', status: 'success' as const, summary: 'Demo criteria verified against ICP' },
+        { step: 'search_sources', status: 'success' as const, summary: 'Demo source scan complete' },
+        { step: 'relevance_gate', status: 'success' as const, summary: 'Demo relevance gate passed' },
+        { step: 'ground_and_validate', status: 'success' as const, summary: 'Demo evidence verified' },
+        { step: 'qualify_and_score', status: 'success' as const, summary: 'Demo ICP score calculated' },
+      ],
+      warnings: ['This is an educational walkthrough demonstrating the discovery workflow.'],
+    };
   }
 
   public resetDemoData(): void {

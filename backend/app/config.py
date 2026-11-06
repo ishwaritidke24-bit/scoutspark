@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     # Stage 3: Live Research Provider Configurations
     gemini_api_key: Optional[str] = None
-    gemini_model: str = "gemini-2.5-flash"
+    gemini_model: str = "gemini-3.1-flash-lite"
     tavily_api_key: Optional[str] = None
     scoutspark_research_mode: str = "demo"
 

@@ -149,49 +149,70 @@ class GeminiLLMProvider(BaseLLMProvider):
         from google import genai
         return genai.Client(api_key=self.api_key)
 
+    def _generate_with_retry(self, client, prompt: str, temperature: float = 0.2):
+        from google.genai import types
+        candidate_models = [self.model]
+        for fallback in ["gemini-3.1-flash-lite", "gemini-2.5-flash-lite", "gemini-flash-latest"]:
+            if fallback not in candidate_models:
+                candidate_models.append(fallback)
+
+        last_err = None
+        for mod in candidate_models:
+            try:
+                response = client.models.generate_content(
+                    model=mod,
+                    contents=prompt,
+                    config=types.GenerateContentConfig(
+                        response_mime_type="application/json",
+                        temperature=temperature,
+                    ),
+                )
+                return response
+            except Exception as e:
+                last_err = e
+                err_str = str(e).lower()
+                if "404" in err_str or "not_found" in err_str or "503" in err_str or "unavailable" in err_str:
+                    logger.warning(f"Gemini model {mod} encountered {e}; trying next model...")
+                    continue
+                raise e
+        raise last_err or RuntimeError("All candidate Gemini models failed.")
+
     def plan_queries(self, icp: Dict[str, Any], user_instructions: Optional[str] = None) -> List[str]:
         client = self._get_client()
-        from google.genai import types
 
         startup_name = icp.get("company_name", "Our Startup")
-        product_name = icp.get("product_name", "B2B Solution")
+        product_name = icp.get("product_name", "Our Product")
         value_prop = icp.get("value_proposition", "")
-        industries = ", ".join(icp.get("target_industries", [])[:3])
+        company_desc = icp.get("company_description", "")
+        industries = ", ".join(icp.get("target_industries", [])[:4]) or "B2B Technology"
         pain_point = icp.get("primary_pain_point", "")
-        roles = ", ".join(icp.get("target_roles", [])[:2])
+        roles = ", ".join(icp.get("target_roles", [])[:3]) or "Decision Maker"
+        geographies = ", ".join(icp.get("target_geographies", [])[:3]) or "Global"
         exclusions = ", ".join(icp.get("exclusions", [])[:3])
 
         prompt = f"""You are Scout, an analytical B2B prospect research engine.
-The startup seeking customers is: '{startup_name}' (Product: '{product_name}').
-Product Purpose & Value Proposition: {value_prop}
-Problem Solved: {pain_point}
+Your mission is to find REAL prospective customer companies on the public web for this startup:
+- Startup Seeking Customers: '{startup_name}' (Product: '{product_name}')
+- Value Proposition: {value_prop or company_desc}
+- Problem Solved / Primary Pain Point: {pain_point}
 
-TARGET PROSPECT CRITERIA (Businesses {startup_name} wants to acquire as prospective customers):
-Target Industries: {industries}
-Target Company Size: Small to mid-size B2B software teams (preferred ~10–200 employees)
-Target Buyer Roles: {roles}
-Target Geographies: India, United States, United Kingdom
-Negative Exclusions: {exclusions}
-Additional Search Focus / Narrowing Instructions: {user_instructions or "None"}
+TARGET PROSPECT CRITERIA (Businesses {startup_name} wants to discover as potential customers):
+- Target Industries: {industries}
+- Target Buyer Personas / Roles: {roles}
+- Target Geographies: {geographies}
+- Negative Exclusions: {exclusions or "None"}
+- Additional Search Focus / Narrowing Instructions: {user_instructions or "None"}
 
-CRITICAL RULES:
-1. TARGET CUSTOMER ORIENTATION: Queries must seek ACTUAL PROSPECT BUSINESSES that would buy or use a B2B sales research and outreach tool.
-2. DO NOT query for '{startup_name}' or generic sales advice or tutorials.
-3. DO NOT search for engineering incident postmortems, infrastructure outages, or medical officer vacancies.
-4. Focus queries on credible buying and growth signals: e.g. B2B software startups hiring Sales Development Representatives (SDR/BDR), Account Executives, or sales leaders; B2B SaaS product launches; or commercial expansion announcements in target geographies.
-5. User instructions must only NARROW the search within the target ICP; they must NOT replace the ICP.
-6. Formulate 2 to 3 concise, specific search queries seeking actual companies.
-7. Return output as a valid JSON array of strings, e.g.: ["query 1", "query 2"]
+CRITICAL RULES FOR SEARCH QUERY GENERATION:
+1. PROSPECT CUSTOMER ORIENTATION: Queries must search for ACTUAL THIRD-PARTY COMPANIES that would buy or use a solution for: {pain_point or value_prop}.
+2. DO NOT query for '{startup_name}' or generic sales tutorials. You are discovering external prospective businesses.
+3. Formulate high-intent search queries that uncover real companies exhibiting buying signals, expansion, hiring in target roles ({roles}), or public milestones in target industries ({industries}).
+4. If narrowing instructions are provided, reflect them directly in the search queries.
+5. Formulate 2 to 3 concise, specific search queries seeking actual companies.
+6. Return output strictly as a valid JSON array of strings, e.g.: ["query 1", "query 2"]
 """
         try:
-            response = client.models.generate_content(
-                model=self.model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    temperature=0.2,
-                ),
-            )
+            response = self._generate_with_retry(client, prompt, temperature=0.2)
             data = json.loads(response.text)
             if isinstance(data, list) and len(data) > 0:
                 return [str(q).strip() for q in data[:3] if str(q).strip()]
@@ -200,9 +221,10 @@ CRITICAL RULES:
 
         # Deterministic fallback query based on ICP
         first_ind = icp.get("target_industries", ["B2B SaaS"])[0]
+        first_role = icp.get("target_roles", ["Leadership", "Founder"])[0]
         return [
-            f"{first_ind} startup hiring sales development representative",
-            f"{first_ind} B2B SaaS announcement expansion new market",
+            f"{first_ind} startup hiring {first_role}",
+            f"{first_ind} company expansion announcement",
         ]
 
     def extract_candidates(
@@ -212,7 +234,6 @@ CRITICAL RULES:
             return []
 
         client = self._get_client()
-        from google.genai import types
 
         sources_payload = [
             {
@@ -225,45 +246,53 @@ CRITICAL RULES:
             for s in sources
         ]
 
-        target_industries = icp.get("target_industries", [])
+        startup_name = icp.get("company_name", "Our Startup")
+        product_name = icp.get("product_name", "Our Solution")
         value_prop = icp.get("value_proposition", "")
+        company_desc = icp.get("company_description", "")
+        target_industries = icp.get("target_industries", [])
+        target_roles = icp.get("target_roles", [])
+        exclusions = icp.get("exclusions", [])
 
         prompt = f"""You are Scout, an evidence-grounded B2B intelligence analyst.
-Analyze the following web search snippets and extract candidate companies that could be potential B2B customers for:
-Product: ScoutSpark (B2B prospect intelligence and human-in-the-loop sales outreach)
-Product Value Proposition: {value_prop}
-Target Industries: {', '.join(target_industries)}
-Preferred Company Size: ~10–200 employees (small B2B software teams)
-Target Buyer Personas: Founder/CEO, Head/VP of Sales, Sales Development/BDR Manager, Head of Growth, RevOps leader
-Exclusions: Consumer-only apps, agencies, IT consultancies, recruitment/staffing agencies, giant multi-thousand-employee corporations.
+Analyze the following web search snippets and extract candidate companies that could be genuine potential customers for:
+- Startup: {startup_name}
+- Product: {product_name}
+- Value Proposition: {value_prop or company_desc}
+- Target Industries: {', '.join(target_industries) or 'Technology & Software'}
+- Target Buyer Personas: {', '.join(target_roles) or 'Founders, Executives, Team Leads'}
+- Exclusions: {', '.join(exclusions) or 'Consumer-only apps, agencies, IT consultancies'}
 
 Sources retrieved from public web:
 {json.dumps(sources_payload, indent=2)}
 
 STRICT GROUNDING & EVIDENCE RULES:
-1. Every candidate MUST be an actual B2B software or technology company mentioned in the search sources.
-2. REJECT agencies, consultancies, consumer apps, recruitment agencies, and giant enterprises. Do NOT extract them.
-3. 'observed_facts': MUST cite ONLY facts explicitly stated in the snippets. You MUST provide the exact source_id and source_url from the sources above. DO NOT hallucinate facts, metrics, or citations.
-4. 'hypotheses': Separate hypotheses (speculative assumptions about why this company might fit) from observed facts. Give clear rationale and confidence ('high', 'medium', 'speculative').
-5. 'target_buyer_name' and 'target_buyer_title': ONLY extract if a specific founder, CEO, or sales/commercial leader is explicitly named in the snippet. DO NOT use the author of an engineering postmortem or blog article as the buyer. If the buyer is not explicitly named in the source, set both to null.
-6. 'employee_count': If the snippet does not explicitly mention headcount, write "Unknown". Never invent headcount.
-7. 'missing_information': Explicitly list missing facts (e.g. "Specific sales leader or founder unverified in snippet", "Headcount unknown").
-8. Extract at most 3 high-quality candidates. If no company fits or snippets are irrelevant, return an empty array []. DO NOT pad results.
+1. Every candidate MUST be an actual company explicitly mentioned in the search sources above.
+2. DO NOT extract {startup_name}. Extract prospective client companies.
+3. REJECT companies matching the exclusions ({', '.join(exclusions)}). Do NOT extract them.
+4. 'observed_facts': MUST cite ONLY facts explicitly stated in the snippets. You MUST provide the exact source_id and source_url from the sources above. DO NOT hallucinate facts, metrics, or citations.
+5. 'hypotheses': Separate hypotheses (speculative assumptions about why this company might need {product_name}) from observed facts. Give clear rationale and confidence ('high', 'medium', 'speculative').
+6. 'target_buyer_name' and 'target_buyer_title': ONLY extract if a specific founder, executive, or leader matching the target roles is explicitly named in the snippet. DO NOT use the author of an engineering postmortem or blog article as the buyer unless explicitly identified as a commercial/technical decision-maker. If the buyer is not explicitly named in the source, set both to null.
+7. 'employee_count': If the snippet does not explicitly mention headcount, write "Unknown". Never invent headcount.
+8. 'headquarters': If not mentioned in the snippet, write "Unknown". Never invent locations.
+9. 'stage': If not mentioned in the snippet, write "Unknown". Never invent funding stages.
+10. 'missing_information': Explicitly list missing facts (e.g. "Specific decision maker unverified in snippet", "Headcount unknown").
+11. Extract at most 3 high-quality candidates. If no company fits or snippets are irrelevant, return an empty array []. DO NOT pad results.
 
 Return a JSON array of objects adhering to this schema:
 [
   {{
     "company_name": "Company Name",
     "domain": "company.domain (or derived from url)",
-    "industry": "Industry category (e.g. B2B SaaS, Developer Tools, DevOps)",
+    "industry": "Industry category",
     "sub_industry": "Specific niche",
-    "headquarters": "City, Country or Remote",
+    "headquarters": "City, Country or Unknown",
     "employee_count": "e.g. 40 employees or Unknown",
     "stage": "e.g. Seed, Series A, or Unknown",
     "summary": "1-2 sentence executive summary grounded in the sources",
-    "target_buyer_name": "Name if explicitly named sales/founder in source, else null",
-    "target_buyer_title": "Title if explicitly named sales/founder in source, else null",
-    "target_buyer_role": "Role description (e.g. Sales Leader or Unassigned)",
+    "target_buyer_name": "Name if explicitly named in source, else null",
+    "target_buyer_title": "Title if explicitly named in source, else null",
+    "target_buyer_role": "Role description (e.g. Target Buyer or Unassigned)",
     "observed_facts": [
       {{
         "fact": "Factual claim directly supported by snippet",
@@ -287,14 +316,7 @@ Return a JSON array of objects adhering to this schema:
 ]
 """
         try:
-            response = client.models.generate_content(
-                model=self.model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    temperature=0.1,
-                ),
-            )
+            response = self._generate_with_retry(client, prompt, temperature=0.1)
             raw_candidates = json.loads(response.text)
             if not isinstance(raw_candidates, list):
                 return []
@@ -319,39 +341,34 @@ Return a JSON array of objects adhering to this schema:
         icp: Dict[str, Any],
     ) -> Dict[str, Any]:
         client = self._get_client()
-        from google.genai import types
 
         facts_text = "\n".join([f"- {f.fact} (Source: {f.source_url})" for f in verified_facts])
-        value_prop = icp.get("value_proposition", "research potential customers with verified facts and draft personal outreach")
+        startup_name = icp.get("company_name", "Our Team")
+        product_name = icp.get("product_name", "our solution")
+        value_prop = icp.get("value_proposition", "solve key operational bottlenecks with evidence-grounded intelligence")
         buyer_name = candidate.target_buyer_name or "there"
-        buyer_title = candidate.target_buyer_title or "Founder / Sales Leader"
+        buyer_title = candidate.target_buyer_title or "Leadership Team"
 
-        prompt = f"""Write an honest, personalized cold outreach draft to:
+        prompt = f"""Write an honest, personalized cold outreach draft from {startup_name} to:
 Recipient: {buyer_name} ({buyer_title} at {candidate.company_name})
+Our Product: {product_name}
 Startup Value Proposition: {value_prop}
 
-Grounded Public Facts (ONLY cite these verified facts):
+Grounded Public Facts about {candidate.company_name} (ONLY cite these verified facts):
 {facts_text}
 
 HONEST OUTREACH RULES:
-1. Ground the opening hook strictly in one of the verified facts above (e.g. recent product expansion, sales team hiring, or public milestone).
+1. Ground the opening hook strictly in one of the verified facts above (e.g. recent product expansion, hiring milestone, or public announcement).
 2. Authentic, respectful founder-to-founder or peer tone. Zero aggressive sales hype, no fake scarcity, no deception.
-3. DO NOT invent an unproven business problem. DO NOT claim that they need prospecting software.
-4. DO NOT make unsupported percentage or numerical claims (e.g. do not say "cut research time by 80%" or "triple your reply rate").
-5. Explain simply and honestly how ScoutSpark helps B2B software teams find prospective customers, review source-backed information about them, and prepare personal outreach messages in less time spent on manual research.
+3. DO NOT invent an unproven business problem.
+4. DO NOT make unsupported percentage or numerical claims (e.g. do not say "cut time by 80%" or "triple your reply rate").
+5. Explain simply and honestly how {startup_name}'s {product_name} helps: {value_prop}.
 6. Keep the email concise: between 65 and 110 words.
-7. Conclude with a frictionless, zero-pressure question (e.g. asking if they would like to see a sample 1-page account research brief).
+7. Conclude with a frictionless, zero-pressure question.
 8. Output format: JSON object with keys "subject", "body", "hook", "value_proposition", "suggested_cta".
 """
         try:
-            response = client.models.generate_content(
-                model=self.model,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    response_mime_type="application/json",
-                    temperature=0.2,
-                ),
-            )
+            response = self._generate_with_retry(client, prompt, temperature=0.2)
             data = json.loads(response.text)
             return {
                 "subject": data.get("subject", f"Connecting regarding {candidate.company_name}"),
@@ -364,7 +381,7 @@ HONEST OUTREACH RULES:
             logger.warning(f"Gemini draft generation failed, using structured template: {e}")
             return {
                 "subject": f"Connecting with {candidate.company_name}",
-                "body": f"Hi {buyer_name},\n\nNoticed {candidate.company_name}'s recent work.\n\nWe built ScoutSpark to help B2B software teams research prospective customers with verified facts and draft personalized outreach.\n\nWould you be open to a brief 10-minute conversation to see a sample brief?\n\nBest,\nFounding Team, ScoutSpark",
+                "body": f"Hi {buyer_name},\n\nNoticed {candidate.company_name}'s recent work.\n\nWe built {product_name} at {startup_name} to help teams: {value_prop}.\n\nWould you be open to a brief 10-minute conversation?\n\nBest,\nFounding Team, {startup_name}",
                 "hook": f"Recent activity at {candidate.company_name}",
                 "value_proposition": value_prop,
                 "suggested_cta": "10-minute brief chat",
