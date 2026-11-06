@@ -14,7 +14,8 @@ import {
   ChevronRight,
   TrendingUp,
   Building2,
-  Check
+  Check,
+  Users
 } from 'lucide-react';
 
 interface OverviewViewProps {
@@ -117,6 +118,46 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
     },
   ];
 
+  // Subtle floating capability elements for Scout (fills space between text and mascot)
+  const scoutCapabilities = [
+    {
+      id: 'leads',
+      label: 'Find Leads',
+      subtext: 'Live web discovery',
+      icon: <Users className="w-4 h-4 text-[#17271F]" />,
+      bg: 'bg-[#D8FF65]',
+      border: 'border-[#17271F]',
+      offset: 'lg:-translate-x-2 xl:-translate-x-3',
+      floatDelay: 0,
+      onClick: () => onOpenDiscovery(),
+      tooltip: 'Search live public web sources for active buyers',
+    },
+    {
+      id: 'fit',
+      label: 'Check Fit',
+      subtext: '0–100 ICP calibration',
+      icon: <Target className="w-4 h-4 text-[#17271F]" />,
+      bg: 'bg-[#9DE3D0]',
+      border: 'border-[#17271F]',
+      offset: 'lg:translate-x-2 xl:translate-x-3',
+      floatDelay: 1.2,
+      onClick: () => onNavigateToTab('settings'),
+      tooltip: 'Calibrate your ICP and criteria matching',
+    },
+    {
+      id: 'discover',
+      label: 'Discover Customers',
+      subtext: 'Verified buying signals',
+      icon: <Sparkles className="w-4 h-4 text-[#FF7054]" />,
+      bg: 'bg-white',
+      border: 'border-[#17271F]',
+      offset: 'lg:-translate-x-1 xl:-translate-x-1',
+      floatDelay: 2.4,
+      onClick: () => onOpenDiscovery(),
+      tooltip: 'Find high-intent prospects who need what you build',
+    },
+  ];
+
   return (
     <div className="space-y-12 pb-20">
       {/* =========================================================================
@@ -124,12 +165,12 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
          ========================================================================= */}
       <section 
         data-scout-target="overview-hero"
-        className="card-tactile p-6 sm:p-9 lg:p-11 rounded-3xl relative overflow-hidden bg-[#FAF7F0] border-2 border-[#17271F] shadow-[5px_5px_0px_#17271F]"
+        className="card-tactile p-6 sm:p-9 lg:p-10 rounded-3xl relative overflow-hidden bg-[#FAF7F0] border-2 border-[#17271F] shadow-[5px_5px_0px_#17271F]"
       >
-        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-8 lg:gap-10">
+        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8 xl:gap-10">
           
           {/* Left Column: Balanced Headline, Single Supporting Sentence, Primary CTA */}
-          <div className="max-w-2xl space-y-4">
+          <div className="flex-1 max-w-xl xl:max-w-2xl space-y-4">
             {/* Audience Eyebrow Tag */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17271F] text-[#D8FF65] text-xs font-mono font-bold tracking-wider">
               <Sparkles className="w-3.5 h-3.5 text-[#D8FF65]" />
@@ -137,7 +178,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
             </div>
 
             {/* Exact Required Hero Headline */}
-            <h1 className="text-3xl sm:text-4xl lg:text-[42px] font-editorial font-bold text-[#17271F] tracking-tight leading-[1.2]">
+            <h1 className="text-3xl sm:text-4xl lg:text-[40px] xl:text-[42px] font-editorial font-bold text-[#17271F] tracking-tight leading-[1.2]">
               Built something great? Let’s find the people who need it.
             </h1>
 
@@ -184,6 +225,67 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 <CheckCircle2 className="w-4 h-4 text-[#FF7054] shrink-0" />
                 <span>100% human-approved outreach</span>
               </div>
+            </div>
+
+            {/* Mobile / Tablet Scout Capability Chips */}
+            <div className="pt-2 flex lg:hidden flex-wrap items-center gap-2">
+              <span className="text-[10px] font-mono text-[#4A5E52] uppercase font-bold tracking-wider mr-1">
+                Scout does:
+              </span>
+              {scoutCapabilities.map(cap => (
+                <button
+                  key={cap.id}
+                  onClick={cap.onClick}
+                  title={cap.tooltip}
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border-1.5 ${cap.border} ${cap.bg} text-xs font-bold text-[#17271F] shadow-[1.5px_1.5px_0px_#17271F] active:translate-y-0.5 cursor-pointer`}
+                >
+                  <span className="shrink-0">{cap.icon}</span>
+                  <span>{cap.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Middle Column: Floating Scout Capability Cards (bridges the space between text and mascot) */}
+          <div className="hidden lg:flex flex-col justify-center items-center gap-2.5 xl:gap-3 shrink-0 px-1 py-1 select-none">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/90 border border-[#17271F]/30 text-[10px] font-mono font-bold uppercase tracking-wider text-[#17271F] shadow-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#17271F] animate-pulse" />
+              <span>What Scout Does</span>
+            </div>
+
+            <div className="flex flex-col gap-2.5 xl:gap-3">
+              {scoutCapabilities.map((cap, idx) => (
+                <motion.button
+                  key={cap.id}
+                  onClick={cap.onClick}
+                  title={cap.tooltip}
+                  animate={shouldReduceMotion ? {} : { 
+                    y: [0, -5, 0],
+                  }}
+                  transition={{
+                    duration: 3.6 + idx * 0.5,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: cap.floatDelay
+                  }}
+                  whileHover={shouldReduceMotion ? {} : { scale: 1.03, y: -2 }}
+                  whileTap={shouldReduceMotion ? {} : { scale: 0.98 }}
+                  className={`group relative flex items-center gap-2.5 px-3.5 py-2 rounded-2xl border-2 ${cap.border} ${cap.bg} shadow-[3px_3px_0px_#17271F] hover:shadow-[4px_4px_0px_#17271F] transition-all cursor-pointer text-left w-[190px] xl:w-[210px] ${cap.offset}`}
+                >
+                  <div className="w-7 h-7 rounded-xl bg-white/80 border border-[#17271F]/20 flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                    {cap.icon}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[12.5px] xl:text-[13px] font-bold text-[#17271F] tracking-tight leading-tight whitespace-nowrap">
+                      {cap.label}
+                    </div>
+                    <div className="text-[9.5px] xl:text-[10px] font-mono text-[#4A5E52] uppercase font-semibold leading-tight whitespace-nowrap">
+                      {cap.subtext}
+                    </div>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#17271F] opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all shrink-0" />
+                </motion.button>
+              ))}
             </div>
           </div>
 

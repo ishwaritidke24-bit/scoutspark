@@ -215,7 +215,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           onClick={() => handleTabClick(item.id)}
                           onMouseEnter={() => setHoveredTab(item.id)}
                           onMouseLeave={() => setHoveredTab(null)}
-                          className={`flex items-center gap-1.5 px-2 py-1.5 2xl:px-3 2xl:py-2 rounded-xl text-xs 2xl:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap ${
+                          className={`flex items-center gap-1.5 px-2.5 py-1.5 2xl:px-3.5 2xl:py-2 rounded-xl text-[13.5px] 2xl:text-[14.5px] font-semibold transition-all cursor-pointer whitespace-nowrap ${
                             isActive
                               ? 'bg-[#17271F] text-[#F7F2E8] shadow-[2px_2px_0px_#FF7054]'
                               : 'text-[#17271F] hover:bg-white hover:text-[#17271F]'
@@ -260,7 +260,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={item.id}
                   onClick={() => handleTabClick(item.id)}
                   title={item.shortDesc}
-                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-[13px] font-semibold transition-all ${
                     isActive
                       ? 'bg-[#17271F] text-[#F7F2E8] shadow-[2px_2px_0px_#FF7054]'
                       : 'text-[#17271F] hover:bg-white'
@@ -269,7 +269,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {item.icon}
                   <span>{item.label}</span>
                   {item.badge && (
-                    <span className={`text-[10px] font-mono px-1 py-0.2 rounded-full font-bold ${
+                    <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
                       isActive ? 'bg-[#D8FF65] text-[#17271F]' : 'bg-[#E2D9C8] text-[#17271F]'
                     }`}>
                       {item.badge}
@@ -383,7 +383,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     <button
                       key={item.id}
                       onClick={() => handleTabClick(item.id)}
-                      className={`flex items-start justify-between p-2.5 rounded-xl text-left transition-colors border ${
+                      className={`flex items-start justify-between p-3 rounded-xl text-left transition-colors border ${
                         isActive
                           ? 'bg-[#17271F] text-[#F7F2E8] border-[#17271F]'
                           : 'bg-white text-[#17271F] border-[#E2D9C8] hover:border-[#17271F]'
@@ -393,16 +393,16 @@ export const Navbar: React.FC<NavbarProps> = ({
                         <div className="mt-0.5">{item.icon}</div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-bold">{item.label}</span>
+                            <span className="text-sm font-bold">{item.label}</span>
                             {item.badge && (
-                              <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
+                              <span className={`text-[11px] font-mono px-1.5 py-0.2 rounded-full font-bold ${
                                 isActive ? 'bg-[#D8FF65] text-[#17271F]' : 'bg-[#E2D9C8] text-[#17271F]'
                               }`}>
                                 {item.badge}
                               </span>
                             )}
                           </div>
-                          <p className={`text-[11px] mt-0.5 ${isActive ? 'text-[#F7F2E8]/80' : 'text-[#4A5E52]'}`}>
+                          <p className={`text-xs mt-0.5 ${isActive ? 'text-[#F7F2E8]/80' : 'text-[#4A5E52]'}`}>
                             {item.shortDesc}
                           </p>
                         </div>
