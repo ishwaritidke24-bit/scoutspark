@@ -22,7 +22,6 @@ import { PipelineView } from './views/PipelineView';
 
 // Lazily load secondary views and modals to minimize initial JS bundle & accelerate page load
 const CampaignStudioView = lazy(() => import('./views/CampaignStudioView').then(m => ({ default: m.CampaignStudioView })));
-const EvaluationLabView = lazy(() => import('./views/EvaluationLabView').then(m => ({ default: m.EvaluationLabView })));
 const SettingsView = lazy(() => import('./views/SettingsView').then(m => ({ default: m.SettingsView })));
 const GuidedDiscoveryModal = lazy(() => import('./components/GuidedDiscoveryModal').then(m => ({ default: m.GuidedDiscoveryModal })));
 const ScoutGuideModal = lazy(() => import('./components/ScoutGuideModal').then(m => ({ default: m.ScoutGuideModal })));
@@ -374,14 +373,6 @@ export const App: React.FC = () => {
             />
           )}
 
-          {currentTab === 'eval-lab' && (
-            <EvaluationLabView 
-              metrics={metrics} 
-              onNavigateToTab={setCurrentTab}
-              onOpenGuide={() => setIsGuideOpen(true)}
-            />
-          )}
-
           {currentTab === 'settings' && icp && (
             <SettingsView
               icp={icp}
@@ -486,13 +477,6 @@ export const App: React.FC = () => {
               >
                 <HelpCircle className="w-3 h-3 text-[#FF7054]" />
                 <span>ScoutStar Guide & Tour</span>
-              </button>
-              <span>•</span>
-              <button
-                onClick={() => setCurrentTab('eval-lab')}
-                className="text-[#FF7054] hover:underline font-medium cursor-pointer"
-              >
-                Accuracy Lab & Tests
               </button>
             </div>
           </div>

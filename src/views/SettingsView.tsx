@@ -753,7 +753,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                 className="btn-tactile-coral px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Find My Next…</span>
+                <span>Find Your Client & Ideal Customer →</span>
               </button>
             )}
             <button

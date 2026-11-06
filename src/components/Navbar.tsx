@@ -7,7 +7,6 @@ import {
   Users, 
   Kanban, 
   Send, 
-  FlaskConical, 
   Settings, 
   Sparkles, 
   RotateCcw,
@@ -95,20 +94,13 @@ export const Navbar: React.FC<NavbarProps> = ({
       ]
     },
     {
-      groupName: "INTELLIGENCE",
+      groupName: "STRATEGY",
       items: [
         {
           id: 'settings',
           label: 'Target ICP',
           shortDesc: 'Define your ICP: target roles, company size & exclusions',
           icon: <Settings className="w-4 h-4" />
-        },
-        {
-          id: 'eval-lab',
-          label: 'Accuracy Lab',
-          shortDesc: 'Hallucination defense metrics & 12 automated test cases',
-          icon: <FlaskConical className="w-4 h-4" />,
-          badge: '12'
         }
       ]
     }
@@ -183,24 +175,24 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* Main Bar */}
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-[1440px] mx-auto px-3 sm:px-4 lg:px-6">
         <div className="flex items-center justify-between h-16 gap-3">
           {/* Logo & Brand */}
           <div 
-            className="flex items-center gap-2.5 cursor-pointer select-none shrink-0" 
+            className="flex items-center gap-2 sm:gap-2.5 cursor-pointer select-none shrink-0" 
             onClick={() => handleTabClick('dashboard')}
           >
             <ScoutMascot expression="idle" size="sm" animate={true} />
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="font-editorial text-xl font-bold tracking-tight text-[#17271F]">
+                <span className="font-editorial text-lg sm:text-xl font-bold tracking-tight text-[#17271F]">
                   ScoutSpark
                 </span>
-                <span className="text-[10px] font-mono px-1.5 py-0.2 bg-[#D8FF65] text-[#17271F] font-bold rounded border border-[#17271F]">
+                <span className="hidden xs:inline-block text-[10px] font-mono px-1.5 py-0.2 bg-[#D8FF65] text-[#17271F] font-bold rounded border border-[#17271F]">
                   v0.9
                 </span>
               </div>
-              <p className="text-[11px] text-[#4A5E52] font-medium leading-none -mt-0.5">
+              <p className="hidden xs:block text-[11px] text-[#4A5E52] font-medium leading-none -mt-0.5">
                 Find your next yes.
               </p>
             </div>
@@ -261,7 +253,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Medium Desktop Compact Nav (for screens between lg and xl) */}
           <nav className="hidden lg:flex xl:hidden items-center gap-1">
-            {navGroups.flatMap(g => g.items).slice(0, 5).map(item => {
+            {navGroups.flatMap(g => g.items).map(item => {
               const isActive = currentTab === item.id;
               return (
                 <button
@@ -289,35 +281,45 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Primary Action Buttons (Signal Toggle, Guide & Find My Next Customer) */}
-          <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 z-10">
-            {/* Dark / Light Mode Toggle */}
-            <ScoutSignalControl />
+          <div className="flex items-center gap-1.5 sm:gap-2 xl:gap-2.5 shrink-0 z-10">
+            {/* Dark / Light Mode Toggle (visible on sm+) */}
+            <div className="hidden sm:flex">
+              <ScoutSignalControl />
+            </div>
 
-            {/* Scout Guide Button */}
+            {/* Scout Guide Button (visible on sm+) */}
             <button
               onClick={onOpenGuide}
-              className="btn-tactile-secondary px-2.5 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 font-semibold text-[#17271F] cursor-pointer whitespace-nowrap shrink-0"
+              className="hidden sm:flex btn-tactile-secondary p-1.5 sm:px-2.5 2xl:px-3 sm:py-2 rounded-xl text-xs sm:text-sm items-center gap-1.5 font-semibold text-[#17271F] cursor-pointer whitespace-nowrap shrink-0"
               title="Open interactive guide, tour and workflow map"
             >
-              <HelpCircle className="w-4 h-4 text-[#FF7054]" />
-              <span className="hidden sm:inline">Guide</span>
+              <HelpCircle className="w-4 h-4 text-[#FF7054] shrink-0" />
+              <span className="hidden 2xl:inline">Guide</span>
             </button>
 
             {/* Find My Next Customer Primary CTA */}
             <button
               data-scout-target="nav-discovery-btn"
               onClick={onOpenDiscovery}
-              className="btn-tactile-coral px-3.5 sm:px-4 2xl:px-5 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 font-bold cursor-pointer whitespace-nowrap shrink-0 shadow-[2px_2px_0px_#17271F] hover:shadow-[3px_3px_0px_#17271F] transition-all"
-              title="Launch AI research to find your next customers"
+              className="btn-tactile-coral px-3 sm:px-3.5 xl:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 font-bold cursor-pointer shrink-0 shadow-[2px_2px_0px_#17271F] hover:shadow-[3px_3px_0px_#17271F] transition-all"
+              title="Find My Next Customer"
             >
-              <Sparkles className="w-4 h-4 text-white shrink-0" />
-              <span>Find My Next Customer →</span>
+              <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white shrink-0" />
+              {/* Single line on tablet, laptop, and desktop (sm+) */}
+              <span className="hidden sm:inline whitespace-nowrap">
+                Find My Next Customer →
+              </span>
+              {/* 2-line stacked on small mobile (<sm): complete text, 100% visible, zero truncation */}
+              <span className="sm:hidden flex flex-col text-left leading-tight">
+                <span className="text-[10px] font-bold leading-none">Find My</span>
+                <span className="text-[9.5px] font-semibold opacity-95 leading-tight">Next Customer →</span>
+              </span>
             </button>
 
             {/* Mobile menu hamburger button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl text-[#17271F] hover:bg-white border border-[#E2D9C8] transition-colors"
+              className="lg:hidden p-1.5 sm:p-2 rounded-xl text-[#17271F] hover:bg-white border border-[#E2D9C8] transition-colors cursor-pointer shrink-0"
               aria-label="Toggle menu"
             >
               {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -329,6 +331,18 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Grouped Drawer / Menu */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-[#FAF7F0] border-t border-[#17271F] p-4 space-y-4 max-h-[80vh] overflow-y-auto animate-in slide-in-from-top duration-200">
+          {/* Mobile Launch Primary Discovery CTA */}
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              onOpenDiscovery();
+            }}
+            className="w-full btn-tactile-coral py-2.5 px-4 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 shadow-[2px_2px_0px_#17271F] cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-white shrink-0" />
+            <span>Find My Next Customer →</span>
+          </button>
+
           <div className="p-3 bg-white border border-[#17271F] rounded-xl flex items-center justify-between">
             <div className="flex items-center gap-2">
               <ScoutMascot expression="curious" size="xs" animate={true} />

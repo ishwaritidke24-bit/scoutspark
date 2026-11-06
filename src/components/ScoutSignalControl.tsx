@@ -91,19 +91,19 @@ export const ScoutSignalControl: React.FC<ScoutSignalControlProps> = ({
       type="button"
       onClick={toggleTheme}
       title={isNightOps ? 'Switch to Daybreak Mode (Alt+T)' : 'Switch to Night Ops Mode (Alt+T)'}
-      className={`btn-tactile-secondary px-2.5 sm:px-3 py-2 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 font-semibold text-[#17271F] cursor-pointer whitespace-nowrap shrink-0 group ${className}`}
+      className={`btn-tactile-secondary p-1.5 sm:px-2.5 xl:px-3 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm flex items-center gap-1.5 font-semibold text-[#17271F] cursor-pointer whitespace-nowrap shrink-0 group ${className}`}
       aria-label={isNightOps ? 'Switch to Daybreak Mode' : 'Switch to Night Ops Mode'}
     >
       {isNightOps ? (
         <>
-          <Moon className="w-4 h-4 text-[#D8FF65] group-hover:rotate-12 transition-transform duration-200" />
-          <span className="hidden md:inline font-mono text-xs">Night Ops</span>
+          <Moon className="w-4 h-4 text-[#D8FF65] group-hover:rotate-12 transition-transform duration-200 shrink-0" />
+          <span className="hidden 2xl:inline font-mono text-xs">Night Ops</span>
           <span className="w-1.5 h-1.5 rounded-full bg-[#D8FF65] shadow-[0_0_6px_#D8FF65]" />
         </>
       ) : (
         <>
-          <Sun className="w-4 h-4 text-[#FF7054] group-hover:rotate-45 transition-transform duration-200" />
-          <span className="hidden md:inline font-mono text-xs">Daybreak</span>
+          <Sun className="w-4 h-4 text-[#FF7054] group-hover:rotate-45 transition-transform duration-200 shrink-0" />
+          <span className="hidden 2xl:inline font-mono text-xs">Daybreak</span>
           <span className="w-1.5 h-1.5 rounded-full bg-[#FF7054]" />
         </>
       )}

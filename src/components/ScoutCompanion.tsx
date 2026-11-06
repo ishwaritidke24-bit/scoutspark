@@ -241,9 +241,9 @@ export const ScoutCompanion: React.FC<ScoutCompanionProps> = ({
         text: `Every company gets an ICP Fit Score from 0 to 100 based on role relevance, industry match, and active business signals. Crucially, every claim is backed by real public web links — unproven claims are explicitly tagged so you never send hallucinated statements.`,
         timestamp: timeStr,
         action: {
-          label: 'Inspect Accuracy Lab',
+          label: 'View Target ICP',
           onClick: () => {
-            onNavigateToTab('eval-lab');
+            onNavigateToTab('settings');
             setIsPanelOpen(false);
           }
         },

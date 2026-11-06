@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { ScoutMascot, ScoutExpression } from './ScoutMascot';
 import { 
   X, 
@@ -26,7 +26,10 @@ import {
   Stethoscope,
   CreditCard,
   Shield,
-  Clock
+  Clock,
+  Play,
+  Pause,
+  RotateCcw
 } from 'lucide-react';
 import { Prospect, PipelineStage, IdealCustomerProfile, ViewTab } from '../types';
 import { prospectService } from '../services/prospectService';
@@ -228,13 +231,19 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
   const [isSearching, setIsSearching] = useState<boolean>(false);
   const [searchStepIndex, setSearchStepIndex] = useState<number>(0);
   const [searchElapsedSeconds, setSearchElapsedSeconds] = useState<number>(0);
+  const [completedElapsedSeconds, setCompletedElapsedSeconds] = useState<number | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [result, setResult] = useState<ResearchResultState | null>(null);
   const [addedLeadIds, setAddedLeadIds] = useState<Set<string>>(new Set());
 
-  // Demo Walkthrough States
+  // Wall-clock timing refs to prevent drift, throttling, or duplicate intervals
+  const searchStartTimeRef = useRef<number | null>(null);
+  const searchIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Demo Walkthrough States & Simulator Timer
   const [demoStep, setDemoStep] = useState<number>(0);
   const [isDemoRunning, setIsDemoRunning] = useState<boolean>(false);
+  const [demoCountdown, setDemoCountdown] = useState<number>(3);
   const targetProspect = prospects.find(p => p.id === 'prospect-01') || prospects[0];
 
   const honestSearchSteps = [
@@ -331,8 +340,15 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
       setResult(null);
       setSearchError(null);
       setIsSearching(false);
+      setSearchElapsedSeconds(0);
+      setCompletedElapsedSeconds(null);
       setDemoStep(0);
       setIsDemoRunning(false);
+      if (searchIntervalRef.current) {
+        clearInterval(searchIntervalRef.current);
+        searchIntervalRef.current = null;
+      }
+      searchStartTimeRef.current = null;
       return;
     }
 
@@ -363,38 +379,66 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
     };
   }, [isOpen]);
 
-  // Demo walkthrough timer
+  // Demo walkthrough timer with accurate countdown & auto-advance
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
+    let countdownInterval: ReturnType<typeof setInterval>;
+
     if (activeTab === 'demo' && isDemoRunning && demoStep < demoSteps.length - 1) {
-      timer = setTimeout(() => {
-        setDemoStep(prev => prev + 1);
-      }, 2200);
-    }
-    return () => clearTimeout(timer);
-  }, [activeTab, demoStep, isDemoRunning, demoSteps.length]);
-
-  // Live searching stopwatch and progress step timer
-  useEffect(() => {
-    let secondTimer: ReturnType<typeof setInterval>;
-    let stepTimer: ReturnType<typeof setInterval>;
-
-    if (isSearching) {
-      setSearchElapsedSeconds(0);
-      setSearchStepIndex(0);
-
-      secondTimer = setInterval(() => {
-        setSearchElapsedSeconds(prev => prev + 1);
+      setDemoCountdown(3);
+      countdownInterval = setInterval(() => {
+        setDemoCountdown(prev => Math.max(1, prev - 1));
       }, 1000);
 
-      stepTimer = setInterval(() => {
-        setSearchStepIndex(prev => (prev < 3 ? prev + 1 : prev));
-      }, 1800);
+      timer = setTimeout(() => {
+        setDemoStep(prev => prev + 1);
+        setDemoCountdown(3);
+      }, 3000);
+    } else if (demoStep >= demoSteps.length - 1) {
+      setIsDemoRunning(false);
     }
 
     return () => {
-      clearInterval(secondTimer);
-      clearInterval(stepTimer);
+      clearTimeout(timer);
+      clearInterval(countdownInterval);
+    };
+  }, [activeTab, demoStep, isDemoRunning, demoSteps.length]);
+
+  // Wall-clock grounded search stopwatch and step manager
+  useEffect(() => {
+    if (isSearching) {
+      searchStartTimeRef.current = Date.now();
+      setSearchElapsedSeconds(0);
+      setSearchStepIndex(0);
+      setCompletedElapsedSeconds(null);
+
+      // Clean up previous interval if any
+      if (searchIntervalRef.current) {
+        clearInterval(searchIntervalRef.current);
+      }
+
+      searchIntervalRef.current = setInterval(() => {
+        if (!searchStartTimeRef.current) return;
+        const now = Date.now();
+        const elapsed = Math.max(0, Math.floor((now - searchStartTimeRef.current) / 1000));
+        setSearchElapsedSeconds(elapsed);
+
+        // Advance search step based on elapsed time without skipping
+        const step = elapsed < 3 ? 0 : elapsed < 8 ? 1 : elapsed < 15 ? 2 : 3;
+        setSearchStepIndex(step);
+      }, 250);
+    } else {
+      if (searchIntervalRef.current) {
+        clearInterval(searchIntervalRef.current);
+        searchIntervalRef.current = null;
+      }
+    }
+
+    return () => {
+      if (searchIntervalRef.current) {
+        clearInterval(searchIntervalRef.current);
+        searchIntervalRef.current = null;
+      }
     };
   }, [isSearching]);
 
@@ -505,6 +549,10 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
         userInstructions: enhancedInstructions,
       });
 
+      const finalElapsed = searchStartTimeRef.current
+        ? Math.max(1, Math.floor((Date.now() - searchStartTimeRef.current) / 1000))
+        : searchElapsedSeconds;
+      setCompletedElapsedSeconds(finalElapsed);
       setResult(res as ResearchResultState);
 
       // Trigger workspace data refresh so newly saved prospects appear immediately
@@ -512,10 +560,18 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
         onDiscoveryComplete();
       }
     } catch (err: any) {
+      const finalElapsed = searchStartTimeRef.current
+        ? Math.max(1, Math.floor((Date.now() - searchStartTimeRef.current) / 1000))
+        : searchElapsedSeconds;
+      setCompletedElapsedSeconds(finalElapsed);
       const errorMsg = err.detail || err.message || 'Customer discovery search failed.';
       setSearchError(errorMsg);
     } finally {
       setIsSearching(false);
+      if (searchIntervalRef.current) {
+        clearInterval(searchIntervalRef.current);
+        searchIntervalRef.current = null;
+      }
     }
   };
 
@@ -542,6 +598,60 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
     } catch (err: any) {
       alert(`Could not add to pipeline: ${err.message || 'Error'}`);
     }
+  };
+
+  // Baseline estimated time based on mode and prospective candidates count
+  const baseEstimate = activeTab === 'demo' ? 4 : (maxProspects >= 5 ? 16 : 10);
+
+  // Dynamic, non-contradictory estimation logic:
+  // 1. Estimated total is NEVER in the past (always >= searchElapsedSeconds + 2)
+  // 2. Remaining time is NEVER negative (always >= 2)
+  // 3. When search takes longer (e.g. cold start or deep web scraping), gracefully adapts
+  const getTimingInfo = (elapsed: number, baseEst: number) => {
+    if (elapsed < baseEst - 2) {
+      const remaining = Math.max(2, baseEst - elapsed);
+      return {
+        estimatedTotal: baseEst,
+        remaining,
+        label: `~${baseEst}s (~${remaining}s remaining)`,
+        note: null
+      };
+    }
+    // Search is taking longer than baseline (e.g. cold start or deep web extraction)
+    const adaptiveBuffer = elapsed < 20 ? 4 : elapsed < 35 ? 5 : 6;
+    const adaptiveTotal = elapsed + adaptiveBuffer;
+    const note = elapsed >= 25 
+      ? 'deep web citations & evidence synthesis' 
+      : elapsed >= 15 
+      ? 'evaluating candidate relevance' 
+      : 'analyzing live web results';
+
+    return {
+      estimatedTotal: adaptiveTotal,
+      remaining: adaptiveBuffer,
+      label: `~${adaptiveTotal}s (~${adaptiveBuffer}s remaining)`,
+      note
+    };
+  };
+
+  const timingInfo = getTimingInfo(searchElapsedSeconds, baseEstimate);
+
+  // Smooth asymptotic progress calculation that never freezes at 95%
+  const getSearchProgress = (elapsed: number, stepIdx: number): number => {
+    if (stepIdx === 0) {
+      return Math.min(28, 12 + Math.round(elapsed * 5));
+    }
+    if (stepIdx === 1) {
+      const stepElapsed = Math.max(0, elapsed - 3);
+      return Math.min(58, 28 + Math.round(stepElapsed * 6));
+    }
+    if (stepIdx === 2) {
+      const stepElapsed = Math.max(0, elapsed - 8);
+      return Math.min(80, 58 + Math.round(stepElapsed * 3));
+    }
+    const stepElapsed = Math.max(0, elapsed - 15);
+    const bonus = Math.round(14 * (1 - Math.exp(-stepElapsed / 10)));
+    return Math.min(94, 80 + bonus);
   };
 
   const currentDemo = demoSteps[demoStep];
@@ -602,7 +712,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
         </div>
 
         {/* Mode Selector Tab Bar */}
-        <div className="flex border-b border-[#17271F]/20 bg-[#F7F2E8] px-6 py-2 items-center justify-between shrink-0">
+        <div className="flex border-b border-[#17271F]/20 bg-[#F7F2E8] px-3 sm:px-6 py-2 flex-wrap sm:flex-nowrap gap-2 items-center justify-between shrink-0">
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => {
@@ -1040,16 +1150,23 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     <div className="w-full bg-[#E2D9C8] h-2.5 rounded-full overflow-hidden border border-[#17271F]">
                       <div 
                         className="bg-[#FF7054] h-full transition-all duration-300 rounded-full"
-                        style={{ width: `${Math.min(95, (searchStepIndex + 1) * 24 + searchElapsedSeconds * 6)}%` }}
+                        style={{ width: `${getSearchProgress(searchElapsedSeconds, searchStepIndex)}%` }}
                       />
                     </div>
-                    <div className="flex items-center justify-between text-[11px] font-mono text-[#4A5E52]">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] font-mono text-[#4A5E52] gap-1">
                       <span className="flex items-center gap-1 font-bold text-[#17271F]">
                         <Clock className="w-3 h-3 text-[#FF7054]" />
                         <span>Elapsed: {searchElapsedSeconds}s</span>
                       </span>
-                      <span>Estimated total: ~5-8s</span>
+                      <span>
+                        Estimated total: <strong className="text-[#17271F]">{timingInfo.label}</strong>
+                      </span>
                     </div>
+                    {timingInfo.note && (
+                      <div className="text-[10px] font-mono text-[#FF7054] text-right">
+                        ● {timingInfo.note}
+                      </div>
+                    )}
                   </div>
 
                   {/* Step-by-Step Status Checklist */}
@@ -1093,6 +1210,9 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                           {result.mode === 'live' ? 'Live Web Results' : 'Demo Results'}
                         </span>
                         <span className="text-xs font-semibold text-[#4A5E52] font-mono">
+                          {completedElapsedSeconds !== null && (
+                            <span className="text-[#17271F] font-bold">Finished in {completedElapsedSeconds}s • </span>
+                          )}
                           {result.totalSourcesFound} websites read • {result.candidatesSaved} matching leads saved • {result.candidatesRejected ?? 0} skipped
                         </span>
                       </div>
@@ -1255,8 +1375,54 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                 </p>
               </div>
 
-              {/* Progress step indicators */}
-              <div className="grid grid-cols-4 gap-2">
+              {/* Interactive Simulator Controls */}
+              <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3.5 rounded-xl border border-[#17271F]/20 shadow-xs">
+                <div className="flex items-center gap-2 text-xs font-mono">
+                  <span className={`w-2.5 h-2.5 rounded-full ${isDemoRunning ? 'bg-[#9DE3D0] animate-pulse' : 'bg-[#E2D9C8]'}`} />
+                  <span className="text-[#17271F] font-semibold">
+                    {isDemoRunning 
+                      ? `Stage ${demoStep + 1} of ${demoSteps.length} · Auto-advancing in ~${demoCountdown}s`
+                      : demoStep === demoSteps.length - 1
+                      ? `Stage ${demoStep + 1} of ${demoSteps.length} · Walkthrough Complete`
+                      : `Stage ${demoStep + 1} of ${demoSteps.length} · Simulator Paused`}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (demoStep === demoSteps.length - 1) {
+                        setDemoStep(0);
+                        setIsDemoRunning(true);
+                      } else {
+                        setIsDemoRunning(!isDemoRunning);
+                      }
+                    }}
+                    className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                  >
+                    {isDemoRunning ? (
+                      <>
+                        <Pause className="w-3.5 h-3.5 text-[#FF7054]" />
+                        <span>Pause Simulator</span>
+                      </>
+                    ) : demoStep === demoSteps.length - 1 ? (
+                      <>
+                        <RotateCcw className="w-3.5 h-3.5 text-[#17271F]" />
+                        <span>Replay Walkthrough</span>
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-3.5 h-3.5 text-green-700" />
+                        <span>Auto-Play Simulator</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {/* Progress step indicators (responsive 2-col on small mobile, 4-col on tablet+) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {demoSteps.map((step, idx) => {
                   const isCurrent = idx === demoStep;
                   const isDone = idx < demoStep;
@@ -1327,7 +1493,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
         </div>
 
         {/* Modal Footer Controls */}
-        <div className="flex items-center justify-between px-6 py-4 bg-[#F7F2E8] border-t border-[#17271F]/20 shrink-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-[#F7F2E8] border-t border-[#17271F]/20 shrink-0">
           <div className="text-xs text-[#4A5E52]">
             {activeTab === 'live' ? (
               <span>Human-in-the-loop: Every message requires your explicit review.</span>
@@ -1336,7 +1502,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2">
             {activeTab === 'live' ? (
               result ? (
                 <>
@@ -1386,7 +1552,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                   ) : (
                     <>
                       <Sparkles className="w-3.5 h-3.5 text-[#D8FF65]" />
-                      <span>Find My Customers</span>
+                      <span>Find Your Client & Ideal Customer</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </>
                   )}

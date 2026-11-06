@@ -96,11 +96,11 @@ export const ScoutGuideModal: React.FC<ScoutGuideModalProps> = ({
       ]
     },
     {
-      title: "2. Find My Next… (Discovery)",
+      title: "2. Find Your Client & Ideal Customer (Discovery)",
       badge: "NEXT ACTION",
       expression: "curious",
       tagline: "Discover high-intent leads using AI web search.",
-      description: "Click 'Find My Next…' at any time to run ScoutStar's research engine. You can search live across the public web or explore sample startup leads.",
+      description: "Click 'Find Your Client & Ideal Customer' at any time to run ScoutSpark's research engine. You can search live across the public web or explore sample startup leads.",
       whatItDoes: "Executes targeted web queries, extracts companies with hiring or tech migration signals, and verifies claims against live sources.",
       whenToUse: "Whenever you need fresh leads or want to investigate companies in a specific sector.",
       nextActionLabel: "Open Discovery Modal",
@@ -144,18 +144,18 @@ export const ScoutGuideModal: React.FC<ScoutGuideModalProps> = ({
       ]
     },
     {
-      title: "5. Message Sequences & Accuracy Lab",
-      badge: "OUTREACH & QUALITY",
+      title: "5. Message Sequences & Follow-up",
+      badge: "OUTREACH",
       expression: "celebratory",
-      tagline: "Proven multi-touch outreach & verified accuracy.",
-      description: "Use Message Sequences for multi-touch follow-up templates, and visit the Accuracy Lab to see the 12 automated test cases ensuring zero AI hallucinations.",
-      whatItDoes: "Message Sequences provides 3-touch follow-up copy. Accuracy Lab displays live hallucination defense metrics and test suite results.",
-      whenToUse: "When crafting multi-touch email sequences or verifying how ScoutSpark ensures facts are strictly source-backed.",
-      nextActionLabel: "Explore Accuracy Lab",
-      targetTab: "eval-lab",
+      tagline: "Proven multi-touch outreach grounded in real clues.",
+      description: "Use Message Sequences for multi-touch follow-up templates grounded in verified public evidence without aggressive sales badgering.",
+      whatItDoes: "Provides a 3-touch cadence (Hook, Technical Benchmark, Frictionless Sandbox) with 1-click clipboard copy.",
+      whenToUse: "When crafting multi-touch email sequences for leads in your pipeline.",
+      nextActionLabel: "Explore Message Sequences",
+      targetTab: "campaigns",
       highlights: [
         "Value-first follow-up sequences (Day 1 hook, Day 4 benchmark, Day 9 sandbox)",
-        "12 deterministic test fixtures verifying zero hallucinated facts",
+        "Zero auto-send: you copy and send from your personal email client",
         "Strict provenance checks matching public web citations"
       ]
     }
@@ -350,13 +350,13 @@ export const ScoutGuideModal: React.FC<ScoutGuideModalProps> = ({
                     tab: 'settings' as ViewTab,
                     name: 'Target Customer',
                     desc: 'Define who you are searching for: target industry, company size, and role titles.',
-                    tip: 'ScoutStar matches all future web searches against this profile.'
+                    tip: 'ScoutSpark matches all future web searches against this profile.'
                   },
                   {
                     step: 2,
                     tab: 'prospects' as ViewTab,
                     name: 'Find Leads & Discovery',
-                    desc: 'Run AI search via "Find My Next…" or import a CSV to discover candidate companies.',
+                    desc: 'Run AI search via "Find Your Client & Ideal Customer" or import a CSV to discover candidate companies.',
                     tip: 'Only companies with verified public web findings and high fit scores are kept.'
                   },
                   {

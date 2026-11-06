@@ -220,10 +220,10 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
             {onOpenDiscovery && (
               <button
                 onClick={onOpenDiscovery}
-                className="btn-tactile-coral px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                className="btn-tactile-coral px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-[2px_2px_0px_#17271F]"
               >
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>Find My Next…</span>
+                <span>Find Your Client & Ideal Customer →</span>
               </button>
             )}
 
@@ -355,10 +355,10 @@ CardioMetrics,cardiometrics.internal,HealthTech & Digital Health,Remote Cardiac 
               {onOpenDiscovery && (
                 <button
                   onClick={onOpenDiscovery}
-                  className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer"
+                  className="btn-tactile-coral px-4 py-2 rounded-xl text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-[2px_2px_0px_#17271F]"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span>Find My Next Customers</span>
+                  <span>Find Your Client & Ideal Customer →</span>
                 </button>
               )}
               <button

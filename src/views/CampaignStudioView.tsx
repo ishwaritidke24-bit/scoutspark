@@ -340,10 +340,10 @@ Alex`,
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
             <button
-              onClick={() => onNavigateToTab('eval-lab')}
+              onClick={() => onNavigateToTab('settings')}
               className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer"
             >
-              Accuracy Lab
+              Target ICP
             </button>
           </div>
         </div>

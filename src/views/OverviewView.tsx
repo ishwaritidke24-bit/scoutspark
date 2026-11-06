@@ -156,7 +156,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 className="btn-tactile-coral px-6 sm:px-7 py-3.5 sm:py-4 rounded-2xl text-base font-bold flex items-center gap-2.5 cursor-pointer shadow-[3px_3px_0px_#17271F] hover:shadow-[5px_5px_0px_#17271F] transition-all"
               >
                 <Sparkles className="w-4 h-4 text-white" />
-                <span>Find My Next Customer →</span>
+                <span>Find Your Client & Ideal Customer →</span>
               </motion.button>
 
               <button
@@ -581,7 +581,7 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
                 <ScoutMascot expression="thinking" size="md" animate={true} />
                 <h3 className="text-lg font-bold text-[#17271F]">No leads found yet</h3>
                 <p className="text-sm text-[#4A5E52] max-w-sm mx-auto">
-                  Click 'Find My Next Customer' to search the live web for matching prospects.
+                  Click 'Find Your Client & Ideal Customer' to search the live web for matching prospects.
                 </p>
                 <button
                   onClick={onOpenDiscovery}

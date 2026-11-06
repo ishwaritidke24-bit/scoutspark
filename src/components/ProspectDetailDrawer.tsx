@@ -119,7 +119,7 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
         aria-label="Prospect Intelligence Dossier"
       >
         {/* Drawer Header */}
-        <div className="p-6 bg-[#17271F] text-[#F7F2E8] border-b-2 border-[#17271F] flex-shrink-0">
+        <div className="p-4 sm:p-6 bg-[#17271F] text-[#F7F2E8] border-b-2 border-[#17271F] flex-shrink-0">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
               <div className={`w-14 h-14 rounded-xl border-2 flex flex-col items-center justify-center font-bold font-mono shadow-[2px_2px_0px_#D8FF65] ${getScoreColor(prospect.fitScore)}`}>
@@ -220,7 +220,7 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex border-b border-[#17271F]/15 bg-[#F7F2E8] px-6">
+        <div className="flex border-b border-[#17271F]/15 bg-[#F7F2E8] px-4 sm:px-6">
           <button
             onClick={() => setActiveTab('evidence')}
             className={`py-3 px-4 font-bold text-xs uppercase tracking-wider border-b-2 flex items-center gap-2 transition-colors ${
@@ -247,7 +247,7 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
         </div>
 
         {/* Drawer Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 sm:space-y-6">
           {activeTab === 'evidence' ? (
             <div className="space-y-6">
               {/* Executive Company Summary */}
@@ -548,7 +548,7 @@ export const ProspectDetailDrawer: React.FC<ProspectDetailDrawerProps> = ({
                 </div>
 
                 {/* Main Action Bar */}
-                <div className="pt-2 flex items-center justify-between gap-3">
+                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-2">
                     <ScoutMascot 
                       expression={prospect.emailDraft.isApproved ? 'celebratory' : 'curious'} 
