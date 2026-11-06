@@ -120,37 +120,37 @@ interface CustomerArchetype {
 const CUSTOMER_ARCHETYPES: CustomerArchetype[] = [
   {
     id: 'b2b-saas',
-    title: 'Early-Stage B2B SaaS',
+    title: 'B2B SaaS',
     category: 'Sales & Growth',
-    badge: '⚡ Fastest Match (~5s)',
+    badge: '⚡ Fast Match',
     iconType: 'rocket',
-    description: "Early-stage B2B SaaS companies in India and the US with 10-50 employees that are actively hiring sales development representatives or account executives to scale pipeline.",
+    description: "Early-stage B2B SaaS companies in the US and India with 10–50 employees hiring sales development reps to scale pipeline.",
     industry: 'B2B SaaS, Cloud Software',
-    targetRoles: 'Founder, VP of Sales, Head of Growth',
+    targetRoles: 'Founder, VP Sales, Head of Growth',
     buyingIntent: 'Hiring SDRs, expansion into new markets, recent seed funding',
     location: 'United States, India, Remote',
-    exclusions: 'Agencies, IT consultancies, retail stores'
+    exclusions: 'Agencies, consultancies, retail stores'
   },
   {
     id: 'devtools',
-    title: 'Developer Tools & DevOps',
+    title: 'Developer Tools',
     category: 'Infrastructure',
     badge: '🛠️ High Evidence',
     iconType: 'terminal',
-    description: "Modern developer tooling and cloud infrastructure startups with engineering teams building or scaling Kubernetes, observability, CI/CD, or distributed telemetry.",
+    description: "Developer tools and cloud infrastructure startups scaling Kubernetes, CI/CD, and distributed telemetry.",
     industry: 'Developer Tools, DevOps, Cloud Infrastructure',
-    targetRoles: 'VP of Engineering, CTO, Platform Lead',
+    targetRoles: 'VP Engineering, CTO, Platform Lead',
     buyingIntent: 'Kubernetes scaling, distributed systems complexity, hiring senior engineers',
     location: 'United States, Europe, Remote',
-    exclusions: 'Consulting agencies, software outsourcing shops'
+    exclusions: 'Consulting agencies, outsourcing shops'
   },
   {
     id: 'ai-startups',
-    title: 'AI & Agentic Startups',
+    title: 'AI Startups',
     category: 'GenAI & Agents',
     badge: '🤖 Trending',
     iconType: 'bot',
-    description: "Fast-moving AI startups building autonomous agents, LLM applications, or automated workflows seeking prospective enterprise pilot customers and design partners.",
+    description: "AI startups building autonomous agents, LLM applications, or automated workflows seeking pilot customers.",
     industry: 'Artificial Intelligence, Generative AI, B2B SaaS',
     targetRoles: 'CEO, Head of AI, Lead Product Manager',
     buyingIntent: 'Product launch, enterprise pilot acquisition, model inference scaling',
@@ -159,11 +159,11 @@ const CUSTOMER_ARCHETYPES: CustomerArchetype[] = [
   },
   {
     id: 'healthtech',
-    title: 'HealthTech & Clinical SaaS',
+    title: 'HealthTech',
     category: 'Healthcare',
     badge: '🏥 Regulated B2B',
     iconType: 'stethoscope',
-    description: "Healthcare technology companies and clinical software providers that need HIPAA-compliant document processing, patient workflow automation, and EHR integrations.",
+    description: "Healthcare technology companies building HIPAA-compliant software, patient workflows, and EHR integrations.",
     industry: 'HealthTech, Healthcare IT, Digital Health',
     targetRoles: 'Head of Operations, CEO, Chief Medical Officer',
     buyingIntent: 'HIPAA compliance, patient record workflow bottlenecks, clinic scaling',
@@ -172,26 +172,26 @@ const CUSTOMER_ARCHETYPES: CustomerArchetype[] = [
   },
   {
     id: 'fintech',
-    title: 'FinTech & Modern Payments',
+    title: 'FinTech',
     category: 'Financial Services',
     badge: '💳 High Value',
     iconType: 'creditCard',
-    description: "FinTech and payments platforms handling transaction volume, risk compliance, KYC automation, or automated billing systems seeking growth tools.",
+    description: "Fintech and modern payments platforms handling transaction volume, automated billing, and risk compliance.",
     industry: 'FinTech, Payments, Banking Software',
-    targetRoles: 'Head of Product, VP of Risk & Compliance, Founder',
+    targetRoles: 'Head of Product, VP Risk, Founder',
     buyingIntent: 'Transaction scaling, fraud detection, international payout compliance',
     location: 'United States, United Kingdom, India',
     exclusions: 'Traditional retail banks, local credit unions, payday lenders'
   },
   {
     id: 'cybersecurity',
-    title: 'Cybersecurity & Cloud Defense',
+    title: 'Cybersecurity',
     category: 'Security',
     badge: '🔒 Enterprise',
     iconType: 'shield',
-    description: "Cloud security startups providing automated SOC2/ISO compliance, vulnerability scanning, or zero-trust identity management for tech companies.",
+    description: "Cloud cybersecurity startups providing automated SOC2/ISO compliance and vulnerability scanning.",
     industry: 'Cybersecurity, Cloud Compliance, Infosec',
-    targetRoles: 'CISO, VP of Information Security, VP of IT',
+    targetRoles: 'CISO, VP Security, VP IT',
     buyingIntent: 'SOC2 compliance deadlines, cloud vulnerability audit, remote workforce defense',
     location: 'United States, Europe, Remote',
     exclusions: 'Physical security guard companies, locksmiths, local alarm installers'
@@ -247,62 +247,62 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
   const targetProspect = prospects.find(p => p.id === 'prospect-01') || prospects[0];
 
   const honestSearchSteps = [
-    { label: "1. Analyzing customer criteria & planning search...", icon: "target" },
-    { label: "2. Searching live web in parallel via Tavily...", icon: "search" },
-    { label: "3. Reading company pages & extracting verified facts...", icon: "globe" },
-    { label: "4. Grounding citations & drafting personalized emails...", icon: "shield" }
+    { label: "1. Planning search queries", icon: "target" },
+    { label: "2. Scanning public web sources", icon: "search" },
+    { label: "3. Evaluating company fit & evidence", icon: "globe" },
+    { label: "4. Grounding facts & drafting outreach", icon: "shield" }
   ];
 
   const demoSteps = [
     {
-      title: "1. Finding Clues Online",
-      subtitle: "Looking at public updates, job posts, and engineering blogs",
+      title: "1. Scan the Public Web",
+      subtitle: "Scout checks blogs, job listings, and news for public growth signals.",
       expression: "focused" as ScoutExpression,
-      speech: "Checking what this company is working on...",
+      speech: "Looking for public growth signals...",
       details: [
-        "Found: KiteMetrics mentioned a Kafka cluster delay in a public post (Sept 2026)",
-        "Found: Elena Rostova (formerly at Stripe) joined as VP of Engineering",
-        "Found: 3 open jobs for Senior Kubernetes and eBPF engineers"
+        "KiteMetrics mentioned Kafka latency issues in an engineering post",
+        "Elena Rostova joined as VP of Engineering",
+        "Hiring 3 Senior Kubernetes and Infrastructure engineers"
       ],
-      badge: "3 Real Clues Found"
+      badge: "3 Signals Found"
     },
     {
-      title: "2. Source Details vs. Educated Guesses",
-      subtitle: "Keeping source-backed details separate from unconfirmed guesses",
+      title: "2. Separate Facts from Guesses",
+      subtitle: "Verified source facts are kept separate from unconfirmed hypotheses.",
       expression: "curious" as ScoutExpression,
-      speech: "Separating source details from our best guesses!",
+      speech: "Verifying facts from public sources!",
       details: [
-        "✓ Found in source: Their blog mentions Kafka delays under high volume (20M spans/sec)",
-        "✓ Found in source: They are hiring 3 engineers reporting to Elena Rostova",
-        "⚡ What might be true: High storage bills might be hurting profit margins",
-        "⚡ What might be true: Elena has been asked by the board to speed up incident fixes"
+        "✓ Verified fact: Kafka broker lag cited under 20M spans/sec load",
+        "✓ Verified fact: Recruiting engineers reporting to VP Elena Rostova",
+        "⚡ Hypothesis: Telemetry storage costs may be straining budget",
+        "⚡ Hypothesis: Team has mandate to cut cluster overhead"
       ],
-      badge: "Zero Made-Up Claims"
+      badge: "Evidence Grounded"
     },
     {
-      title: "3. Checking How Well They Fit",
-      subtitle: "Comparing them with the kind of customers you want to reach",
+      title: "3. Score Customer Fit",
+      subtitle: "Calculates match score from 0 to 100 based on your target criteria.",
       expression: "thinking" as ScoutExpression,
-      speech: "Match score is 96 out of 100!",
+      speech: "Match score: 96 / 100!",
       details: [
-        "Team Size: 42 people (Your target: 20-50) → Perfect match",
-        "Tools Used: Kubernetes and tracing tools → They have the exact problem you fix",
-        "Key Person: Elena Rostova (VP Engineering) → Has decision-making power",
-        "Recommended Angle: Share technical benchmark data showing 4x trace compression"
+        "Team Size: 42 people (Target: 10–50) → Strong match",
+        "Tech Stack: Kubernetes & telemetry → Has the problem you solve",
+        "Decision Maker: Elena Rostova (VP Engineering) → Verified buyer role",
+        "Suggested Angle: Share benchmark data on 4x trace compression"
       ],
-      badge: "Match Score: 96 / 100"
+      badge: "Match Score: 96%"
     },
     {
-      title: "4. Draft a Helpful Message",
-      subtitle: "Write a personal message for you to review and approve",
+      title: "4. Review Outreach Draft",
+      subtitle: "A personal, honest draft is prepared for your review and approval.",
       expression: "celebratory" as ScoutExpression,
-      speech: "Message draft ready for your review!",
+      speech: "Draft ready for your approval!",
       details: [
         "Recipient: Elena Rostova (VP Engineering, KiteMetrics)",
-        "Tone: Practical and respectful, zero sales fluff",
-        "Human Control: We never send emails automatically. You stay in control of every message."
+        "Opening Hook: Cites verified public signal (Kafka latency post)",
+        "Human Control: You approve or edit every email before sending"
       ],
-      badge: "You Decide Before Sending"
+      badge: "Ready for Approval"
     }
   ];
 
@@ -667,7 +667,8 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
         aria-labelledby="modal-title"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-3.5 bg-[#17271F] text-[#F7F2E8] shrink-0">
+        {/* Clean Modal Header */}
+        <div className="flex items-center justify-between px-5 sm:px-6 py-3.5 bg-[#17271F] text-[#F7F2E8] shrink-0">
           <div className="flex items-center gap-3">
             <ScoutMascot 
               expression={
@@ -691,16 +692,16 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     ? 'bg-[#17271F] text-[#9DE3D0] border-[#9DE3D0]/60'
                     : 'bg-[#17271F] text-[#D8FF65] border-[#D8FF65]/40'
                 }`}>
-                  {activeTab === 'live' ? 'Customer Discovery' : 'Interactive Demo'}
+                  {activeTab === 'live' ? 'Discovery' : 'Tour'}
                 </span>
                 {config && (
                   <span className="text-[11px] text-[#F7F2E8]/70 font-mono">
-                    {config.configured ? `⚡ Fast Parallel Search (${config.model})` : 'Offline Simulation'}
+                    {config.configured ? 'Live Web' : 'Offline'}
                   </span>
                 )}
               </div>
-              <h2 id="modal-title" className="text-base font-editorial font-bold text-white tracking-tight">
-                {activeTab === 'live' ? 'Find Your Client & Ideal Customer' : 'See How Scout Finds Leads'}
+              <h2 id="modal-title" className="text-base sm:text-lg font-editorial font-bold text-white tracking-tight">
+                {activeTab === 'live' ? 'Find Potential Customers' : 'How Scout Finds Leads'}
               </h2>
             </div>
           </div>
@@ -713,8 +714,8 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
           </button>
         </div>
 
-        {/* Mode Selector Tab Bar */}
-        <div className="flex border-b border-[#17271F]/20 bg-[#F7F2E8] px-3 sm:px-6 py-2 flex-wrap sm:flex-nowrap gap-2 items-center justify-between shrink-0">
+        {/* Clean Mode Selector Tab Bar */}
+        <div className="flex border-b border-[#17271F]/20 bg-[#F7F2E8] px-4 sm:px-6 py-2 flex-wrap sm:flex-nowrap gap-2 items-center justify-between shrink-0">
           <div className="flex items-center gap-1.5">
             <button
               onClick={() => {
@@ -729,7 +730,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
               }`}
             >
               <Search className="w-3.5 h-3.5 text-[#FF7054]" />
-              <span>Live Web Search</span>
+              <span>Live Search</span>
             </button>
 
             <button
@@ -745,32 +746,32 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
               }`}
             >
               <Layers className="w-3.5 h-3.5 text-[#D8FF65]" />
-              <span>Step-by-Step Demo</span>
+              <span>Demo Tour</span>
             </button>
           </div>
 
           <div className="text-[11px] font-mono font-semibold flex items-center gap-2">
             {configLoading ? (
-              <span className="text-[#4A5E52]">Checking providers...</span>
+              <span className="text-[#4A5E52]">Checking...</span>
             ) : config?.configured ? (
               <span className="text-[#17271F] flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#9DE3D0] animate-pulse" />
-                <span>Ready to Search</span>
+                <span>Ready</span>
               </span>
             ) : (
               <span className="text-[#FF7054] flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-[#FF7054]" />
-                Keys Missing in backend/.env
+                Setup needed
               </span>
             )}
           </div>
         </div>
 
         {/* Scrollable Modal Content */}
-        <div className="p-5 sm:p-6 overflow-y-auto space-y-5 flex-1">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1">
           {/* TAB 1: LIVE SEARCH & TARGET CUSTOMER INPUT EXPERIENCE */}
           {activeTab === 'live' && (
-            <div className="space-y-5">
+            <div className="space-y-4">
               {/* Missing Keys Notice if not configured */}
               {!configLoading && !config?.configured && (
                 <div className="p-3.5 rounded-xl bg-[#FFEAE5] border border-[#FF7054] text-xs text-[#17271F] space-y-1.5">
@@ -778,15 +779,15 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>Live Search Keys Needed</span>
                   </div>
-                  <p className="text-[11px] text-[#4A5E52] leading-relaxed">
-                    Live prospect discovery searches public web pages via Tavily and scores with Gemini. Please add <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">GEMINI_API_KEY</code> and <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">TAVILY_API_KEY</code> to <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">backend/.env</code>.
+                  <p className="text-xs text-[#4A5E52] leading-relaxed">
+                    Add <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">GEMINI_API_KEY</code> and <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">TAVILY_API_KEY</code> to <code className="bg-white px-1 py-0.5 rounded border border-[#FF7054]/30 font-mono">backend/.env</code> for live web searching.
                   </p>
                   <div className="pt-1 flex items-center gap-2">
                     <button
                       onClick={() => handleStartScouting('demo')}
-                      className="btn-tactile-secondary px-2.5 py-1 rounded text-[11px] font-bold cursor-pointer"
+                      className="btn-tactile-secondary px-2.5 py-1 rounded text-xs font-bold cursor-pointer"
                     >
-                      Run with Offline Demo Simulation
+                      Run Offline Demo
                     </button>
                   </div>
                 </div>
@@ -795,63 +796,36 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
               {/* Form Input View (When not searching and no completed results) */}
               {!isSearching && !result && (
                 <div className="space-y-4">
-                  {/* Title & Introduction */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  {/* Clean Title */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                     <div>
-                      <h3 className="text-xl sm:text-2xl font-editorial font-bold text-[#17271F]">
-                        Who are your clients or ideal customers?
+                      <h3 className="text-lg sm:text-xl font-editorial font-bold text-[#17271F]">
+                        Who is your ideal customer?
                       </h3>
-                      <p className="text-xs text-[#4A5E52] mt-0.5 leading-relaxed">
-                        Describe your ideal customer below, pick from the dropdown menu, or select any of the suggestion archetypes.
+                      <p className="text-xs sm:text-sm text-[#4A5E52]">
+                        Pick a template or describe who you want to find.
                       </p>
                     </div>
 
-                    {/* Speed Badge */}
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#D8FF65]/30 border border-[#17271F] text-[11px] font-mono font-bold text-[#17271F] w-fit">
                       <Zap className="w-3.5 h-3.5 text-[#FF7054]" />
-                      <span>Speed: Parallel Web Queries (~5s)</span>
+                      <span>Live Web Search (~5s)</span>
                     </div>
                   </div>
 
-                  {/* 1. DROPDOWN MENU SUGGESTIONS */}
-                  <div className="bg-white border-2 border-[#17271F] rounded-xl p-3.5 shadow-[2px_2px_0px_#17271F] space-y-1.5">
-                    <label className="text-[11px] font-bold uppercase tracking-wider text-[#17271F] flex items-center justify-between">
-                      <span className="flex items-center gap-1.5">
-                        <Target className="w-3.5 h-3.5 text-[#FF7054]" />
-                        <span>Suggest in Dropdown Menu:</span>
-                      </span>
-                      <span className="text-[10px] font-mono text-[#4A5E52] lowercase font-normal">
-                        Select to auto-fill all boxes
-                      </span>
-                    </label>
-
-                    <select
-                      value={selectedArchetypeId}
-                      onChange={(e) => handleApplyArchetype(e.target.value)}
-                      className="w-full bg-[#FAF7F0] border-1.5 border-[#17271F] rounded-lg px-3 py-2 text-xs font-semibold text-[#17271F] focus:outline-none focus:ring-2 focus:ring-[#D8FF65] cursor-pointer"
-                    >
-                      <option value="">-- Choose a pre-built customer profile (or type in the box below) --</option>
-                      {CUSTOMER_ARCHETYPES.map((arch) => (
-                        <option key={arch.id} value={arch.id}>
-                          {arch.title} — {arch.category} ({arch.targetRoles})
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* 2. SUGGESTION BOXES (CLICKABLE CARDS) */}
+                  {/* QUICK TEMPLATES (CLEAN, COMPACT 6-CARD SELECTOR) */}
                   <div className="space-y-1.5">
-                    <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-wider text-[#4A5E52]">
-                      <span className="flex items-center gap-1.5">
+                    <div className="text-[11px] font-bold uppercase tracking-wider text-[#4A5E52] flex items-center justify-between">
+                      <span className="flex items-center gap-1">
                         <Sparkles className="w-3.5 h-3.5 text-[#FF7054]" />
-                        <span>Or click a Suggestion Box:</span>
+                        <span>Quick Templates:</span>
                       </span>
-                      <span className="font-mono text-[10px] font-normal lowercase">
-                        1-click instant fill
+                      <span className="font-mono text-[10px] font-normal lowercase text-[#4A5E52]">
+                        Click to auto-fill
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
                       {CUSTOMER_ARCHETYPES.map((arch) => {
                         const isSelected = selectedArchetypeId === arch.id;
                         return (
@@ -859,36 +833,18 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                             key={arch.id}
                             type="button"
                             onClick={() => handleApplyArchetype(arch.id)}
-                            className={`p-3 rounded-xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between ${
+                            className={`p-2.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
                               isSelected
-                                ? 'bg-[#D8FF65]/30 border-[#17271F] shadow-[3px_3px_0px_#17271F]'
-                                : 'bg-white border-[#17271F]/40 hover:border-[#17271F] hover:bg-[#FAF7F0] shadow-[1px_1px_0px_#17271F]'
+                                ? 'bg-[#D8FF65]/40 border-[#17271F] shadow-[2px_2px_0px_#17271F]'
+                                : 'bg-white border-[#17271F]/30 hover:border-[#17271F] hover:bg-[#FAF7F0]'
                             }`}
                           >
-                            <div className="space-y-1.5">
-                              <div className="flex items-start justify-between gap-1">
-                                <div className="flex items-center gap-2">
-                                  {renderArchetypeIcon(arch.iconType)}
-                                  <span className="font-bold text-xs text-[#17271F] leading-tight">
-                                    {arch.title}
-                                  </span>
-                                </div>
-                                <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-[#FAF7F0] border border-[#17271F]/40 shrink-0 text-[#17271F]">
-                                  {arch.badge}
-                                </span>
-                              </div>
-                              <p className="text-[11px] text-[#4A5E52] line-clamp-2 leading-relaxed">
-                                {arch.description}
-                              </p>
+                            <div className="flex items-center gap-1.5">
+                              {renderArchetypeIcon(arch.iconType)}
+                              <span className="font-bold text-xs text-[#17271F] truncate">{arch.title}</span>
                             </div>
-
-                            <div className="mt-2 pt-2 border-t border-[#17271F]/15 flex items-center justify-between text-[10px]">
-                              <span className="font-mono text-[#17271F] font-semibold truncate max-w-[170px]">
-                                👤 {arch.targetRoles}
-                              </span>
-                              <span className="text-[#FF7054] font-bold shrink-0">
-                                {isSelected ? '✓ Selected' : 'Select →'}
-                              </span>
+                            <div className="mt-1 text-[10px] text-[#4A5E52] font-mono truncate">
+                              {arch.targetRoles.split(',')[0]}
                             </div>
                           </button>
                         );
@@ -896,13 +852,14 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     </div>
                   </div>
 
-                  {/* 3. TARGET CLIENT / IDEAL CUSTOMER DESCRIPTION */}
-                  <div className="bg-white border-2 border-[#17271F] rounded-2xl p-5 shadow-[4px_4px_0px_#17271F] space-y-4">
+                  {/* MAIN INPUT CARD */}
+                  <div className="bg-white border-2 border-[#17271F] rounded-2xl p-4 sm:p-5 shadow-[3px_3px_0px_#17271F] space-y-3.5">
+                    {/* Customer Description */}
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-xs font-bold uppercase tracking-wider text-[#17271F] flex items-center gap-2">
-                          <span>Target Client / Ideal Customer:</span>
-                          <span className="text-[#FF7054] font-mono">* Required</span>
+                        <label className="text-xs sm:text-sm font-bold text-[#17271F] flex items-center gap-1.5">
+                          <span>Describe your target customer:</span>
+                          <span className="text-[#FF7054] font-mono">*</span>
                         </label>
 
                         {customerDescription && (
@@ -912,67 +869,50 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                               setCustomerDescription('');
                               setSelectedArchetypeId('');
                             }}
-                            className="text-[11px] text-[#FF7054] hover:underline flex items-center gap-1 cursor-pointer"
-                            title="Clear customer description"
+                            className="text-xs text-[#FF7054] hover:underline flex items-center gap-1 cursor-pointer"
                           >
                             <Trash2 className="w-3 h-3" />
-                            <span>Clear description</span>
+                            <span>Clear</span>
                           </button>
                         )}
                       </div>
 
-                      {/* Generous Space Textarea */}
                       <textarea
-                        rows={4}
+                        rows={3}
                         value={customerDescription}
                         onChange={(e) => {
                           setCustomerDescription(e.target.value);
                           if (validationError) setValidationError(null);
                         }}
-                        placeholder="Type your client or ideal customer in plain English... e.g. Early-stage B2B SaaS companies in India and the US with 10-50 employees that are hiring sales development representatives or account executives to scale pipeline."
-                        className={`w-full bg-[#FAF7F0] border-2 rounded-xl p-3.5 text-xs text-[#17271F] leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#D8FF65] transition-all ${
+                        placeholder="e.g. Early-stage B2B SaaS companies in the US or India with 10–50 employees hiring sales reps..."
+                        className={`w-full bg-[#FAF7F0] border rounded-xl p-3 text-xs sm:text-sm text-[#17271F] leading-relaxed focus:outline-none focus:ring-2 focus:ring-[#D8FF65] transition-all ${
                           validationError ? 'border-[#FF7054] bg-[#FFEAE5]/40' : 'border-[#17271F]'
                         }`}
                       />
 
-                      {/* Validation Error Message */}
                       {validationError && (
-                        <div className="mt-2 text-xs font-semibold text-[#FF7054] flex items-center gap-1.5 animate-in fade-in">
+                        <div className="mt-2 text-xs font-semibold text-[#FF7054] flex items-center gap-1.5">
                           <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                           <span>{validationError}</span>
                         </div>
                       )}
                     </div>
 
-                    {/* Quick Space Parameter Boxes */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-[#E2D9C8]">
+                    {/* Key Targeting Parameters (2 Columns) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[#E2D9C8]">
                       <div>
-                        <label className="block text-[11px] font-bold text-[#17271F] mb-1">
-                          Target Client / Specific Company (Optional)
-                        </label>
-                        <input
-                          type="text"
-                          value={clientNameOrTarget}
-                          onChange={(e) => setClientNameOrTarget(e.target.value)}
-                          placeholder="e.g. Stripe, Postman, or 'Seed stage tech startups'"
-                          className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-3 py-2 text-xs text-[#17271F] focus:outline-none"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-[#17271F] mb-1">
-                          Target Roles (Job Titles)
+                        <label className="block text-xs font-bold text-[#17271F] mb-1">
+                          Target Buyer Roles
                         </label>
                         <input
                           type="text"
                           value={targetRoles}
                           onChange={(e) => setTargetRoles(e.target.value)}
-                          placeholder="e.g. Founder, VP of Sales, CTO, Head of Growth"
-                          className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-3 py-2 text-xs text-[#17271F] focus:outline-none"
+                          placeholder="e.g. Founder, VP Sales, CTO, Head of Growth"
+                          className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-3 py-2 text-xs sm:text-sm text-[#17271F] focus:outline-none"
                         />
-                        {/* Quick Role Tags */}
                         <div className="flex flex-wrap gap-1 mt-1.5">
-                          {['Founder / CEO', 'VP of Sales', 'CTO', 'Head of Growth'].map((role) => (
+                          {['Founder', 'VP Sales', 'CTO', 'Head of Growth'].map((role) => (
                             <button
                               key={role}
                               type="button"
@@ -984,6 +924,19 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                           ))}
                         </div>
                       </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-[#17271F] mb-1">
+                          Company or Keyword (Optional)
+                        </label>
+                        <input
+                          type="text"
+                          value={clientNameOrTarget}
+                          onChange={(e) => setClientNameOrTarget(e.target.value)}
+                          placeholder="e.g. Stripe, or 'Series A startups'"
+                          className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-3 py-2 text-xs sm:text-sm text-[#17271F] focus:outline-none"
+                        />
+                      </div>
                     </div>
 
                     {/* Collapsible Refinements Accordion */}
@@ -994,21 +947,21 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                         className="text-xs font-semibold text-[#17271F] hover:text-[#FF7054] flex items-center gap-1.5 cursor-pointer"
                       >
                         <Sliders className="w-3.5 h-3.5 text-[#FF7054]" />
-                        <span>{showRefinements ? "Hide Refinements (Industry, Location, Exclusions)" : "+ Add More Refinements (Industry, Location, Exclusions)"}</span>
+                        <span>{showRefinements ? "Hide filters" : "+ More filters (Industry, Location, Exclusions)"}</span>
                       </button>
 
                       {showRefinements && (
-                        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 animate-in fade-in duration-150 text-xs">
+                        <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs animate-in fade-in duration-150">
                           <div>
-                            <label className="block text-[11px] font-bold text-[#4A5E52] mb-1">
-                              Industry or Category
+                            <label className="block text-xs font-bold text-[#4A5E52] mb-1">
+                              Industry
                             </label>
                             <input
                               type="text"
                               value={industry}
                               onChange={(e) => setIndustry(e.target.value)}
-                              placeholder="e.g. Developer Tools, Healthcare, FinTech"
-                              className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs text-[#17271F] focus:outline-none"
+                              placeholder="e.g. Developer Tools, B2B SaaS, FinTech"
+                              className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-[#17271F] focus:outline-none"
                             />
                             <div className="flex flex-wrap gap-1 mt-1.5">
                               {['B2B SaaS', 'DevTools', 'AI Startups', 'FinTech'].map((ind) => (
@@ -1025,28 +978,28 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                           </div>
 
                           <div>
-                            <label className="block text-[11px] font-bold text-[#4A5E52] mb-1">
-                              Target Geography / Location
+                            <label className="block text-xs font-bold text-[#4A5E52] mb-1">
+                              Location
                             </label>
                             <input
                               type="text"
                               value={location}
                               onChange={(e) => setLocation(e.target.value)}
                               placeholder="e.g. United States, India, Remote"
-                              className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs text-[#17271F] focus:outline-none"
+                              className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-[#17271F] focus:outline-none"
                             />
                           </div>
 
                           <div>
-                            <label className="block text-[11px] font-bold text-[#4A5E52] mb-1">
-                              Buying-Intent Signal or Trigger
+                            <label className="block text-xs font-bold text-[#4A5E52] mb-1">
+                              Buying Signal / Trigger
                             </label>
                             <input
                               type="text"
                               value={buyingIntent}
                               onChange={(e) => setBuyingIntent(e.target.value)}
-                              placeholder="e.g. Hiring engineers, migrating cloud, recent funding"
-                              className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs text-[#17271F] focus:outline-none"
+                              placeholder="e.g. Hiring sales reps, recent funding, scaling"
+                              className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-[#17271F] focus:outline-none"
                             />
                             <div className="flex flex-wrap gap-1 mt-1.5">
                               {['Hiring SDRs', 'Recent Funding', 'Product Launch'].map((sig) => (
@@ -1063,26 +1016,25 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                           </div>
 
                           <div>
-                            <label className="block text-[11px] font-bold text-[#4A5E52] mb-1">
-                              Exclusions to Disqualify
+                            <label className="block text-xs font-bold text-[#4A5E52] mb-1">
+                              Exclusions
                             </label>
                             <input
                               type="text"
                               value={exclusions}
                               onChange={(e) => setExclusions(e.target.value)}
-                              placeholder="e.g. Agencies, non-profits, consulting firms"
-                              className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs text-[#17271F] focus:outline-none"
+                              placeholder="e.g. Agencies, consultancies, retail"
+                              className="w-full bg-[#FAF7F0] border border-[#17271F] rounded-lg px-2.5 py-1.5 text-xs sm:text-sm text-[#17271F] focus:outline-none"
                             />
                           </div>
                         </div>
                       )}
                     </div>
 
-                    {/* Fast Search Speed Control */}
+                    {/* Search Depth Selector */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-3 border-t border-[#E2D9C8]">
                       <div>
-                        <span className="text-xs font-bold text-[#17271F]">Discovery Speed: </span>
-                        <span className="text-[11px] text-[#4A5E52]">Fast scan returns top matches in seconds</span>
+                        <span className="text-xs font-bold text-[#17271F]">Prospects to find:</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -1095,7 +1047,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                           }`}
                         >
                           <Zap className="w-3.5 h-3.5 text-[#FF7054]" />
-                          <span>⚡ Fast (2 leads, ~5s)</span>
+                          <span>⚡ Fast (2 leads · ~5s)</span>
                         </button>
 
                         <button
@@ -1108,7 +1060,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                           }`}
                         >
                           <Search className="w-3.5 h-3.5 text-[#9DE3D0]" />
-                          <span>🔍 Deep (3 leads, ~10s)</span>
+                          <span>🔍 Deep (3 leads · ~10s)</span>
                         </button>
                       </div>
                     </div>
@@ -1120,7 +1072,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                       <AlertCircle className="w-4 h-4 text-[#FF7054] shrink-0 mt-0.5" />
                       <div>
                         <span className="font-bold text-[#FF7054]">Search could not be completed: </span>
-                        <p className="mt-0.5 text-[11px] leading-relaxed">{searchError}</p>
+                        <p className="mt-0.5 text-xs leading-relaxed">{searchError}</p>
                       </div>
                     </div>
                   )}
@@ -1129,21 +1081,21 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
 
               {/* LIVELY REAL-TIME SEARCHING PROGRESS VIEW */}
               {isSearching && (
-                <div className="py-8 px-5 text-center space-y-6 bg-white border-2 border-[#17271F] rounded-2xl shadow-[5px_5px_0px_#17271F]">
+                <div className="py-8 px-5 text-center space-y-5 bg-white border-2 border-[#17271F] rounded-2xl shadow-[4px_4px_0px_#17271F]">
                   <ScoutMascot expression="thinking" size="xl" animate={true} />
                   
-                  <div className="space-y-2 max-w-lg mx-auto">
+                  <div className="space-y-1.5 max-w-lg mx-auto">
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#17271F] text-[#9DE3D0] text-xs font-mono font-bold animate-pulse">
                       <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#D8FF65]" />
-                      <span>Parallel Live Web Discovery in Progress</span>
+                      <span>Searching the Live Web</span>
                     </div>
 
-                    <h3 className="text-xl font-editorial font-bold text-[#17271F]">
-                      Searching Public Web & Scoring Candidates...
+                    <h3 className="text-xl sm:text-2xl font-editorial font-bold text-[#17271F]">
+                      Finding matching companies...
                     </h3>
                     
-                    <p className="text-xs text-[#4A5E52] leading-relaxed">
-                      Executing parallel web searches via Tavily, reading company articles, and scoring matches against your criteria.
+                    <p className="text-xs sm:text-sm text-[#4A5E52]">
+                      Reading public sources, checking fit, and verifying evidence.
                     </p>
                   </div>
 
@@ -1155,31 +1107,26 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                         style={{ width: `${getSearchProgress(searchElapsedSeconds, searchStepIndex)}%` }}
                       />
                     </div>
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between text-[11px] font-mono text-[#4A5E52] gap-1">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-[#4A5E52] gap-1">
                       <span className="flex items-center gap-1 font-bold text-[#17271F]">
-                        <Clock className="w-3 h-3 text-[#FF7054]" />
+                        <Clock className="w-3.5 h-3.5 text-[#FF7054]" />
                         <span>Elapsed: {searchElapsedSeconds}s</span>
                       </span>
                       <span>
                         Estimated total: <strong className="text-[#17271F]">{timingInfo.label}</strong>
                       </span>
                     </div>
-                    {timingInfo.note && (
-                      <div className="text-[10px] font-mono text-[#FF7054] text-right">
-                        ● {timingInfo.note}
-                      </div>
-                    )}
                   </div>
 
                   {/* Step-by-Step Status Checklist */}
-                  <div className="max-w-md mx-auto pt-1 space-y-2 text-left text-xs font-mono">
+                  <div className="max-w-md mx-auto pt-1 space-y-1.5 text-left text-xs font-mono">
                     {honestSearchSteps.map((step, idx) => {
                       const isCurrent = idx === searchStepIndex;
                       const isDone = idx < searchStepIndex;
                       return (
                         <div
                           key={idx}
-                          className={`p-2.5 rounded-xl border transition-all flex items-center justify-between ${
+                          className={`p-2 rounded-xl border transition-all flex items-center justify-between ${
                             isCurrent
                               ? 'bg-[#D8FF65]/30 border-[#17271F] text-[#17271F] font-bold shadow-xs'
                               : isDone
@@ -1188,7 +1135,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                           }`}
                         >
                           <div className="flex items-center gap-2.5">
-                            <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${
                               isCurrent ? 'bg-[#FF7054] animate-ping' : isDone ? 'bg-[#9DE3D0]' : 'bg-[#E2D9C8]'
                             }`} />
                             <span>{step.label}</span>
@@ -1209,24 +1156,24 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-[10px] uppercase font-bold font-mono px-2 py-0.5 rounded bg-[#9DE3D0] text-[#17271F] border border-[#17271F]">
-                          {result.mode === 'live' ? 'Live Web Results' : 'Demo Results'}
+                          {result.mode === 'live' ? 'Live Web' : 'Demo'}
                         </span>
                         <span className="text-xs font-semibold text-[#4A5E52] font-mono">
                           {completedElapsedSeconds !== null && (
-                            <span className="text-[#17271F] font-bold">Finished in {completedElapsedSeconds}s • </span>
+                            <span className="text-[#17271F] font-bold">{completedElapsedSeconds}s • </span>
                           )}
-                          {result.totalSourcesFound} websites read • {result.candidatesSaved} matching leads saved • {result.candidatesRejected ?? 0} skipped
+                          {result.totalSourcesFound} sources • {result.candidatesSaved} matching leads
                         </span>
                       </div>
-                      <h3 className="text-xl font-editorial font-bold text-[#17271F] mt-1.5">
+                      <h3 className="text-lg sm:text-xl font-editorial font-bold text-[#17271F] mt-1">
                         {result.candidatesSaved > 0 
-                          ? `Found ${result.candidatesSaved} Companies Matching Your Target`
-                          : 'Search Finished — No Matching Companies Found'}
+                          ? `Found ${result.candidatesSaved} Potential Customers`
+                          : 'No Matching Companies Found'}
                       </h3>
-                      <p className="text-xs text-[#4A5E52] mt-0.5">
+                      <p className="text-xs sm:text-sm text-[#4A5E52] mt-0.5">
                         {result.candidatesSaved > 0
-                          ? 'Each company is backed by verified public evidence with zero hallucinated facts.'
-                          : 'Try broadening your description or removing location/size constraints.'}
+                          ? 'Verified with public web evidence. Ready to review and add to pipeline.'
+                          : 'Try broadening your description or removing location/role constraints.'}
                       </p>
                     </div>
 
@@ -1272,17 +1219,17 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                                 </div>
                                 <div>
                                   <div className="flex items-center gap-2 flex-wrap">
-                                    <h4 className="text-base font-editorial font-bold text-[#17271F]">
+                                    <h4 className="text-base sm:text-lg font-editorial font-bold text-[#17271F]">
                                       {candidate.companyName}
                                     </h4>
-                                    <span className="sticker-badge bg-[#FAF7F0] text-[#17271F] border-[#17271F] text-[9px]">
+                                    <span className="sticker-badge bg-[#FAF7F0] text-[#17271F] border-[#17271F] text-[10px]">
                                       {candidate.fitLevel}
                                     </span>
-                                    <span className="sticker-badge bg-[#9DE3D0] text-[#17271F] border-[#17271F] text-[9px] font-mono">
+                                    <span className="sticker-badge bg-[#9DE3D0] text-[#17271F] border-[#17271F] text-[10px] font-mono">
                                       {candidate.provenance === 'researched' ? 'Verified Live Web' : 'Demo Record'}
                                     </span>
                                   </div>
-                                  <p className="text-xs text-[#4A5E52] mt-0.5 line-clamp-2">
+                                  <p className="text-xs sm:text-sm text-[#4A5E52] mt-1 line-clamp-2">
                                     {candidate.summary}
                                   </p>
                                 </div>
@@ -1318,7 +1265,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                                   }}
                                   className="btn-tactile-secondary px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
                                 >
-                                  <span>Open Dossier</span>
+                                  <span>View Dossier</span>
                                   <ChevronRight className="w-3.5 h-3.5" />
                                 </button>
                               </div>
@@ -1326,14 +1273,14 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
 
                             {/* Verified Facts Preview */}
                             {candidate.observedFacts && candidate.observedFacts.length > 0 && (
-                              <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#17271F]/20 space-y-1.5 text-xs">
+                              <div className="p-3 bg-[#FAF7F0] rounded-xl border border-[#17271F]/20 space-y-1 text-xs">
                                 <div className="text-[10px] font-mono uppercase font-bold text-[#FF7054] flex items-center gap-1">
                                   <Globe className="w-3 h-3" />
-                                  <span>Verified Evidence ({candidate.observedFacts.length} Clues):</span>
+                                  <span>Verified Facts ({candidate.observedFacts.length}):</span>
                                 </div>
                                 <ul className="space-y-1 text-[#17271F]">
                                   {candidate.observedFacts.slice(0, 2).map((fact, idx) => (
-                                    <li key={idx} className="flex items-start gap-1.5 text-[11px]">
+                                    <li key={idx} className="flex items-start gap-1.5 text-xs">
                                       <span className="text-green-600 font-bold shrink-0">✓</span>
                                       <span className="line-clamp-2">{fact.fact}</span>
                                       {fact.sourceUrl && (
@@ -1344,7 +1291,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                                           className="text-[#FF7054] hover:underline shrink-0 flex items-center ml-1"
                                           title={fact.sourceUrl}
                                         >
-                                          <ExternalLink className="w-2.5 h-2.5" />
+                                          <ExternalLink className="w-3 h-3" />
                                         </a>
                                       )}
                                     </li>
@@ -1364,16 +1311,16 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
 
           {/* TAB 2: STEP-BY-STEP DEMO WALKTHROUGH */}
           {activeTab === 'demo' && (
-            <div className="space-y-6">
+            <div className="space-y-5">
               <div className="space-y-1">
                 <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#FF7054]">
-                  Interactive Walkthrough
+                  Interactive Tour
                 </span>
-                <h3 className="text-2xl font-editorial font-bold text-[#17271F]">
-                  How Scout Finds Qualified Companies
+                <h3 className="text-xl sm:text-2xl font-editorial font-bold text-[#17271F]">
+                  How Scout Finds Customers
                 </h3>
-                <p className="text-xs text-[#4A5E52] leading-relaxed">
-                  See the exact 4-stage reasoning pipeline ScoutSpark uses to gather clues, verify facts, calculate match scores, and draft human-approved messages.
+                <p className="text-xs sm:text-sm text-[#4A5E52]">
+                  A 4-step walkthrough of Scout's evidence-grounded research pipeline.
                 </p>
               </div>
 
@@ -1385,8 +1332,8 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     {isDemoRunning 
                       ? `Stage ${demoStep + 1} of ${demoSteps.length} · Auto-advancing in ~${demoCountdown}s`
                       : demoStep === demoSteps.length - 1
-                      ? `Stage ${demoStep + 1} of ${demoSteps.length} · Walkthrough Complete`
-                      : `Stage ${demoStep + 1} of ${demoSteps.length} · Simulator Paused`}
+                      ? `Stage ${demoStep + 1} of ${demoSteps.length} · Complete`
+                      : `Stage ${demoStep + 1} of ${demoSteps.length} · Paused`}
                   </span>
                 </div>
 
@@ -1406,17 +1353,17 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     {isDemoRunning ? (
                       <>
                         <Pause className="w-3.5 h-3.5 text-[#FF7054]" />
-                        <span>Pause Simulator</span>
+                        <span>Pause</span>
                       </>
                     ) : demoStep === demoSteps.length - 1 ? (
                       <>
                         <RotateCcw className="w-3.5 h-3.5 text-[#17271F]" />
-                        <span>Replay Walkthrough</span>
+                        <span>Replay</span>
                       </>
                     ) : (
                       <>
                         <Play className="w-3.5 h-3.5 text-green-700" />
-                        <span>Auto-Play Simulator</span>
+                        <span>Play Tour</span>
                       </>
                     )}
                   </button>
@@ -1456,16 +1403,16 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
               </div>
 
               {/* Active Step Content Card */}
-              <div className="bg-white border-2 border-[#17271F] rounded-2xl p-6 shadow-[4px_4px_0px_#17271F] space-y-4">
-                <div className="flex items-start justify-between gap-4 border-b border-[#E2D9C8] pb-4">
+              <div className="bg-white border-2 border-[#17271F] rounded-2xl p-5 sm:p-6 shadow-[3px_3px_0px_#17271F] space-y-3.5">
+                <div className="flex items-start justify-between gap-4 border-b border-[#E2D9C8] pb-3.5">
                   <div>
                     <span className="sticker-badge bg-[#D8FF65] text-[#17271F] border-[#17271F] text-[10px]">
                       {currentDemo.badge}
                     </span>
-                    <h4 className="text-xl font-editorial font-bold text-[#17271F] mt-1.5">
+                    <h4 className="text-lg sm:text-xl font-editorial font-bold text-[#17271F] mt-1.5">
                       {currentDemo.title}
                     </h4>
-                    <p className="text-xs text-[#4A5E52]">
+                    <p className="text-xs sm:text-sm text-[#4A5E52] mt-0.5">
                       {currentDemo.subtitle}
                     </p>
                   </div>
@@ -1475,13 +1422,13 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
 
                 <div className="space-y-2">
                   <div className="text-xs font-bold uppercase tracking-wider text-[#17271F]">
-                    Audited Details & Evidence:
+                    Verified Clues:
                   </div>
                   <div className="space-y-2">
                     {currentDemo.details.map((detail, idx) => (
                       <div
                         key={idx}
-                        className="p-3 bg-[#FAF7F0] rounded-xl border border-[#17271F]/20 text-xs text-[#17271F] flex items-start gap-2"
+                        className="p-3 bg-[#FAF7F0] rounded-xl border border-[#17271F]/20 text-xs sm:text-sm text-[#17271F] flex items-start gap-2"
                       >
                         <span className="font-bold text-[#FF7054] mt-0.5">•</span>
                         <span>{detail}</span>
@@ -1495,10 +1442,10 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
         </div>
 
         {/* Modal Footer Controls */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3 sm:py-4 bg-[#F7F2E8] border-t border-[#17271F]/20 shrink-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 px-4 sm:px-6 py-3.5 bg-[#F7F2E8] border-t border-[#17271F]/20 shrink-0">
           <div className="text-xs text-[#4A5E52]">
             {activeTab === 'live' ? (
-              <span>Human-in-the-loop: Every message requires your explicit review.</span>
+              <span>Grounded in public web evidence. You approve every message.</span>
             ) : (
               <span>Step {demoStep + 1} of {demoSteps.length}</span>
             )}
@@ -1513,9 +1460,9 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                       setResult(null);
                       setSearchError(null);
                     }}
-                    className="btn-tactile-secondary px-3.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer"
+                    className="btn-tactile-secondary px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer"
                   >
-                    Refine & Search Again
+                    Search Again
                   </button>
 
                   <button
@@ -1523,10 +1470,10 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                       onClose();
                       if (onNavigateToTab) onNavigateToTab('pipeline');
                     }}
-                    className="btn-tactile-coral px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-[2px_2px_0px_#17271F]"
+                    className="btn-tactile-coral px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer shadow-[2px_2px_0px_#17271F]"
                   >
-                    <Kanban className="w-3.5 h-3.5" />
-                    <span>Done & View in Pipeline</span>
+                    <Kanban className="w-4 h-4" />
+                    <span>Open in Pipeline →</span>
                   </button>
 
                   <button
@@ -1534,7 +1481,7 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                       onClose();
                       if (onNavigateToTab) onNavigateToTab('prospects');
                     }}
-                    className="btn-tactile-secondary px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer"
+                    className="btn-tactile-secondary px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1 cursor-pointer"
                   >
                     <Users className="w-3.5 h-3.5" />
                     <span>View All Leads</span>
@@ -1544,18 +1491,18 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                 <button
                   onClick={() => handleStartScouting()}
                   disabled={isSearching}
-                  className="btn-tactile-coral px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-[2px_2px_0px_#17271F]"
+                  className="btn-tactile-coral px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 disabled:opacity-50 cursor-pointer shadow-[2px_2px_0px_#17271F]"
                 >
                   {isSearching ? (
                     <>
-                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <RefreshCw className="w-4 h-4 animate-spin" />
                       <span>Searching Live Web ({searchElapsedSeconds}s)...</span>
                     </>
                   ) : (
                     <>
-                      <Sparkles className="w-3.5 h-3.5 text-[#D8FF65]" />
-                      <span>Find Your Client & Ideal Customer</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
+                      <Sparkles className="w-4 h-4 text-[#D8FF65]" />
+                      <span>Find Potential Customers</span>
+                      <ArrowRight className="w-4 h-4" />
                     </>
                   )}
                 </button>
@@ -1568,9 +1515,9 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     setDemoStep(prev => prev + 1);
                     setIsDemoRunning(false);
                   }}
-                  className="btn-tactile-secondary px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                  className="btn-tactile-secondary px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold flex items-center gap-1.5 cursor-pointer"
                 >
-                  Next Step <ArrowRight className="w-3.5 h-3.5" />
+                  Next Step <ArrowRight className="w-4 h-4" />
                 </button>
               ) : (
                 <button
@@ -1578,9 +1525,9 @@ export const GuidedDiscoveryModal: React.FC<GuidedDiscoveryModalProps> = ({
                     onClose();
                     onSelectProspect(targetProspect);
                   }}
-                  className="btn-tactile-coral px-4 py-2 rounded-lg text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+                  className="btn-tactile-coral px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 cursor-pointer shadow-[2px_2px_0px_#17271F]"
                 >
-                  <Sparkles className="w-3.5 h-3.5" /> Open Elena's Lead Profile
+                  <Sparkles className="w-4 h-4 text-[#D8FF65]" /> View Sample Prospect
                 </button>
               )
             )}
